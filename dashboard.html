@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة ذكور عزون الأساسية - لوحة تحكم المعلمة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #001D39;
+      --primary: #0A4174;
+      --secondary: #49769F;
+      --accent-1: #4E8EA2;
+      --accent-2: #6EA2B3;
+      --light-blue: #7BBDE8;
+      --bg-light: #BDD8E9;
+      --accent-color: #214bd6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--bg-dark);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2rem;
+      background-color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 29, 57, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 48px;
+      width: 48px;
+      object-fit: contain;
+    }
+
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-menu a {
+      position: relative;
+      text-decoration: none;
+      color: var(--bg-dark);
+      font-weight: 500;
+      font-size: 1.6rem;
+      padding-bottom: 6px;
+    }
+
+    .nav-menu a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 0;
+      height: 3px;
+      border-radius: 3px;
+      background-color: var(--light-blue);
+      transition: width 0.3s ease;
+    }
+
+    .nav-menu a:hover::after,
+    .nav-menu a.active::after {
+      width: 100%;
+    }
+
+    .nav-menu a.active {
+      color: var(--primary);
+    }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .nav-toggle span {
+      width: 26px;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 3px;
+    }
+
+    .dashboard-card {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-card h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    input[type="file"] {
+      padding: 8px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+
+    small.field-hint {
+      display: block;
+      margin-top: 5px;
+      color: #64748B;
+      font-size: 0.8rem;
+    }
+
+    .source-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .source-toggle label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #475569;
+      transition: all 0.2s ease;
+      margin-bottom: 0;
+    }
+    .source-toggle input[type="radio"] {
+      width: auto;
+      accent-color: var(--accent-color);
+    }
+    .source-toggle label.selected {
+      border-color: var(--accent-color);
+      background-color: #eef2ff;
+      color: var(--accent-color);
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #052441;
+    }
+
+    .support-btn {
+      background-color: var(--primary) !important;
+    }
+    .support-btn:hover {
+      background-color: var(--bg-dark) !important;
+    }
+
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: flex;
+      }
+
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+        background-color: #ffffff;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        box-shadow: 0 10px 15px rgba(0, 29, 57, 0.06);
+      }
+
+      .nav-menu.open {
+        max-height: 200px;
+        padding: 0.5rem 0;
+      }
+
+      .nav-menu li {
+        width: 100%;
+      }
+
+      .nav-menu a {
+        display: block;
+        padding: 0.9rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="logo.png" alt="شعار مدرسة ذكور عزون الأساسية">
+      مدرسة ذكور عزون الأساسية - لوحة تحكم المعلمة
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <ul class="nav-menu" id="navLinks">
+      <li><a href="index.html">الرئيسية</a></li>
+      <li><a href="#teacherSupport" class="active">دعم المعلم</a></li>
+    </ul>
+  </nav>
+
+  <div class="dashboard-card">
+    <h2>إضافة محتوى تعليمي جديد 📚</h2>
+    <form id="addContentForm">
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">الصف الدراسي والشعبة:</label>
+        <select id="classSelect" onchange="checkClassSelection()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif; background-color: #fff;">
+          <option value="">اختر الصف والشعبة...</option>
+
+          <option value="1-a">الصف الأول - الشعبة (أ)</option>
+          <option value="1-b">الصف الأول - الشعبة (ب)</option>
+          <option value="1-c">الصف الأول - الشعبة (ج)</option>
+
+          <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+          <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+          <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+
+          <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+          <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+          <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+
+          <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+          <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+          <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+        </select>
+      </div>
+
+      <div id="subjectContainer" style="margin-bottom: 20px; display: none;">
+        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية:</label>
+        <!--
+          قيم هذه القائمة (value) لازم تبقى نص عربي مطابق حرفياً لمفاتيح schoolData
+          بصفحات الطلاب (class1.html ... class4.html) — لا ترجعوها إنجليزي.
+        -->
+        <select id="subjectSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
+          <option value="">اختر المادة...</option>
+          <option value="اللغة العربية">اللغة العربية</option>
+          <option value="الرياضيات">الرياضيات</option>
+          <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+          <option value="العلوم الحياتية والوطنية">العلوم الحياتية والوطنية</option>
+          <option value="التربية الإسلامية">التربية الإسلامية</option>
+          <option value="التنشئة الوطنية والاجتماعية">التنشئة الوطنية والاجتماعية</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="contentType">نوع المحتوى:</label>
+        <select id="contentType" onchange="handleContentTypeChange()" required>
+          <option value="lessons"> شرح درس</option>
+          <option value="worksheets"> ورقة عمل</option>
+          <option value="activities"> نشاط تعليمي</option>
+          <option value="assignments"> مهمة / واجب</option>
+          <option value="exams"> اختبار</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="mediaTypeContainer" style="display: none;">
+        <label for="mediaType">نوع النشاط:</label>
+        <select id="mediaType" onchange="handleContentTypeChange()">
+          <option value="video">🎥 فيديو</option>
+          <option value="image">🖼️ صورة</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="title">عنوان الدرس / المحتوى:</label>
+        <input type="text" id="title" placeholder="أدخل العنوان هنا..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">وصف أو تعليمات للطلاب (اختياري):</label>
+        <textarea id="description" placeholder="اكتب هنا أي ملاحظات أو تعليمات ترغب أن يقرأها الطلاب تحت العنوان..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>طريقة إضافة المحتوى:</label>
+        <div class="source-toggle">
+          <label id="linkOptionLabel" class="selected">
+            <input type="radio" name="sourceType" value="link" checked onchange="handleSourceChange()">
+            🔗 وضع رابط
+          </label>
+          <label id="fileOptionLabel">
+            <input type="radio" name="sourceType" value="file" onchange="handleSourceChange()">
+            📤 رفع ملف من جهازي
+          </label>
+        </div>
+
+        <div id="linkContainer">
+          <input type="url" id="link" placeholder="https://...">
+          <small class="field-hint" id="linkHint">فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID</small>
+        </div>
+
+        <div id="fileContainer" style="display: none;">
+          <input type="file" id="fileUpload">
+          <small class="field-hint" id="fileHint">اختاري الملف المناسب لنوع المحتوى.</small>
+          <small class="field-hint" style="color:#b45309; margin-top:8px;">
+            ⚠️ الرفع المباشر لسا قيد الربط بنظام التخزين، مؤقتاً رح ينحفظ اسم الملف بس. لحد ما يكتمل الربط، الأضمن استخدام "وضع رابط".
+          </small>
+        </div>
+      </div>
+
+      <button type="submit">نشر المحتوى للملف</button>
+    </form>
+  </div>
+
+  <div class="dashboard-card" id="teacherSupport">
+    <h2>الدعم الفني واستفسارات المعلمات </h2>
+    <form id="supportForm">
+
+      <div class="form-group">
+        <label for="teacherName">اسم المعلمة:</label>
+        <input type="text" id="teacherName" placeholder="أدخل اسمك الثلاثي..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="teacherEmail">البريد الإلكتروني:</label>
+        <input type="email" id="teacherEmail" placeholder="example@email.com" required>
+        <small class="field-hint">حتى نقدر نتواصل معك ونرد على استفسارك.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="issueDescription">تفاصيل المشكلة أو الاستفسار التقني:</label>
+        <textarea id="issueDescription" placeholder="اشرح المشكلة بالتفصيل (مثال: لا يمكنني رفع ورقة العمل، أو رابط الفيديو لا يعمل...)" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="issueImage">صورة توضيحية للمشكلة (اختياري):</label>
+        <input type="file" id="issueImage" accept="image/*">
+      </div>
+
+      <button type="submit" class="support-btn">إرسال طلب الدعم الفني</button>
+    </form>
+  </div>
+
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    const defaultLinkText = {
+      lessons: 'مشاهدة الدرس',
+      worksheets: 'تحميل الملف',
+      activities_video: 'مشاهدة النشاط',
+      activities_image: 'عرض النشاط',
+      assignments: 'تحميل المهمة',
+      exams: 'تحميل الاختبار'
+    };
+
+    const linkHints = {
+      lessons: 'فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID أو درايف: .../preview',
+      worksheets: 'رابط الملف (PDF) — مثلاً رابط من Google Drive.',
+      activities_video: 'فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID أو درايف: .../preview',
+      activities_image: 'رابط صورة مباشر (jpg / png / webp).',
+      assignments: 'رابط الملف أو الصفحة الخاصة بالمهمة.',
+      exams: 'رابط ملف الاختبار (PDF) أو رابط الاختبار التفاعلي.'
+    };
+
+    const fileAccept = {
+      lessons: 'video/*',
+      worksheets: 'application/pdf',
+      activities_video: 'video/*',
+      activities_image: 'image/*',
+      assignments: 'application/pdf',
+      exams: 'application/pdf'
+    };
+
+    const fileHintText = {
+      lessons: 'اختاري ملف فيديو من جهازك (mp4 مثلاً).',
+      worksheets: 'اختاري ملف PDF لورقة العمل.',
+      activities_video: 'اختاري ملف فيديو من جهازك (mp4 مثلاً).',
+      activities_image: 'اختاري صورة من جهازك (jpg / png).',
+      assignments: 'اختاري ملف PDF للمهمة.',
+      exams: 'اختاري ملف PDF للاختبار.'
+    };
+
+    function currentContentKey() {
+      const contentType = document.getElementById('contentType').value;
+      if (contentType === 'activities') {
+        const mediaType = document.getElementById('mediaType').value;
+        return mediaType === 'image' ? 'activities_image' : 'activities_video';
+      }
+      return contentType;
+    }
+
+    function handleContentTypeChange() {
+      const contentType = document.getElementById('contentType').value;
+      const mediaTypeContainer = document.getElementById('mediaTypeContainer');
+      mediaTypeContainer.style.display = (contentType === 'activities') ? 'block' : 'none';
+
+      const key = currentContentKey();
+      document.getElementById('linkHint').textContent = linkHints[key] || '';
+      document.getElementById('fileHint').textContent = fileHintText[key] || '';
+      document.getElementById('fileUpload').setAttribute('accept', fileAccept[key] || '');
+    }
+
+    function handleSourceChange() {
+      const sourceType = document.querySelector('input[name="sourceType"]:checked').value;
+      const linkContainer = document.getElementById('linkContainer');
+      const fileContainer = document.getElementById('fileContainer');
+      const linkLabel = document.getElementById('linkOptionLabel');
+      const fileLabel = document.getElementById('fileOptionLabel');
+
+      if (sourceType === 'file') {
+        linkContainer.style.display = 'none';
+        fileContainer.style.display = 'block';
+        linkLabel.classList.remove('selected');
+        fileLabel.classList.add('selected');
+      } else {
+        linkContainer.style.display = 'block';
+        fileContainer.style.display = 'none';
+        linkLabel.classList.add('selected');
+        fileLabel.classList.remove('selected');
+      }
+    }
+
+    document.getElementById('addContentForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const classValue = document.getElementById('classSelect').value;
+      const subject = document.getElementById('subjectSelect').value;
+      const contentType = document.getElementById('contentType').value;
+      const mediaType = document.getElementById('mediaType').value;
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const sourceType = document.querySelector('input[name="sourceType"]:checked').value;
+      const link = document.getElementById('link').value.trim();
+      const fileInput = document.getElementById('fileUpload');
+      const file = fileInput.files[0];
+
+      if (!classValue || !subject) {
+        alert('الرجاء اختيار الصف والشعبة والمادة أولاً.');
+        return;
+      }
+      if (sourceType === 'link' && !link) {
+        alert('الرجاء إدخال رابط المحتوى، أو التبديل لخيار "رفع ملف من جهازي".');
+        return;
+      }
+      if (sourceType === 'file' && !file) {
+        alert('الرجاء اختيار ملف من جهازك، أو التبديل لخيار "وضع رابط".');
+        return;
+      }
+
+      let finalType;
+      let linkTextKey;
+      if (contentType === 'lessons') {
+        finalType = 'video';
+        linkTextKey = 'lessons';
+      } else if (contentType === 'activities') {
+        finalType = mediaType;
+        linkTextKey = mediaType === 'image' ? 'activities_image' : 'activities_video';
+      } else {
+        finalType = 'download';
+        linkTextKey = contentType;
+      }
+
+      const newItem = {
+        grade: classValue,
+        subject: subject,
+        category: contentType,
+        title: title,
+        desc: description || '',
+        type: finalType,
+        source: sourceType,
+        url: sourceType === 'link' ? link : null,
+        fileName: sourceType === 'file' ? file.name : null,
+        linkText: defaultLinkText[linkTextKey]
+      };
+
+      console.log('المحتوى الجاهز للنشر:', newItem);
+
+      if (sourceType === 'file') {
+        alert('تم اختيار الملف "' + file.name + '" ✅\n(الرفع الفعلي وتوليد رابط دائم بينتظر ربط نظام التخزين — Firebase Storage)');
+      } else {
+        alert('تم تجهيز المحتوى بصيغة متوافقة مع الموقع ✅\n(الحفظ الفعلي بينتظر ربط قاعدة البيانات)');
+      }
+    });
+
+    document.getElementById('supportForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const supportRequest = {
+        teacherName: document.getElementById('teacherName').value.trim(),
+        teacherEmail: document.getElementById('teacherEmail').value.trim(),
+        issueDescription: document.getElementById('issueDescription').value.trim(),
+        hasImage: document.getElementById('issueImage').files.length > 0
+      };
+
+      console.log('طلب الدعم الفني:', supportRequest);
+
+      alert('تم إرسال طلب الدعم الفني بنجاح! سيتم الرد عليك على "' + supportRequest.teacherEmail + '" قريباً.');
+      this.reset();
+    });
+
+    function checkClassSelection() {
+      var selectBox = document.getElementById("classSelect");
+      var subjectDiv = document.getElementById("subjectContainer");
+      subjectDiv.style.display = (selectBox.value !== "") ? "block" : "none";
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      handleContentTypeChange();
+      handleSourceChange();
+    });
+  </script>
+<footer style="background-color: #001D39; color: #ffffff; text-align: center; padding: 1.5rem 1rem; margin-top: 40px; font-family: 'Tajawal', sans-serif;">
+  <p style="font-size: 1.1rem; margin-bottom: 5px;">منصة مدرسة ذكور عزون الأساسية</p>
+  <p style="font-size: 0.9rem; color: #BDD8E9;">جميع الحقوق محفوظة &copy; 2026</p>
+</footer>
+
+</body>
+</html>

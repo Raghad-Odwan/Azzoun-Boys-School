@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصف الاول الاساسي - مدرسة ذكور عزون الأساسية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* تنسيقات عامة */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif, Tahoma, sans-serif;
+    }
+    body {
+      background-color: #f8fafc;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* الهيدر المتجاوب */
+    header {
+      background-color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-area img {
+      height: 42px;
+      width: 42px;
+      object-fit: contain;
+    }
+    .logo-area h1 {
+      font-size: 1.15rem;
+      color: #001D39;
+      font-weight: 700;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #49769F;
+      font-weight: 600;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: #0A4174;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      color: #0A4174;
+      cursor: pointer;
+    }
+
+    /* المحتوى الرئيسي */
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .page-header-box {
+      background: #ffffff;
+      padding: 2rem 1rem;
+      border-radius: 20px;
+      border: 2px solid #E2E8F0;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .page-header-box h2 {
+      color: #0A4174;
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+    .page-header-box p {
+      color: #64748B;
+      font-size: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: #001D39;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      text-align: right;
+    }
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .section-card {
+      background: #ffffff;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .section-card:hover, .section-card.active {
+      border-color: #0A4174;
+      background-color: #f0f7ff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(10, 65, 116, 0.08);
+    }
+    .section-card h3 {
+      color: #001D39;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    /* سلايدر المواد الدراسية */
+    .subjects-section {
+      margin-bottom: 3rem;
+    }
+    .subjects-slider-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .subjects-track-container {
+      width: 100%;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 15px 5px;
+      scrollbar-width: none;
+    }
+    .subjects-track-container::-webkit-scrollbar {
+      display: none;
+    }
+    .subjects-track {
+      display: flex;
+      gap: 1.2rem;
+      direction: rtl;
+    }
+    .subject-card {
+      min-width: 250px;
+      flex: 0 0 250px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1.8rem 1.2rem;
+      border: 2px solid #E2E8F0;
+      box-shadow: 0 4px 12px rgba(0, 29, 57, 0.03);
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .subject-card:hover {
+      transform: translateY(-4px);
+      border-color: #0A4174;
+      box-shadow: 0 10px 25px rgba(10, 65, 116, 0.1);
+    }
+    .subject-card.active-subject {
+      background-color: #0A4174;
+      border-color: #0A4174;
+      color: #ffffff;
+    }
+    .subject-card.active-subject h4 {
+      color: #ffffff;
+    }
+    .subject-icon {
+      font-size: 2.5rem;
+    }
+    .subject-card h4 {
+      color: #0A4174;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    /* صندوق محتوى المعلمة */
+    #teacherContentSection {
+      display: none;
+      background: #ffffff;
+      border: 2px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.8rem;
+    }
+    .content-header h3 {
+      color: #0A4174;
+      font-size: 1.4rem;
+      text-align: right;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .filter-btn {
+      background: #f1f5f9;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+      padding: 0.5rem 1.1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .filter-btn:hover {
+      background: #e2e8f0;
+      color: #0A4174;
+    }
+    .filter-btn.active-tab {
+      background: #0A4174;
+      color: #ffffff;
+      border-color: #0A4174;
+      box-shadow: 0 4px 12px rgba(10, 65, 116, 0.2);
+    }
+
+    /* سلايدر الملفات الأفقي */
+    .files-slider-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+    }
+    .files-track-container {
+      width: 100%;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 15px 5px;
+      scrollbar-width: none;
+    }
+    .files-track-container::-webkit-scrollbar {
+      display: none;
+    }
+    .files-track {
+      display: flex;
+      gap: 1.2rem;
+      direction: rtl;
+    }
+    .file-card {
+      min-width: 260px;
+      flex: 0 0 260px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem 1.2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .file-card:hover {
+      transform: translateY(-4px);
+      border-color: #0A4174;
+      background-color: #ffffff;
+      box-shadow: 0 8px 20px rgba(10, 65, 116, 0.1);
+    }
+    .file-icon {
+      font-size: 2rem;
+    }
+    .file-card h4 {
+      color: #001D39;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .file-card p {
+      color: #64748B;
+      font-size: 0.85rem;
+    }
+    .action-btn {
+      display: inline-block;
+      background: #0A4174;
+      color: #fff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 5px;
+      font-family: inherit;
+    }
+    .action-btn:hover {
+      background: #001D39;
+      transform: scale(1.02);
+    }
+
+    /* تصميم النافذة المنبثقة (Modal) للشروحات والأنشطة */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 800px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      animation: modalScaleUp 0.3s ease-in-out;
+    }
+    @keyframes modalScaleUp {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      background: #001D39;
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      font-size: 1.2rem;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .close-modal:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 75vh;
+      overflow-y: auto;
+      text-align: center;
+    }
+    /* الفيديو: نسبة عرض/ارتفاع ثابتة 16:9 حتى ما يصير مضغوط */
+    .modal-body iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      height: auto;
+      border-radius: 12px;
+      border: none;
+      display: block;
+    }
+    .modal-body img {
+      width: 100%;
+      max-height: 70vh;
+      border-radius: 12px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .modal-empty-msg {
+      color: #64748B;
+      font-size: 0.95rem;
+      padding: 2rem 1rem;
+    }
+
+    /* أسهم السلايدر */
+    .slider-arrow {
+      background: #0A4174;
+      color: white;
+      border: 2px solid #0A4174;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(10, 65, 116, 0.15);
+      position: absolute;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+    .slider-arrow:hover {
+      background: #ffffff;
+      color: #0A4174;
+      box-shadow: 0 0 20px rgba(10, 65, 116, 0.4);
+      transform: scale(1.1);
+    }
+    .prev-arrow { right: -15px; }
+    .next-arrow { left: -15px; }
+
+    /* الفوتر */
+    footer {
+      background-color: #001D39;
+      color: #ffffff;
+      text-align: center;
+      padding: 2rem 1rem 1.5rem;
+      margin-top: auto;
+    }
+    .footer-content {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .footer-link {
+      color: #93c5fd;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .footer-link:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+    footer hr {
+      width: 100%;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      margin: 0.3rem 0;
+    }
+    footer p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        border-top: 1px solid #e2e8f0;
+        display: none;
+      }
+      .nav-links.show {
+        display: flex;
+      }
+      .nav-links li {
+        width: 100%;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .slider-arrow {
+        display: none !important;
+      }
+      .modal-body iframe {
+        aspect-ratio: 16 / 10;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الهيدر -->
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo-area">
+        <img src="logo.png" alt="شعار مدرسة ذكور عزون الأساسية">
+        <h1>مدرسة ذكور عزون الأساسية</h1>
+      </a>
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">الرئيسية</a></li>
+        <li><a href="index.html#classes" onclick="toggleMenu()">الصفوف</a></li>
+        <li><a href="index.html#announcements">الإعلانات المدرسية</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- المحتوى الرئيسي -->
+  <main>
+    <div class="page-header-box">
+      <h2>الصف الأول الأساسي</h2>
+      <p>اختر الشعبة الدراسية، ثم انقر على المادة لعرض المحتوى.</p>
+    </div>
+
+    <!-- اختيار الشعب -->
+    <div class="sections-container" id="classesSection">
+      <h3 class="section-title">اختر الشعبة الدراسية</h3>
+      <div class="sections-grid">
+        <div class="section-card active" onclick="selectSection('أ', this)">
+          <h3>الشعبة (أ)</h3>
+        </div>
+        <div class="section-card" onclick="selectSection('ب', this)">
+          <h3>الشعبة (ب)</h3>
+        </div>
+        <div class="section-card" onclick="selectSection('ج', this)">
+          <h3>الشعبة (ج)</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- سلايدر المواد الدراسية -->
+    <div class="subjects-section">
+      <h3 class="section-title" id="subjectsHeading">المواد الدراسية - الشعبة (أ)</h3>
+      <div class="subjects-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollSubjects('right')">❮</button>
+
+        <div class="subjects-track-container" id="subjectsContainer">
+          <div class="subjects-track">
+
+            <div class="subject-card" onclick="selectSubject('اللغة العربية', this)">
+              <div class="subject-icon">📖</div>
+              <h4>اللغة العربية</h4>
+            </div>
+
+            <div class="subject-card" onclick="selectSubject('الرياضيات', this)">
+              <div class="subject-icon">🔢</div>
+              <h4>الرياضيات</h4>
+            </div>
+
+            <div class="subject-card" onclick="selectSubject('اللغة الإنجليزية', this)">
+              <div class="subject-icon">abc</div>
+              <h4>اللغة الإنجليزية</h4>
+            </div>
+
+            <div class="subject-card" onclick="selectSubject('العلوم الحياتية والوطنية', this)">
+              <div class="subject-icon">🔬</div>
+              <h4>العلوم الحياتية والوطنية</h4>
+            </div>
+
+            <div class="subject-card" onclick="selectSubject('التربية الإسلامية', this)">
+              <div class="subject-icon">🕋</div>
+              <h4>التربية الإسلامية</h4>
+            </div>
+
+            <div class="subject-card" onclick="selectSubject('التنشئة الوطنية والاجتماعية', this)">
+              <div class="subject-icon">🌏</div>
+              <h4>التنشئة الوطنية والاجتماعية</h4>
+            </div>
+
+          </div>
+        </div>
+
+        <button class="slider-arrow next-arrow" onclick="scrollSubjects('left')">❯</button>
+      </div>
+    </div>
+
+    <!-- صندوق المعلمة -->
+    <div id="teacherContentSection">
+      <div class="content-header">
+        <h3 id="contentTitle">مادة اللغة العربية - الشعبة (أ)</h3>
+
+        <div class="filter-tabs">
+          <button class="filter-btn active-tab" onclick="switchTab('lessons', this)">🎥 الشروحات والدروس</button>
+          <button class="filter-btn" onclick="switchTab('worksheets', this)">📄 أوراق العمل</button>
+          <button class="filter-btn" onclick="switchTab('activities', this)">🎨 الأنشطة التعليمية</button>
+          <button class="filter-btn" onclick="switchTab('assignments', this)">📝 المهمات والواجبات</button>
+          <button class="filter-btn" onclick="switchTab('exams', this)">💡 الاختبارات</button>
+        </div>
+      </div>
+
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollFiles('right')">❮</button>
+
+        <div class="files-track-container" id="filesContainer">
+          <div class="files-track" id="filesTrack">
+            <!-- يتم تعبئة الملفات تلقائياً -->
+          </div>
+        </div>
+
+        <button class="slider-arrow next-arrow" onclick="scrollFiles('left')">❯</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- نافذة منبثقة (Modal) للشروحات والأنشطة المرئية/المصورة -->
+  <div class="modal-overlay" id="mediaModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">عنوان الدرس أو النشاط</h3>
+        <button class="close-modal" id="closeModalBtn" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body" id="modalBodyContent">
+        <!-- يتم حقن الفيديو أو الصورة هنا ديناميكياً -->
+      </div>
+    </div>
+  </div>
+
+  <!-- الفوتر -->
+  <footer>
+    <div class="footer-content">
+      <a href="index.html" class="footer-link">← العودة إلى الصفحة الرئيسية</a>
+      <hr>
+      <p>جميع حقوق الطبع والنشر محفوظة © 2026 - مدرسة ذكور عزون الأساسية</p>
+    </div>
+  </footer>
+
+  <script>
+    let currentSection = 'أ';
+    let currentSubject = 'اللغة العربية';
+    let currentTab = 'lessons';
+
+    /*
+      قاعدة البيانات:
+      - lessons و activities: كل عنصر لازم يكون فيه "type": "video" أو "image"
+          video -> حط رابط embed:
+              يوتيوب:  https://www.youtube.com/embed/VIDEO_ID
+              درايف:   https://drive.google.com/file/d/FILE_ID/preview
+          image -> حط رابط الصورة مباشرة (jpg/png/webp...)
+      - worksheets / assignments / exams: "type": "download" ورابط الملف (PDF مثلاً)
+    */
+    const schoolData = {
+      "اللغة العربية": {
+        lessons: [
+          { title: "شرح حرف الباء", desc: "فيديو تعليمي يوضح طريقة نطق وكتابة حرف الباء.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" },
+          { title: "شرح التنوين بالفتح", desc: "درس مبسط لشرح قواعد وأمثلة التنوين.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
+        ],
+        worksheets: [
+          { title: "ورقة عمل حرف الباء", desc: "تدريبات كتابة وتوصيل حرف الباء (PDF).", type: "download", url: "#", linkText: "تحميل الملف" },
+          { title: "ورقة عمل التنوين", desc: "أنشطة مميزة لقواعد التنوين (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
+        ],
+        activities: [
+          { title: "صيد الحروف البصرية", desc: "نشاط مصور تفاعلي لتثبيت الحروف.", type: "image", url: "https://via.placeholder.com/600x350?text=Activity+Image", linkText: "عرض النشاط" }
+        ],
+        assignments: [
+          { title: "مهمة الإملاء الأسبوعية", desc: "ملف الواجب المنزلي (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
+        ],
+        exams: [
+          { title: "امتحان الشهر الأول", desc: "نموذج اختبار مادة اللغة العربية الشامل (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
+        ]
+      },
+      "الرياضيات": {
+        lessons: [
+          { title: "درس الجمع ضمن العدد 10", desc: "شرح مصور لعملية الجمع.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
+        ],
+        worksheets: [
+          { title: "ورقة عمل الأعداد (1-10)", desc: "تمارين عد وكتابة الأرقام (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
+        ],
+        activities: [
+          { title: "نشاط قطار الأعداد", desc: "صورة توضيحية لنشاط الأعداد.", type: "image", url: "https://via.placeholder.com/600x350?text=Math+Activity", linkText: "عرض النشاط" }
+        ],
+        assignments: [
+          { title: "واجب كتاب النشاط ص 15", desc: "التمارين المطلوبة (PDF).", type: "download", url: "#", linkText: "تحميل الواجب" }
+        ],
+        exams: [
+          { title: "اختبار قصير في الأعداد", desc: "نموذج تقييمي (PDF).", type: "download", url: "#", linkText: "تحميل الاختبار" }
+        ]
+      },
+      "اللغة الإنجليزية": {
+        lessons: [
+          { title: "Letter A & B Sound", desc: "Phonics and pronunciation video.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "Watch Lesson" }
+        ],
+        worksheets: [
+          { title: "Alphabet Worksheet", desc: "Tracing letters (PDF).", type: "download", url: "#", linkText: "Download File" }
+        ],
+        activities: [
+          { title: "Colors Match", desc: "Colors activity card.", type: "image", url: "https://via.placeholder.com/600x350?text=English+Activity", linkText: "View Activity" }
+        ],
+        assignments: [
+          { title: "Vocabulary Homework", desc: "Home practice sheet (PDF).", type: "download", url: "#", linkText: "Download Task" }
+        ],
+        exams: [
+          { title: "Unit 1 Quiz", desc: "Short quiz (PDF).", type: "download", url: "#", linkText: "Download Quiz" }
+        ]
+      },
+      "العلوم الحياتية والوطنية": {
+        lessons: [
+          { title: "درس الحواس الخمس", desc: "شرح وظائف الحواس الخمس.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
+        ],
+        worksheets: [
+          { title: "ورقة عمل الحواس الخمس", desc: "أنشطة وتوصيل (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
+        ],
+        activities: [
+          { title: "نشاط تمييز الأصوات", desc: "بطاقة نشاط تفاعلية.", type: "image", url: "https://via.placeholder.com/600x350?text=Science+Activity", linkText: "عرض النشاط" }
+        ],
+        assignments: [
+          { title: "بحث كائنات حيّة", desc: "متطلبات المهمة (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
+        ],
+        exams: [
+          { title: "اختبار وحدة الحواس", desc: "تقييم الوحدة (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
+        ]
+      },
+      "التربية الإسلامية": {
+        lessons: [
+          { title: "شرح سورة الفاتحة", desc: "فيديو تحفيظ وتفسير.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
+        ],
+        worksheets: [
+          { title: "ورقة عمل سورة الفاتحة", desc: "تلوين وتثبيت (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
+        ],
+        activities: [
+          { title: "لعبة ترتيب الآيات", desc: "بطاقة تعليمية.", type: "image", url: "https://via.placeholder.com/600x350?text=Islamic+Activity", linkText: "عرض النشاط" }
+        ],
+        assignments: [
+          { title: "متابعة الحفظ", desc: "ورقة التسميع (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
+        ],
+        exams: [
+          { title: "اختبار قصار السور", desc: "نموذج اختبار (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
+        ]
+      },
+      "التنشئة الوطنية والاجتماعية": {
+        lessons: [
+          { title: "درس أعرف وطني", desc: "فيديو تعليمي عن معالم الوطن ورموزه.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
+        ],
+        worksheets: [
+          { title: "ورقة عمل رموز الوطن", desc: "تلوين وتوصيل رموز وطنية (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
+        ],
+        activities: [
+          { title: "نشاط علم بلادي", desc: "بطاقة تعليمية مصورة.", type: "image", url: "https://via.placeholder.com/600x350?text=Social+Activity", linkText: "عرض النشاط" }
+        ],
+        assignments: [
+          { title: "ارسم علم وطنك", desc: "نشاط منزلي مع الأهل.", type: "download", url: "#", linkText: "تحميل المهمة" }
+        ],
+        exams: [
+          { title: "اختبار قصير - رموز الوطن", desc: "تقييم قصير (PDF).", type: "download", url: "#", linkText: "تحميل الاختبار" }
+        ]
+      }
+    };
+
+    function toggleMenu() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('show');
+    }
+
+    function selectSection(sectionName, element) {
+      document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
+      element.classList.add('active');
+      currentSection = sectionName;
+      document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
+      updateHeaderTitle();
+    }
+
+    function selectSubject(subjectName, element) {
+      document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('active-subject'));
+      element.classList.add('active-subject');
+
+      currentSubject = subjectName;
+      document.getElementById('teacherContentSection').style.display = 'block';
+      document.getElementById('teacherContentSection').scrollIntoView({ behavior: 'smooth' });
+
+      updateHeaderTitle();
+      loadFilesToSlider();
+    }
+
+    function updateHeaderTitle() {
+      document.getElementById('contentTitle').innerText = `مادة ${currentSubject} - الشعبة (${currentSection})`;
+    }
+
+    function switchTab(tabKey, btnElement) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-tab'));
+      btnElement.classList.add('active-tab');
+      currentTab = tabKey;
+      loadFilesToSlider();
+    }
+
+    // تحميل العناصر في السلايدر: أزرار معاينة (مودال) للفيديو/الصورة، وأزرار تحميل فعلية للباقي
+    function loadFilesToSlider() {
+      const track = document.getElementById('filesTrack');
+      track.innerHTML = '';
+
+      const subjectData = schoolData[currentSubject];
+      const items = (subjectData && subjectData[currentTab]) ? subjectData[currentTab] : [];
+
+      if (items.length === 0) {
+        track.innerHTML = `<div class="file-card"><h4>لا توجد ملفات حالياً</h4><p>سيتم إدراج المحتوى قريباً من قبل المعلمة.</p></div>`;
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+
+        const icon = item.type === 'video' ? '🎥' : item.type === 'image' ? '🖼️' : '📁';
+        card.innerHTML = `
+          <div class="file-icon">${icon}</div>
+          <h4></h4>
+          <p></p>
+        `;
+        // استخدام textContent بدل innerHTML للعنوان والوصف يحمي من أي رموز خاصة (' أو ") داخل النص
+        card.querySelector('h4').textContent = item.title;
+        card.querySelector('p').textContent = item.desc;
+
+        if (item.type === 'video' || item.type === 'image') {
+          // زر يفتح المودال الداخلي - نستخدم addEventListener بدل onclick لتفادي مشاكل علامات الاقتباس
+          const btn = document.createElement('button');
+          btn.className = 'action-btn';
+          btn.type = 'button';
+          btn.textContent = item.linkText;
+          btn.addEventListener('click', () => openMediaModal(item));
+          card.appendChild(btn);
+        } else {
+          // زر تحميل مباشر - يفتح بتاب جديد لأن سمة download ما بتشتغل مع روابط خارجية (درايف مثلاً)
+          const link = document.createElement('a');
+          link.className = 'action-btn';
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = item.linkText;
+          card.appendChild(link);
+        }
+
+        track.appendChild(card);
+      });
+    }
+
+    // فتح المودال وتغميق الخلفية
+    function openMediaModal(item) {
+      const modal = document.getElementById('mediaModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBodyContent = document.getElementById('modalBodyContent');
+
+      modalTitle.textContent = item.title;
+      modalBodyContent.innerHTML = '';
+
+      if (item.type === 'video') {
+        if (!item.url || item.url === '#') {
+          modalBodyContent.innerHTML = `<p class="modal-empty-msg">سيتم إضافة الفيديو قريباً من قبل المعلمة.</p>`;
+        } else {
+          const iframe = document.createElement('iframe');
+          iframe.src = item.url;
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          modalBodyContent.appendChild(iframe);
+        }
+      } else if (item.type === 'image') {
+        if (!item.url || item.url === '#') {
+          modalBodyContent.innerHTML = `<p class="modal-empty-msg">سيتم إضافة الصورة قريباً من قبل المعلمة.</p>`;
+        } else {
+          const img = document.createElement('img');
+          img.src = item.url;
+          img.alt = item.title;
+          modalBodyContent.appendChild(img);
+        }
+      }
+
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden'; // قفل سكرول الصفحة خلف المودال
+    }
+
+    // إغلاق المودال (وإيقاف تشغيل الفيديو بحذف الـ iframe)
+    function closeModal() {
+      const modal = document.getElementById('mediaModal');
+      const modalBodyContent = document.getElementById('modalBodyContent');
+      modal.classList.remove('show');
+      modalBodyContent.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // ربط أحداث إغلاق المودال: زر الإغلاق، النقر خارج الصندوق، ومفتاح Esc
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('mediaModal').addEventListener('click', (e) => {
+      if (e.target.id === 'mediaModal') closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    function scrollSubjects(direction) {
+      const container = document.getElementById('subjectsContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
+    function scrollFiles(direction) {
+      const container = document.getElementById('filesContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>

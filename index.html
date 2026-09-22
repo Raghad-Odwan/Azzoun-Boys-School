@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منصة مدرسة ذكور عزون الأساسية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #001D39;
+      --primary: #0A4174;
+      --secondary: #49769F;
+      --accent-1: #4E8EA2;
+      --accent-2: #6EA2B3;
+      --light-blue: #7BBDE8;
+      --bg-light: #BDD8E9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--bg-dark);
+      scroll-behavior: smooth;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2rem;
+      background-color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 29, 57, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 48px;
+      width: 48px;
+      object-fit: contain;
+    }
+
+    /* Nav Menu */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-menu a {
+      position: relative;
+      text-decoration: none;
+      color: var(--bg-dark);
+      font-weight: 500;
+      font-size: 1.1rem;
+      padding-bottom: 6px;
+    }
+
+    .nav-menu a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 0;
+      height: 3px;
+      border-radius: 3px;
+      background-color: var(--light-blue);
+      transition: width 0.3s ease;
+    }
+
+    .nav-menu a:hover::after,
+    .nav-menu a.active::after {
+      width: 100%;
+    }
+
+    .nav-menu a.active {
+      color: var(--primary);
+    }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .nav-toggle span {
+      width: 26px;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 3px;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
+      color: #ffffff;
+      text-align: center;
+      padding: 5rem 1.5rem;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--bg-light);
+      max-width: 600px;
+      margin: 0 auto 2.5rem auto;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.8rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: var(--light-blue);
+      color: var(--bg-dark);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-2);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: #ffffff;
+      border: 2px solid var(--accent-1);
+    }
+
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* About & Features Section */
+    .about-section {
+      padding: 5rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      color: var(--bg-dark);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--secondary);
+      max-width: 700px;
+      margin: 0 auto 3rem auto;
+      line-height: 1.6;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .about-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 29, 57, 0.04);
+      transition: all 0.3s ease;
+      text-align: right;
+      border-top: 4px solid var(--accent-1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .about-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(10, 65, 116, 0.1);
+    }
+
+    .about-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .about-card h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+
+    .about-card p {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.6;
+      text-align: center;
+      flex-grow: 1;
+    }
+
+    /* Announcements Section (قسم الإعلانات الجديد) */
+    .announcements-section {
+      padding: 4rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .announcements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .announcement-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 29, 57, 0.06);
+      border-right: 5px solid var(--light-blue);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+      text-align: right;
+    }
+
+    .announcement-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(10, 65, 116, 0.1);
+    }
+
+    .announcement-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .announcement-date {
+      font-size: 0.85rem;
+      color: var(--secondary);
+      background-color: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .announcement-tag {
+      font-size: 0.85rem;
+      color: white;
+      background-color: var(--accent-1);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .announcement-card h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .announcement-card p {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    /* Classes Section */
+    .classes-section {
+      padding: 4rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      background-color: #f1f5f9;
+      border-radius: 20px;
+      margin-bottom: 3rem;
+    }
+
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .class-card {
+      background-color: #ffffff;
+      border: 2px solid var(--bg-light);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 10px 20px rgba(0, 29, 57, 0.04);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .class-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-1);
+      box-shadow: 0 15px 30px rgba(10, 65, 116, 0.12);
+    }
+
+    .class-card h3 {
+      font-size: 1.4rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-class {
+      background-color: var(--primary);
+      color: #ffffff;
+      width: 100%;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-class:hover {
+      background-color: var(--bg-dark);
+    }
+
+    /* Contact Section */
+    #contact-section {
+      padding: 50px 20px;
+      background-color: #ffffff;
+      text-align: center;
+      direction: rtl;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #001D39;
+      color: #ecf0f1;
+      padding: 50px 20px 25px 20px;
+      font-family: 'Tajawal', sans-serif;
+      direction: rtl;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+      .hero p {
+        font-size: 0.95rem;
+      }
+      .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+      .btn {
+        width: 100%;
+      }
+      .nav-toggle {
+        display: flex;
+      }
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+        background-color: #ffffff;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        box-shadow: 0 10px 15px rgba(0, 29, 57, 0.06);
+      }
+      .nav-menu.open {
+        max-height: 350px;
+        padding: 0.5rem 0;
+      }
+      .nav-menu li {
+        width: 100%;
+      }
+      .nav-menu a {
+        display: block;
+        padding: 0.9rem 1.5rem;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- شريط التنقل العلوي -->
+  <nav class="navbar">
+    <div class="logo">
+        <a href="index.html" class="logo-area"></a>
+      <img src="logo.png" alt="شعار مدرسة ذكور عزون الأساسية">
+      مدرسة ذكور عزون الأساسية
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+ 
+    <ul class="nav-menu" id="navMenu">
+      <li><a href="#home" class="nav-link active">الرئيسية</a></li>
+      <li><a href="#about" class="nav-link">حول المنصة</a></li>
+      <li><a href="#announcements" class="nav-link">الإعلانات</a></li>
+      <li><a href="#classes" class="nav-link">الصفوف</a></li>
+      <li><a href="#contact-section" class="nav-link">تواصل معنا</a></li>
+      <li><a href="dashboard.html" class="nav-link">لوحة تحكم المعلم</a></li>
+    </ul>
+  </nav>
+
+  <!-- القسم الرئيسي (Hero) -->
+  <section class="hero" id="home">
+    <h1>منصة مدرسة ذكور عزون الأساسية</h1>
+    <p>كل ما يحتاجه الطالب وولي الأمر في مكان واحد: الواجبات اليومية، الخطط الأسبوعية، وملخصات الحصص والمواد التعليمية.</p>
+    <div class="hero-buttons">
+      <a href="#classes" class="btn btn-primary">اختر صفك ←</a>
+      <a href="#announcements" class="btn btn-outline">آخر الإعلانات</a>
+    </div>
+  </section>
+
+  <!-- قسم حول المنصة والخدمات -->
+  <section class="about-section" id="about">
+    <h2 class="section-title">حول المنصة والخدمات</h2>
+    <p class="section-subtitle">
+      منصة إلكترونية متكاملة تهدف إلى تسهيل العملية التعليمية وربط الطلاب والمعلمين بأفضل الطرق الرقمية الحديثة.
+    </p>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon">📚</div>
+        <h3>حصص الشرح</h3>
+        <p>توفير شروحات للمناهج الدراسية لضمان فهم الطلاب للمواد بكل سهولة ويسر.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-icon">📝</div>
+        <h3>أوراق العمل والمهمات</h3>
+        <p>مجموعة شاملة من أوراق العمل والمهمات التعليمية والاختبارات القصيرة للتدريب والتقييم المستمر.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-icon">🎯</div>
+        <h3>الأنشطة الطلابية</h3>
+        <p>أنشطة تفاعلية وألعاب تعليمية ممتعة تحفز الطلاب على المشاركة وتنمية مهاراتهم الإبداعية.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-icon">📢</div>
+        <h3>إعلانات المدرسة</h3>
+        <p>تابع هنا أحدث التعاميم والتنبيهات والفعاليات المدرسية الرسمية أولاً باول.</p>
+      </div>
+    </div>
+  </section>
+
+<!-- قسم الإعلانات والتعاميم المدرسية (السلايدر) -->
+  <section class="announcements-section" id="announcements">
+    <h2 class="section-title" style="text-align: center;">إعلانات المدرسة</h2>
+    <p class="section-subtitle" style="text-align: center;">تابع آخر المستجدات والفعاليات والتعاميم الصادرة عن إدارة المدرسة</p>
+
+    <!-- حاوية السلايدر -->
+    <div class="announcements-slider-wrapper">
+      <button class="slider-arrow prev-arrow" onclick="moveAnnouncementSlide(-1)">&#10095;</button>
+      
+      <div class="announcements-viewport">
+        <div class="announcements-track" id="announcementsTrack">
+          <!-- سيتم جلب الإعلانات وتعبئتها هنا ديناميكياً من لوحة التحكم -->
+        </div>
+      </div>
+
+      <button class="slider-arrow next-arrow" onclick="moveAnnouncementSlide(1)">&#10094;</button>
+    </div>
+  </section>
+
+  <!-- قسم اختيار الصفوف -->
+  <section class="classes-section" id="classes">
+    <h2 class="section-title" style="font-size: 2.3rem; color: #001D39; margin-bottom: 0.8rem; font-weight: 700;">اختيار الصفوف الدراسية</h2>
+    <p class="section-subtitle" style="font-size: 1.1rem; color: #49769F; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">اضغط على الصف المطلوب للوصول إلى المواد التعليمية الخاصة به</p>
+
+    <div class="classes-grid">
+      <div class="class-card">
+        <div style="width: 50px; height: 4px; background-color: #0A4174; border-radius: 2px; margin-bottom: 1.5rem;"></div>
+        <h3 style="font-size: 1.5rem; color: #0A4174; margin-bottom: 2rem; font-weight: bold;">الصف الأول الأساسي</h3>
+        <a href="class1.html" class="btn-class">ادخل إلى الصف ←</a>
+      </div>
+
+      <div class="class-card">
+        <div style="width: 50px; height: 4px; background-color: #0A4174; border-radius: 2px; margin-bottom: 1.5rem;"></div>
+        <h3 style="font-size: 1.5rem; color: #0A4174; margin-bottom: 2rem; font-weight: bold;">الصف الثاني الأساسي</h3>
+        <a href="class2.html" class="btn-class">ادخل إلى الصف ←</a>
+      </div>
+
+      <div class="class-card">
+        <div style="width: 50px; height: 4px; background-color: #0A4174; border-radius: 2px; margin-bottom: 1.5rem;"></div>
+        <h3 style="font-size: 1.5rem; color: #0A4174; margin-bottom: 2rem; font-weight: bold;">الصف الثالث الأساسي</h3>
+        <a href="class3.html" class="btn-class">ادخل إلى الصف ←</a>
+      </div>
+
+      <div class="class-card">
+        <div style="width: 50px; height: 4px; background-color: #0A4174; border-radius: 2px; margin-bottom: 1.5rem;"></div>
+        <h3 style="font-size: 1.5rem; color: #0A4174; margin-bottom: 2rem; font-weight: bold;">الصف الرابع الأساسي</h3>
+        <a href="class4.html" class="btn-class">ادخل إلى الصف ←</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- قسم تواصل معنا -->
+  <section id="contact-section">
+    <h2 style="font-size: 2.2rem; color: #001D39; margin-bottom: 10px;">
+      نحن هنا <span style="color: #0A4174;">لمساعدتك</span>
+    </h2>
+    <p style="color: #7f8c8d; font-size: 1.05rem; margin-bottom: 40px;">
+      هل لديك أي استفسار أو ملاحظات؟ لا تتردد في مراسلتنا.
+    </p>
+
+    <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; align-items: flex-start; text-align: right;">
+      
+      <div style="flex: 1; min-width: 300px; background: #f8fcfb; padding: 30px; border-radius: 15px; border: 1px solid #e0f2f1;">
+        <p style="color: #34495e; font-weight: bold; font-size: 1.1rem; margin-bottom: 25px; text-align: center;">
+          يسعدنا دائماً استقبال آرائكم واستفساراتكم لمساعدتكم في تقديم أفضل تجربة تعليمية لأبنائنا الطلاب.
+        </p>
+        
+        <div style="background: white; padding: 20px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+          <div>
+            <h4 style="margin: 0 0 5px 0; color: #2c3e50;">البريد الإلكتروني</h4>
+            <a href="mailto:info@azzoun-boys.com" style="color: #1abc9c; text-decoration: none; font-weight: bold;">info@azzoun-boys.com</a>
+          </div>
+          <div style="background: #e8f8f5; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1abc9c; font-size: 1.2rem;">
+            📧
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 1.2; min-width: 320px; background: white; padding: 30px; border-radius: 15px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <form id="contactForm">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #34495e;">الاسم الكامل</label>
+            <input type="text" placeholder="أدخل اسمك هنا" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; font-size: 0.95rem;">
+          </div>
+
+
+          <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #34495e;">الرسالة</label>
+            <textarea rows="4" placeholder="اكتب استفسارك أو رسالتك هنا..." required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; resize: vertical; font-size: 0.95rem;"></textarea>
+          </div>
+
+          <button type="submit" style="width: 100%; background: #0A4174; color: white; padding: 14px; border: none; border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s;">
+            إرسال الرسالة
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- تذييل الصفحة (Footer) -->
+  <footer>
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 40px; text-align: right;">
+      
+      <div>
+        <h4 style="color: #ffffff; margin-bottom: 18px; font-size: 1.15rem; border-bottom: 2px solid #1abc9c; padding-bottom: 6px; display: inline-block;">منصة مدرسة ذكور عزون الأساسية</h4>
+        <p style="color: #bdc3c7; font-size: 0.95rem; line-height: 1.7;">منصة إلكترونية تعليمية تهدف إلى تقديم أفضل تجربة تعلم تفاعلية لأبنائنا الطلاب من خلال حصص الشرح، أوراق العمل، والألعاب التعليمية.</p>
+      </div>
+
+      <div>
+        <h4 style="color: #ffffff; margin-bottom: 18px; font-size: 1.15rem; border-bottom: 2px solid #1abc9c; padding-bottom: 6px; display: inline-block;">روابط سريعة</h4>
+        <ul style="list-style: none; padding: 0; margin: 0; line-height: 2.2;">
+          <li><a href="#home" style="color: #bdc3c7; text-decoration: none;">الرئيسية</a></li>
+          <li><a href="#about" style="color: #bdc3c7; text-decoration: none;">حول المنصة</a></li>
+          <li><a href="#announcements" style="color: #bdc3c7; text-decoration: none;">الإعلانات</a></li>
+          <li><a href="#classes" style="color: #bdc3c7; text-decoration: none;">الصفوف</a></li>
+          <li><a href="#contact-section" style="color: #bdc3c7; text-decoration: none;">تواصل معنا</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="color: #ffffff; margin-bottom: 18px; font-size: 1.15rem; border-bottom: 2px solid #1abc9c; padding-bottom: 6px; display: inline-block;">الصفوف الدراسية</h4>
+        <ul style="list-style: none; padding: 0; margin: 0; line-height: 2.2;">
+          <li><a href="class1.html" style="color: #bdc3c7; text-decoration: none;">الصف الأول الأساسي</a></li>
+          <li><a href="class2.html" style="color: #bdc3c7; text-decoration: none;">الصف الثاني الأساسي</a></li>
+          <li><a href="class3.html" style="color: #bdc3c7; text-decoration: none;">الصف الثالث الأساسي</a></li>
+          <li><a href="class4.html" style="color: #bdc3c7; text-decoration: none;">الصف الرابع الأساسي</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="color: #ffffff; margin-bottom: 18px; font-size: 1.15rem; border-bottom: 2px solid #1abc9c; padding-bottom: 6px; display: inline-block;">بوابة الطاقم</h4>
+        <p style="color: #bdc3c7; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">خاص بالمعلمين لإضافة المحتوى والدروس.</p>
+        <a href="dashboard.html" style="display: inline-block; background: #1abc9c; color: white; padding: 9px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">لوحة التحكم 🔒</a>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 45px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; text-align: center;">
+      <p style="font-size: 0.95rem; color: #BDD8E9; margin: 0;">جميع الحقوق محفوظة &copy; 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+
+    navToggle.addEventListener('click', () => {
+      navMenu.classList.toggle('open');
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('open');
+      });
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = [];
+
+    navLinks.forEach(link => {
+      const id = link.getAttribute('href');
+      if (id && id.startsWith('#')) {
+        const section = document.querySelector(id);
+        if (section) sections.push({ id, section, link });
+      }
+    });
+
+    function setActiveLink() {
+      const scrollPos = window.scrollY + 120;
+      let current = sections[0];
+      sections.forEach(item => {
+        if (item.section.offsetTop <= scrollPos) {
+          current = item;
+        }
+      });
+
+      navLinks.forEach(link => link.classList.remove('active'));
+      if (current) current.link.classList.add('active');
+    }
+
+    window.addEventListener('scroll', setActiveLink);
+    window.addEventListener('load', setActiveLink);
+  </script>
+
+
+<style>
+.announcements-slider-wrapper {
+  position: relative;
+  max-width: 950px; /* زيادة العرض الكلي للسلايدر */
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 10px; /* تقليل الحشوة الجانبية عشان الأسهم تقرب عالبطاقة */
+}
+.announcements-viewport {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.announcements-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.announcement-card-slide {
+  min-width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 29, 57, 0.04);
+  border: 1px solid rgba(0, 29, 57, 0.06);
+  text-align: right;
+}
+
+/* تعديل موقع الأسهم لتصير على حواف البطاقة مباشرة */
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--primary);
+  color: white;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.slider-arrow:hover {
+  background: var(--bg-dark);
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* إخراج الأسهم قليلاً على أطراف الكارد أو تركها على الحافة مباشرة */
+.prev-arrow { 
+  right: -20px; /* سهم اليمين للخارج قليلاً */
+} 
+
+.next-arrow { 
+  left: -20px; /* سهم اليسار للخارج قليلاً */
+}
+/* تنسيق الاعلان */
+/* تنسيق خاص لحالة طي النص الطويل لضمان ثبات حجم البطاقة */
+.announcement-text-container.collapsed {
+  max-height: 90px; /* الحد الأقصى للارتفاع وهو مغلق */
+  overflow: hidden;
+  position: relative;
+}
+
+/* تأثير تدرج خفيف في أسفل النص المغلق ليوضح أن هناك المزيد */
+.announcement-text-container.collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(transparent, #ffffff);
+}
+
+.announcement-card-slide {
+  min-width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 29, 57, 0.04);
+  border: 1px solid rgba(0, 29, 57, 0.06);
+  text-align: right;
+  transition: all 0.3s ease;
+}
+
+
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+  const track = document.getElementById('announcementsTrack');
+  if (!track) return;
+
+  // جلب الإعلانات المخزنة من لوحة التحكم
+  let announcements = JSON.parse(localStorage.getItem('schoolAnnouncements')) || [];
+
+  if (announcements.length === 0) {
+    track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">لا توجد إعلانات حالياً.</p></div>`;
+    return;
+  }
+
+  // عرض الإعلانات داخل السلايدر
+  track.innerHTML = announcements.map(item => `
+    <div class="announcement-card-slide">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span class="announcement-date">${item.date || ''}</span>
+      </div>
+      <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; font-weight: 700;">${item.title}</h3>
+      <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap;">${item.text}</p>
+      ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 250px; object-fit: cover;">` : ''}
+    </div>
+  `).join('');
+
+  // إعدادات الحركة والأسهم والتنقل التلقائي
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.announcement-card-slide');
+  const totalSlides = slides.length;
+  let slideInterval;
+
+  window.moveAnnouncementSlide = function(direction) {
+    currentSlide += direction;
+    if (currentSlide >= totalSlides) {
+      currentSlide = 0;
+    } else if (currentSlide < 0) {
+      currentSlide = totalSlides - 1;
+    }
+    updateSlidePosition();
+    resetTimer();
+  };
+
+  function updateSlidePosition() {
+    // استخدام الـ transform لعرض السلايد بسلاسة (مع مراعاة الاتجاه العربي RTL)
+    track.style.transform = `translateX(${currentSlide * 100}%)`;
+  }
+
+  function startTimer() {
+    if (totalSlides > 1) {
+      slideInterval = setInterval(() => {
+        moveAnnouncementSlide(1);
+      }, 10000); // الانتقال التلقائي كل 10 ثوانٍ
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(slideInterval);
+    startTimer();
+  }
+
+  startTimer();
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const track = document.getElementById('announcementsTrack');
+  if (!track) return;
+
+  let announcements = JSON.parse(localStorage.getItem('schoolAnnouncements')) || [];
+
+  if (announcements.length === 0) {
+    track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">لا توجد إعلانات حالياً.</p></div>`;
+    return;
+  }
+
+  // عرض الإعلانات مع خاصية الطي والتوسيع للنصوص الطويلة والصور
+  track.innerHTML = announcements.map((item, index) => `
+    <div class="announcement-card-slide">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+        <span class="announcement-date">${item.date || ''}</span>
+      </div>
+      <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; font-weight: 700;">${item.title}</h3>
+      
+      <!-- نص الإعلان مع حاوية قابلة للطي إذا كان طويلاً -->
+      <div class="announcement-text-container" id="desc-${index}">
+        <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap; margin: 0;">${item.text}</p>
+        ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; display: block;">` : ''}
+      </div>
+
+      <!-- زر إظهار المزيد / طي النص -->
+      <button onclick="toggleAnnouncement(${index})" id="btn-${index}" style="background: none; border: none; color: var(--primary); font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Tajawal', sans-serif; display: none;">
+        عرض المزيد ↓
+      </button>
+    </div>
+  `).join('');
+
+  // فحص ما إذا كان النص طويلاً لتفعيل زر التوسيع تلقائياً
+  setTimeout(() => {
+    announcements.forEach((_, index) => {
+      const descBox = document.getElementById(`desc-${index}`);
+      const btn = document.getElementById(`btn-${index}`);
+      if (descBox && btn) {
+        // إذا كان ارتفاع محتوى النص أكبر من الحد المسموح، نظهر زر التوسيع
+        if (descBox.scrollHeight > 120) {
+          descBox.classList.add('collapsed');
+          btn.style.display = 'inline-block';
+        }
+      }
+    });
+  }, 100);
+});
+
+// دالة فتح وإغلاق النص الطويل والصورة عند الضغط على الزر
+window.toggleAnnouncement = function(index) {
+  const descBox = document.getElementById(`desc-${index}`);
+  const btn = document.getElementById(`btn-${index}`);
+  
+  if (descBox.classList.contains('collapsed')) {
+    descBox.classList.remove('collapsed');
+    btn.innerHTML = 'إخفاء التفاصيل ↑';
+  } else {
+    descBox.classList.add('collapsed');
+    btn.innerHTML = 'عرض المزيد ↓';
+  }
+};
+
+
+
+
+const testAnnouncements = [
+  {
+    title: "🏆 مسابقة «أنظف بيئة صفية» تنطلق في مدرسة ذكور عزون الأساسية 🌟",
+    text: "🌿 لأن النظافة عنوان الانتماء، والجمال يبدأ من صفوفنا، وحرصًا من إدارة مدرسة ذكور عزون الأساسية على تعزيز روح التعاون والمسؤولية لدى أبنائنا الطلبة، نعلن بكل حماس عن انطلاق:\n\n✨🏆 مسابقة أنظف بيئة صفية 🏆✨\n\n🎯 فلنجعل صفوفنا نموذجًا في:\n🧹 النظافة والترتيب\n📚 تنظيم المقاعد والأدوات\n✨ المحافظة على الجدران والسبورة\n🏫 المحافظة على مرافق المدرسة\n🤝 التعاون وروح الفريق\n\n📅 المتابعة والتقييم: يوميًا طوال أيام الدوام، والإعلان عن الصف الفائز شهريًا.\n\n🎁 والتميز له تكريم يليق به:\n🏆 درع البيئة الصفية النظيفة\n📜 شهادة تميز للصف الفائز\n🎙️ تكريم وإشادة بالصف الفائز عبر الإذاعة المدرسية\n\n🌱 كونوا جزءًا من التغيير... واجعلوا صفكم عنوانًا للنظافة والتميز.\n\nشعارنا: 💚\n✨«معًا نحو بيئة مدرسية نظيفة... وصفوف تليق بأبنائنا»✨",
+    date: "١٠ سبتمبر ٢٠٢٦"
+  },
+  {
+    title: "تنويه هام لأولياء الأمور الكرام - تحديث بيانات الطالب",
+    text: "تحية طيبة وبعد، 🌷\n\nنرجو منكم التكرم بتعبئة استمارة تحديث بيانات الطالب، والتأكد من إدخال المعلومات المطلوبة بشكل دقيق وكامل، وذلك لأهمية هذه البيانات في تحديث سجلات المدرسة ومتابعة شؤون أبنائنا الطلبة.\n\nرابط الاستمارة:\nhttps://tinyurl.com/StudentsUpdateInfo\n\nشاكرين لكم تعاونكم واهتمامكم،\nمع خالص التقدير والاحترام 🌿\nمديرة المدرسة: أ. نداء عدوان",
+    date: "٩ سبتمبر ٢٠٢٦"
+  }
+];
+
+
+//  عرضه فوراً دون حفظ دائم
+localStorage.setItem('schoolAnnouncements', JSON.stringify(testAnnouncements));
+
+if (window.location.hash) {
+  setTimeout(function() {
+    var target = document.querySelector(window.location.hash);
+    if (target) {
+      target.scrollIntoView();
+    }
+  }, 150);
+}
+</script>
+
+
+</body>
+</html>
