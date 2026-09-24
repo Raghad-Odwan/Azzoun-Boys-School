@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>منصة ذكور عزون الأساسية - لوحة تحكم المعلمة</title>
+  <!-- مكتبات Firebase الأساسية -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -27,6 +31,9 @@
     body {
       background-color: #f8fafc;
       color: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .navbar {
@@ -110,6 +117,26 @@
       border-radius: 3px;
     }
 
+    .main-content {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .auth-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .auth-container h2 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
     .dashboard-card {
       max-width: 600px;
       margin: 30px auto;
@@ -127,6 +154,7 @@
 
     .form-group {
       margin-bottom: 15px;
+      text-align: right;
     }
 
     label {
@@ -142,6 +170,12 @@
       border-radius: 6px;
       font-size: 0.95rem;
       font-family: 'Tajawal', sans-serif;
+      background-color: #ffffff;
+      color: #001D39;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #94a3b8;
     }
 
     textarea {
@@ -153,13 +187,6 @@
       padding: 8px;
       background-color: #f9f9f9;
       cursor: pointer;
-    }
-
-    small.field-hint {
-      display: block;
-      margin-top: 5px;
-      color: #64748B;
-      font-size: 0.8rem;
     }
 
     .source-toggle {
@@ -193,7 +220,7 @@
       color: var(--accent-color);
     }
 
-    button[type="submit"] {
+    button[type="submit"], .action-btn {
       width: 100%;
       background-color: var(--accent-color);
       color: white;
@@ -206,7 +233,7 @@
       transition: background 0.3s;
     }
 
-    button[type="submit"]:hover {
+    button[type="submit"]:hover, .action-btn:hover {
       background-color: #052441;
     }
 
@@ -216,6 +243,36 @@
     .support-btn:hover {
       background-color: var(--bg-dark) !important;
     }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .suggestions-list {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-top: 4px;
+      max-height: 170px;
+      overflow-y: auto;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      list-style: none;
+    }
+
+    .suggestions-list li {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #334155;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .suggestions-list li:last-child { border-bottom: none; }
+    .suggestions-list li:hover { background-color: #eef2ff; color: var(--accent-color); }
 
     @media (max-width: 768px) {
       .nav-toggle {
@@ -239,7 +296,7 @@
       }
 
       .nav-menu.open {
-        max-height: 200px;
+        max-height: 250px;
         padding: 0.5rem 0;
       }
 
@@ -271,149 +328,556 @@
 
     <ul class="nav-menu" id="navLinks">
       <li><a href="index.html">الرئيسية</a></li>
-      <li><a href="#teacherSupport" class="active">دعم المعلم</a></li>
+      <li><a href="#teacherSupport">دعم المعلم</a></li>
     </ul>
   </nav>
 
-  <div class="dashboard-card">
-    <h2>إضافة محتوى تعليمي جديد 📚</h2>
-    <form id="addContentForm">
+  <div class="main-content">
+    
+    <!-- شاشة تسجيل الدخول الموحّدة (معلمة أو إدارة) -->
+    <div class="auth-container" id="authBox">
+      <h2>تسجيل الدخول للوحة التحكم 🔒</h2>
+      <p style="margin-bottom: 20px; color: #555;">الرجاء إدخال البريد الإلكتروني</p>
 
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">الصف الدراسي والشعبة:</label>
-        <select id="classSelect" onchange="checkClassSelection()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif; background-color: #fff;">
-          <option value="">اختر الصف والشعبة...</option>
+      <!-- خطوة 1: البريد الإلكتروني فقط -->
+      <form id="emailStepForm" onsubmit="event.preventDefault(); checkLoginEmail();" autocomplete="on">
+        <div class="form-group">
+          <label for="loginEmailInput">البريد الإلكتروني :</label>
+          <input type="email" id="loginEmailInput" name="login_email" autocomplete="email" list="emailSuggestions" required>
+          <datalist id="emailSuggestions"></datalist>
+        </div>
+        <button type="submit" class="action-btn">التالي</button>
+      </form>
 
-          <option value="1-a">الصف الأول - الشعبة (أ)</option>
-          <option value="1-b">الصف الأول - الشعبة (ب)</option>
-          <option value="1-c">الصف الأول - الشعبة (ج)</option>
-
-          <option value="2-a">الصف الثاني - الشعبة (أ)</option>
-          <option value="2-b">الصف الثاني - الشعبة (ب)</option>
-          <option value="2-c">الصف الثاني - الشعبة (ج)</option>
-
-          <option value="3-a">الصف الثالث - الشعبة (أ)</option>
-          <option value="3-b">الصف الثالث - الشعبة (ب)</option>
-          <option value="3-c">الصف الثالث - الشعبة (ج)</option>
-
-          <option value="4-a">الصف الرابع - الشعبة (أ)</option>
-          <option value="4-b">الصف الرابع - الشعبة (ب)</option>
-          <option value="4-c">الصف الرابع - الشعبة (ج)</option>
-        </select>
-      </div>
-
-      <div id="subjectContainer" style="margin-bottom: 20px; display: none;">
-        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية:</label>
-        <!--
-          قيم هذه القائمة (value) لازم تبقى نص عربي مطابق حرفياً لمفاتيح schoolData
-          بصفحات الطلاب (class1.html ... class4.html) — لا ترجعوها إنجليزي.
-        -->
-        <select id="subjectSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
-          <option value="">اختر المادة...</option>
-          <option value="اللغة العربية">اللغة العربية</option>
-          <option value="الرياضيات">الرياضيات</option>
-          <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
-          <option value="العلوم الحياتية والوطنية">العلوم الحياتية والوطنية</option>
-          <option value="التربية الإسلامية">التربية الإسلامية</option>
-          <option value="التنشئة الوطنية والاجتماعية">التنشئة الوطنية والاجتماعية</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="contentType">نوع المحتوى:</label>
-        <select id="contentType" onchange="handleContentTypeChange()" required>
-          <option value="lessons"> شرح درس</option>
-          <option value="worksheets"> ورقة عمل</option>
-          <option value="activities"> نشاط تعليمي</option>
-          <option value="assignments"> مهمة / واجب</option>
-          <option value="exams"> اختبار</option>
-        </select>
-      </div>
-
-      <div class="form-group" id="mediaTypeContainer" style="display: none;">
-        <label for="mediaType">نوع النشاط:</label>
-        <select id="mediaType" onchange="handleContentTypeChange()">
-          <option value="video">🎥 فيديو</option>
-          <option value="image">🖼️ صورة</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="title">عنوان الدرس / المحتوى:</label>
-        <input type="text" id="title" placeholder="أدخل العنوان هنا..." required>
-      </div>
-
-      <div class="form-group">
-        <label for="description">وصف أو تعليمات للطلاب (اختياري):</label>
-        <textarea id="description" placeholder="اكتب هنا أي ملاحظات أو تعليمات ترغب أن يقرأها الطلاب تحت العنوان..."></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>طريقة إضافة المحتوى:</label>
-        <div class="source-toggle">
-          <label id="linkOptionLabel" class="selected">
-            <input type="radio" name="sourceType" value="link" checked onchange="handleSourceChange()">
-            🔗 وضع رابط
-          </label>
-          <label id="fileOptionLabel">
-            <input type="radio" name="sourceType" value="file" onchange="handleSourceChange()">
-            📤 رفع ملف من جهازي
-          </label>
+      <!-- خطوة 2 - أ: دخول المعلمة (يظهر فقط إذا كان الإيميل إيميل المعلمات) -->
+      <form id="teacherLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyTeacherLogin();" autocomplete="on">
+        <div class="form-group">
+          <label for="teacherUsernameInput">اسم المستخدم :</label>
+          <input type="text" id="teacherUsernameInput" name="teacher_username" autocomplete="username" list="usernameSuggestions" required>
+          <datalist id="usernameSuggestions"></datalist>
         </div>
 
-        <div id="linkContainer">
-          <input type="url" id="link" placeholder="https://...">
-          <small class="field-hint" id="linkHint">فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID</small>
+        <div class="form-group">
+          <label for="fixedPasswordInput">كلمة المرور :</label>
+          <input type="password" id="fixedPasswordInput" name="teacher_password" autocomplete="current-password" required>
         </div>
 
-        <div id="fileContainer" style="display: none;">
-          <input type="file" id="fileUpload">
-          <small class="field-hint" id="fileHint">اختاري الملف المناسب لنوع المحتوى.</small>
-          <small class="field-hint" style="color:#b45309; margin-top:8px;">
-            ⚠️ الرفع المباشر لسا قيد الربط بنظام التخزين، مؤقتاً رح ينحفظ اسم الملف بس. لحد ما يكتمل الربط، الأضمن استخدام "وضع رابط".
-          </small>
+        <button type="submit" class="action-btn">دخول لوحة التحكم</button>
+        <button type="button" class="action-btn" style="background:#64748b; margin-top:8px;" onclick="backToEmailStep()">رجوع</button>
+      </form>
+
+      <!-- خطوة 2 - ب: دخول الإدارة (يظهر فقط إذا كان الإيميل إيميل الإدارة) -->
+      <form id="managerLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyManagerLogin();" autocomplete="on">
+        <div class="form-group">
+          <label for="managerPasswordInput">كلمة المرور :</label>
+          <input type="password" id="managerPasswordInput" name="manager_password" autocomplete="current-password" required>
         </div>
+
+        <button type="submit" class="action-btn">دخول لوحة الإدارة</button>
+        <button type="button" class="action-btn" style="background:#64748b; margin-top:8px;" onclick="backToEmailStep()">رجوع</button>
+      </form>
+    </div>
+
+    <!-- لوحة التحكم الفعلية -->
+    <div id="dashboardWrapper" class="hidden">
+      
+      <div style="max-width: 600px; margin: 0 auto 20px auto; background: #eef2ff; padding: 12px 20px; border-radius: 8px; border-right: 4px solid var(--accent-color); font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+        <span>مرحباً بكِ، الأستاذة <span id="currentTeacherDisplay" style="color: var(--accent-color);"></span> 👋</span>
+        <button type="button" onclick="teacherLogout()" style="width: auto; background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">تسجيل خروج</button>
       </div>
 
-      <button type="submit">نشر المحتوى للملف</button>
-    </form>
+      <div class="dashboard-card">
+        <h2>إضافة محتوى تعليمي جديد 📚</h2>
+        <form id="addContentForm">
+
+          <!-- 1. الصف الدراسي والشعبة (إجباري) -->
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">الصف الدراسي والشعبة: <span style="color: red;">*</span></label>
+            <select id="classSelect" name="class_select" onchange="checkClassSelection()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif; background-color: #fff;" required>
+              <option value="">اختر الصف والشعبة...</option>
+              <option value="1-a">الصف الأول - الشعبة (أ)</option>
+              <option value="1-b">الصف الأول - الشعبة (ب)</option>
+              <option value="1-c">الصف الأول - الشعبة (ج)</option>
+              <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+              <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+              <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+              <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+              <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+              <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+              <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+              <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+              <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+            </select>
+          </div>
+
+          <!-- 2. المادة الدراسية (تظهر بعد اختيار الصف وتكون إجبارية) -->
+          <div id="subjectContainer" style="margin-bottom: 20px; display: none;">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية: <span style="color: red;">*</span></label>
+            <select id="subjectSelect" name="subject_select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
+              <option value="">اختر المادة...</option>
+              <option value="اللغة العربية">اللغة العربية</option>
+              <option value="الرياضيات">الرياضيات</option>
+              <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+              <option value="العلوم الحياتية والوطنية">العلوم الحياتية والوطنية</option>
+              <option value="التربية الإسلامية">التربية الإسلامية</option>
+              <option value="التنشئة الوطنية والاجتماعية">التنشئة الوطنية والاجتماعية</option>
+            </select>
+          </div>
+
+          <!-- 3. نوع المحتوى -->
+          <div class="form-group">
+            <label for="contentType">نوع المحتوى:</label>
+            <select id="contentType" name="content_type" onchange="handleContentTypeChange()" required>
+              <option value="lessons"> شرح درس</option>
+              <option value="worksheets"> ورقة عمل</option>
+              <option value="activities"> نشاط تعليمي</option>
+              <option value="assignments"> مهمة / واجب</option>
+              <option value="exams"> اختبار</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="mediaTypeContainer" style="display: none;">
+            <label for="mediaType">نوع النشاط:</label>
+            <select id="mediaType" name="media_type" onchange="handleContentTypeChange()">
+              <option value="video">🎥 فيديو</option>
+              <option value="image">🖼️ صورة</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="title">عنوان الدرس / المحتوى:</label>
+            <input type="text" id="title" name="content_title" autocomplete="on" placeholder="أدخل العنوان هنا..." list="titleSuggestions" required>
+            <datalist id="titleSuggestions"></datalist>
+          </div>
+
+          <div class="form-group" style="position: relative;">
+            <label for="description">وصف أو تعليمات للطلاب (اختياري):</label>
+            <textarea id="description" name="content_description" autocomplete="off" placeholder="اكتب هنا أي ملاحظات أو تعليمات ترغب أن يقرأها الطلاب تحت العنوان..."></textarea>
+            <ul id="descriptionSuggestions" class="suggestions-list hidden"></ul>
+          </div>
+
+          <div class="form-group">
+            <label>طريقة إضافة المحتوى:</label>
+            <div class="source-toggle">
+              <label id="linkOptionLabel" class="selected">
+                <input type="radio" name="sourceType" value="link" checked onchange="handleSourceChange()">
+                🔗 وضع رابط
+              </label>
+              <label id="fileOptionLabel">
+                <input type="radio" name="sourceType" value="file" onchange="handleSourceChange()">
+                📤 رفع ملف من جهازي
+              </label>
+            </div>
+
+            <div id="linkContainer">
+              <input type="url" id="link" name="content_link" autocomplete="on" placeholder="https://..." list="linkSuggestions">
+              <datalist id="linkSuggestions"></datalist>
+            </div>
+
+            <div id="fileContainer" style="display: none;">
+              <input type="file" id="fileUpload">
+            </div>
+          </div>
+
+          <button type="submit" id="submitBtn">نشر المحتوى للملف</button>
+        </form>
+      </div>
+
+      <div class="dashboard-card" id="teacherSupport">
+        <h2>الدعم الفني واستفسارات المعلمات</h2>
+        <form id="supportForm" onsubmit="event.preventDefault(); submitSupportTicket();">
+
+          <div class="form-group">
+            <label for="issueDescription">تفاصيل المشكلة أو الاستفسار التقني:</label>
+            <textarea id="issueDescription" name="support_issue" autocomplete="on" placeholder="اشرح المشكلة بالتفصيل..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="issueImage">صورة توضيحية للمشكلة (اختياري):</label>
+            <input type="file" id="issueImage" accept="image/*">
+          </div>
+
+          <button type="submit" class="support-btn" id="supportSubmitBtn">إرسال طلب الدعم الفني</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- لوحة تحكم الإدارة (تظهر بدل لوحة المعلمة عند دخول حساب الإدارة) -->
+    <div id="managerWrapper" class="hidden">
+      <div style="max-width: 600px; margin: 0 auto 20px auto; background: #eef2ff; padding: 12px 20px; border-radius: 8px; border-right: 4px solid var(--accent-color); font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+        <span>مرحباً بك، الإدارة 👋</span>
+        <button type="button" onclick="managerLogout()" style="width: auto; background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">تسجيل خروج</button>
+      </div>
+
+      <div class="dashboard-card">
+        <h2>إدارة ونشر إعلانات المدرسة 📢</h2>
+        <form id="addAnnouncementForm" onsubmit="event.preventDefault(); submitAnnouncement();">
+
+          <div class="form-group">
+            <label for="announcementTitle">عنوان الإعلان الرئيسي:</label>
+            <input type="text" id="announcementTitle" required>
+          </div>
+
+          <div class="form-group">
+            <label for="announcementImage">صورة الإعلان (اختياري):</label>
+            <input type="file" id="announcementImage" accept="image/*">
+          </div>
+
+          <div class="form-group">
+            <label for="announcementText">نص الإعلان أو التعميم:</label>
+            <textarea id="announcementText" placeholder="تفاصيل الإعلان..." required></textarea>
+          </div>
+
+          <button type="submit" id="announcementSubmitBtn">نشر الإعلان</button>
+        </form>
+      </div>
+
+      <div class="dashboard-card">
+        <h2>الرسائل الواردة من زوار الموقع ✉️</h2>
+        <div id="contactMessagesList" style="text-align: right;">
+          <p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <div class="dashboard-card" id="teacherSupport">
-    <h2>الدعم الفني واستفسارات المعلمات </h2>
-    <form id="supportForm">
-
-      <div class="form-group">
-        <label for="teacherName">اسم المعلمة:</label>
-        <input type="text" id="teacherName" placeholder="أدخل اسمك الثلاثي..." required>
-      </div>
-
-      <div class="form-group">
-        <label for="teacherEmail">البريد الإلكتروني:</label>
-        <input type="email" id="teacherEmail" placeholder="example@email.com" required>
-        <small class="field-hint">حتى نقدر نتواصل معك ونرد على استفسارك.</small>
-      </div>
-
-      <div class="form-group">
-        <label for="issueDescription">تفاصيل المشكلة أو الاستفسار التقني:</label>
-        <textarea id="issueDescription" placeholder="اشرح المشكلة بالتفصيل (مثال: لا يمكنني رفع ورقة العمل، أو رابط الفيديو لا يعمل...)" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="issueImage">صورة توضيحية للمشكلة (اختياري):</label>
-        <input type="file" id="issueImage" accept="image/*">
-      </div>
-
-      <button type="submit" class="support-btn">إرسال طلب الدعم الفني</button>
-    </form>
-  </div>
-
 
   <script>
+    // تهيئة Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
+      authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
+      projectId: "azzoun-boys-school-websi-9ed43",
+      storageBucket: "azzoun-boys-school-websi-9ed43.firebasestorage.app",
+      messagingSenderId: "21170501727",
+      appId: "1:21170501727:web:13916d098f6e823a4743ea"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    // خلي الجلسة محفوظة بالمتصفح حتى لو المعلمة سكرت وفتحت الصفحة من جديد
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function (e) {
+      console.error('تعذر ضبط نوع الجلسة:', e);
+    });
+
+    // تسجيل أي خطأ غير متوقع بقاعدة البيانات حتى تقدروا تتابعوا المشاكل
+    async function logErrorToFirestore(source, error, extra) {
+      try {
+        await db.collection('error_logs').add({
+          source: source,
+          message: (error && error.message) ? error.message : String(error),
+          code: (error && error.code) ? error.code : null,
+          stack: (error && error.stack) ? String(error.stack).slice(0, 1500) : null,
+          extra: extra || null,
+          teacher_username: activeTeacherUsername || null,
+          teacher_name: activeTeacherArabicName || null,
+          page_url: window.location.href,
+          userAgent: navigator.userAgent,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (logErr) {
+        // إذا فشل حتى تسجيل الخطأ، منسجله بالكونسول بس حتى ما تقف الصفحة
+        console.error('فشل تسجيل الخطأ بقاعدة البيانات:', logErr);
+      }
+    }
+
+    // يلتقط أي خطأ برمجي غير متوقع بأي مكان بالصفحة
+    window.addEventListener('error', function (event) {
+      logErrorToFirestore('window.onerror', event.error || event.message);
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+      logErrorToFirestore('unhandledrejection', event.reason);
+    });
+
     const navToggle = document.getElementById('navToggle');
     const navLinks = document.getElementById('navLinks');
     navToggle.addEventListener('click', () => {
       navLinks.classList.toggle('open');
+    });
+
+    // قائمة المعلمات وأسمائهم المقابلة لليوزر
+    const teachersRegistry = {
+      "jenan": "جنان",
+      "hanan": "حنان",
+      "wafaa": "وفاء",
+      "nihaya": "نهاية",
+      "neveen": "نفين",
+      "madiha": "مديحة",
+      "layali": "ليالي",
+      "ahd": "عهد",
+      "athba": "عذبة",
+      "abeer": "عبير",
+      "shatha": "شذا",
+      "suha": "سهى",
+      "sundus": "سندس",
+      "iman": "ايمان",
+      "insam": "انسام",
+      "intisar": "انتصار",
+      "ikram": "إكرام",
+      "duaa": "دعاء",
+      "hind": "هند"
+    };
+
+    // البريد الإلكتروني الموحد للمعلمات، وإيميل حساب الإدارة
+    // كلمتا المرور الفعليتان محفوظتان داخل Firebase Authentication نفسه، مش بالكود
+    const FIXED_EMAIL = "teachers@azzounboys.com";
+    const MANAGER_EMAIL = "manager@azzounboys.com";
+
+    let activeTeacherUsername = ""; 
+    let activeTeacherArabicName = ""; 
+
+    function teacherGreeting() {
+      if (!activeTeacherArabicName) return "";
+      return activeTeacherArabicName + '، ';
+    }
+
+    const SESSION_USERNAME_KEY = 'azzoun_active_teacher_username';
+    const SESSION_ROLE_KEY = 'azzoun_active_role';
+
+    // خطوة 1: يقرأ الإيميل ويحدد أي فورم يظهر بعده
+    function checkLoginEmail() {
+      const email = document.getElementById('loginEmailInput').value.trim().toLowerCase();
+
+      if (email === FIXED_EMAIL) {
+        document.getElementById('emailStepForm').classList.add('hidden');
+        document.getElementById('teacherLoginForm').classList.remove('hidden');
+        document.getElementById('teacherUsernameInput').focus();
+      } else if (email === MANAGER_EMAIL) {
+        document.getElementById('emailStepForm').classList.add('hidden');
+        document.getElementById('managerLoginForm').classList.remove('hidden');
+        document.getElementById('managerPasswordInput').focus();
+      } else {
+        alert('عذراً، هذا البريد الإلكتروني غير معروف بالنظام.');
+      }
+    }
+
+    // يرجع لخطوة إدخال الإيميل من جديد (من فورم المعلمة أو فورم الإدارة)
+    function backToEmailStep() {
+      document.getElementById('teacherLoginForm').classList.add('hidden');
+      document.getElementById('teacherLoginForm').reset();
+      document.getElementById('managerLoginForm').classList.add('hidden');
+      document.getElementById('managerLoginForm').reset();
+      document.getElementById('emailStepForm').classList.remove('hidden');
+      document.getElementById('loginEmailInput').value = '';
+      document.getElementById('loginEmailInput').focus();
+    }
+
+    // تسجيل دخول الإدارة - يعتمد بالكامل على Firebase Authentication الحقيقي، بدون أي تجاوز
+    async function verifyManagerLogin() {
+      const password = document.getElementById('managerPasswordInput').value.trim();
+      const btn = document.querySelector('#managerLoginForm button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'جاري تسجيل الدخول... ⏳'; }
+
+      try {
+        await auth.signInWithEmailAndPassword(MANAGER_EMAIL, password);
+
+        sessionStorage.setItem(SESSION_ROLE_KEY, 'manager');
+        sessionStorage.removeItem(SESSION_USERNAME_KEY);
+
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('managerWrapper').classList.remove('hidden');
+        loadContactMessages();
+      } catch (error) {
+        console.error('خطأ بتسجيل دخول الإدارة:', error);
+        logErrorToFirestore('verifyManagerLogin', error);
+
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          alert('عذراً، كلمة المرور غير صحيحة.');
+        } else if (error.code === 'auth/user-not-found') {
+          alert('عذراً، حساب الإدارة غير مفعّل بعد على Firebase.');
+        } else if (error.code === 'auth/too-many-requests') {
+          alert('تم إيقاف تسجيل الدخول مؤقتاً بسبب محاولات كثيرة. حاول بعد قليل.');
+        } else {
+          alert('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+        }
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'دخول لوحة الإدارة'; }
+      }
+    }
+
+    function managerLogout() {
+      auth.signOut().catch(function (e) {
+        console.error('خطأ بتسجيل خروج الإدارة:', e);
+      });
+      sessionStorage.removeItem(SESSION_ROLE_KEY);
+      document.getElementById('managerWrapper').classList.add('hidden');
+      document.getElementById('authBox').classList.remove('hidden');
+      backToEmailStep();
+    }
+
+    // إرسال وحفظ الإعلان على Firestore (يظهر فوراً لكل زوار الموقع من أي جهاز)
+    async function submitAnnouncement() {
+      const title = document.getElementById('announcementTitle').value.trim();
+      const text = document.getElementById('announcementText').value.trim();
+      const imageInput = document.getElementById('announcementImage');
+      const date = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' });
+      const btn = document.getElementById('announcementSubmitBtn');
+
+      const saveAnnouncement = async (imageUrl = '') => {
+        btn.disabled = true;
+        btn.textContent = 'جاري النشر... ⏳';
+        try {
+          await db.collection("announcements").add({
+            title: title,
+            text: text,
+            image: imageUrl,
+            date: date,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('تم نشر الإعلان بنجاح، وسيظهر الآن مباشرة في قسم إعلانات المدرسة بالصفحة الرئيسية لكل الزوار!');
+          document.getElementById('addAnnouncementForm').reset();
+        } catch (error) {
+          console.error('خطأ بنشر الإعلان:', error);
+          logErrorToFirestore('submitAnnouncement', error, { title: title });
+          alert('حدث خطأ أثناء نشر الإعلان، يرجى المحاولة مرة أخرى.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'نشر الإعلان';
+        }
+      };
+
+      if (imageInput.files && imageInput.files[0]) {
+        if (imageInput.files[0].size > 700 * 1024) {
+          alert('حجم الصورة كبير. الرجاء اختيار صورة أصغر من 700 كيلوبايت حتى تنحفظ بنجاح.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (uploadEvent) {
+          saveAnnouncement(uploadEvent.target.result);
+        };
+        reader.readAsDataURL(imageInput.files[0]);
+      } else {
+        saveAnnouncement('');
+      }
+    }
+
+    // جلب رسائل "تواصل معنا" اللي بعتها زوار الموقع وعرضها بلوحة الإدارة
+    function loadContactMessages() {
+      const listEl = document.getElementById('contactMessagesList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>';
+
+      db.collection('contact_messages').orderBy('createdAt', 'desc').get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد رسائل حتى الآن.</p>';
+            return;
+          }
+
+          listEl.innerHTML = snapshot.docs.map(function (doc) {
+            const data = doc.data();
+            const dateStr = data.createdAt && data.createdAt.toDate
+              ? data.createdAt.toDate().toLocaleString('ar-EG')
+              : '';
+            return `
+              <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: var(--primary);">${data.name || 'بدون اسم'}</strong>
+                  <span style="font-size: 0.8rem; color: #94a3b8;">${dateStr}</span>
+                </div>
+                <p style="white-space: pre-wrap; color: #334155; margin: 0;">${data.message || ''}</p>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('خطأ بجلب الرسائل:', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل الرسائل.</p>';
+        });
+    }
+
+    async function verifyTeacherLogin() {
+      const usernameInput = document.getElementById('teacherUsernameInput').value.trim().toLowerCase();
+      const emailInput = FIXED_EMAIL;
+      const passwordInput = document.getElementById('fixedPasswordInput').value.trim();
+
+      // اسم المستخدم لازم يكون من قائمة المعلمات المعروفة (هذا الجزء داخلي بالتطبيق فقط)
+      if (!teachersRegistry.hasOwnProperty(usernameInput)) {
+        alert('عذراً، اسم المستخدم غير موجود. تأكدي من كتابته بشكل صحيح.');
+        return;
+      }
+
+      const loginBtn = document.querySelector('#teacherLoginForm button[type="submit"]');
+      if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'جاري تسجيل الدخول... ⏳'; }
+
+      try {
+        // التحقق الفعلي من الإيميل وكلمة المرور يصير عبر Firebase Authentication
+        await auth.signInWithEmailAndPassword(emailInput, passwordInput);
+
+        activeTeacherUsername = usernameInput;
+        activeTeacherArabicName = teachersRegistry[usernameInput];
+        sessionStorage.setItem(SESSION_USERNAME_KEY, usernameInput);
+        sessionStorage.setItem(SESSION_ROLE_KEY, 'teacher');
+
+        document.getElementById('currentTeacherDisplay').textContent = activeTeacherArabicName + ' (' + activeTeacherUsername + ')';
+
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('dashboardWrapper').classList.remove('hidden');
+
+        saveToHistory('username', usernameInput);
+        refreshSuggestions();
+
+        alert('مرحباً بكِ الأستاذة ' + activeTeacherArabicName + '، تم تسجيل الدخول بنجاح! 🎉');
+      } catch (error) {
+        console.error('خطأ بتسجيل الدخول:', error);
+        logErrorToFirestore('verifyTeacherLogin', error, { attempted_username: usernameInput });
+
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          alert('عذراً، البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+        } else if (error.code === 'auth/user-not-found') {
+          alert('عذراً، لا يوجد حساب مفعّل بهذا البريد الإلكتروني بعد. تواصلي مع إدارة الموقع.');
+        } else if (error.code === 'auth/too-many-requests') {
+          alert('تم إيقاف تسجيل الدخول مؤقتاً بسبب محاولات كثيرة. حاولي بعد قليل.');
+        } else {
+          alert('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+        }
+      } finally {
+        if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'دخول لوحة التحكم'; }
+      }
+    }
+
+    async function teacherLogout() {
+      try {
+        await auth.signOut();
+      } catch (error) {
+        console.error('خطأ بتسجيل الخروج:', error);
+        logErrorToFirestore('teacherLogout', error);
+      }
+      activeTeacherUsername = "";
+      activeTeacherArabicName = "";
+      sessionStorage.removeItem(SESSION_USERNAME_KEY);
+      sessionStorage.removeItem(SESSION_ROLE_KEY);
+      document.getElementById('dashboardWrapper').classList.add('hidden');
+      document.getElementById('authBox').classList.remove('hidden');
+      backToEmailStep();
+    }
+
+    // لو الصفحة انعملها تحديث (Refresh) وكان في حدا مسجل دخول أصلاً (معلمة أو إدارة)، منرجعه على لوحته تلقائياً
+    auth.onAuthStateChanged(function (user) {
+      const savedRole = sessionStorage.getItem(SESSION_ROLE_KEY);
+      const savedUsername = sessionStorage.getItem(SESSION_USERNAME_KEY);
+
+      if (user && savedRole === 'manager') {
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('managerWrapper').classList.remove('hidden');
+        loadContactMessages();
+      } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
+        activeTeacherUsername = savedUsername;
+        activeTeacherArabicName = teachersRegistry[savedUsername];
+        document.getElementById('currentTeacherDisplay').textContent = activeTeacherArabicName + ' (' + activeTeacherUsername + ')';
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('dashboardWrapper').classList.remove('hidden');
+        refreshSuggestions();
+      } else if (!user) {
+        activeTeacherUsername = "";
+        activeTeacherArabicName = "";
+        sessionStorage.removeItem(SESSION_USERNAME_KEY);
+        sessionStorage.removeItem(SESSION_ROLE_KEY);
+      }
     });
 
     const defaultLinkText = {
@@ -425,15 +889,6 @@
       exams: 'تحميل الاختبار'
     };
 
-    const linkHints = {
-      lessons: 'فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID أو درايف: .../preview',
-      worksheets: 'رابط الملف (PDF) — مثلاً رابط من Google Drive.',
-      activities_video: 'فيديو يوتيوب على شكل: https://www.youtube.com/embed/VIDEO_ID أو درايف: .../preview',
-      activities_image: 'رابط صورة مباشر (jpg / png / webp).',
-      assignments: 'رابط الملف أو الصفحة الخاصة بالمهمة.',
-      exams: 'رابط ملف الاختبار (PDF) أو رابط الاختبار التفاعلي.'
-    };
-
     const fileAccept = {
       lessons: 'video/*',
       worksheets: 'application/pdf',
@@ -441,15 +896,6 @@
       activities_image: 'image/*',
       assignments: 'application/pdf',
       exams: 'application/pdf'
-    };
-
-    const fileHintText = {
-      lessons: 'اختاري ملف فيديو من جهازك (mp4 مثلاً).',
-      worksheets: 'اختاري ملف PDF لورقة العمل.',
-      activities_video: 'اختاري ملف فيديو من جهازك (mp4 مثلاً).',
-      activities_image: 'اختاري صورة من جهازك (jpg / png).',
-      assignments: 'اختاري ملف PDF للمهمة.',
-      exams: 'اختاري ملف PDF للاختبار.'
     };
 
     function currentContentKey() {
@@ -467,8 +913,6 @@
       mediaTypeContainer.style.display = (contentType === 'activities') ? 'block' : 'none';
 
       const key = currentContentKey();
-      document.getElementById('linkHint').textContent = linkHints[key] || '';
-      document.getElementById('fileHint').textContent = fileHintText[key] || '';
       document.getElementById('fileUpload').setAttribute('accept', fileAccept[key] || '');
     }
 
@@ -479,20 +923,28 @@
       const linkLabel = document.getElementById('linkOptionLabel');
       const fileLabel = document.getElementById('fileOptionLabel');
 
+      const linkInput = document.getElementById('link');
+      const fileInput = document.getElementById('fileUpload');
+
       if (sourceType === 'file') {
         linkContainer.style.display = 'none';
         fileContainer.style.display = 'block';
         linkLabel.classList.remove('selected');
         fileLabel.classList.add('selected');
+        fileInput.setAttribute('required', 'true');
+        linkInput.removeAttribute('required');
       } else {
         linkContainer.style.display = 'block';
         fileContainer.style.display = 'none';
         linkLabel.classList.add('selected');
         fileLabel.classList.remove('selected');
+        linkInput.setAttribute('required', 'true');
+        fileInput.removeAttribute('required');
       }
     }
 
-    document.getElementById('addContentForm').addEventListener('submit', function (e) {
+    // إرسال المحتوى وحفظه في Firebase Firestore
+    document.getElementById('addContentForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const classValue = document.getElementById('classSelect').value;
@@ -507,20 +959,20 @@
       const file = fileInput.files[0];
 
       if (!classValue || !subject) {
-        alert('الرجاء اختيار الصف والشعبة والمادة أولاً.');
-        return;
-      }
-      if (sourceType === 'link' && !link) {
-        alert('الرجاء إدخال رابط المحتوى، أو التبديل لخيار "رفع ملف من جهازي".');
-        return;
-      }
-      if (sourceType === 'file' && !file) {
-        alert('الرجاء اختيار ملف من جهازك، أو التبديل لخيار "وضع رابط".');
+        alert(teacherGreeting() + 'يرجى اختيار الصف والشعبة والمادة الدراسية قبل رفع المحتوى');
         return;
       }
 
-      let finalType;
-      let linkTextKey;
+      if (sourceType === 'link' && !link) {
+        alert(teacherGreeting() + 'الرجاء إدخال رابط المحتوى.');
+        return;
+      }
+      if (sourceType === 'file' && !file) {
+        alert(teacherGreeting() + 'الرجاء اختيار ملف من جهازك.');
+        return;
+      }
+
+      let finalType, linkTextKey;
       if (contentType === 'lessons') {
         finalType = 'video';
         linkTextKey = 'lessons';
@@ -532,7 +984,27 @@
         linkTextKey = contentType;
       }
 
+      let fileDataName = sourceType === 'file' ? file.name : null;
+      let fileBase64 = null;
+
+      if (sourceType === 'file' && file) {
+        try {
+          fileBase64 = await toBase64(file);
+        } catch (err) {
+          console.error("خطأ في قراءة الملف:", err);
+          alert("حدث خطأ أثناء معالجة الملف المرفوع.");
+          return;
+        }
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'جاري النشر والحفظ... ⏳';
+
       const newItem = {
+        uploader_username: activeTeacherUsername,
+        uploader_arabic_name: activeTeacherArabicName,
+        teacher_email: FIXED_EMAIL,
         grade: classValue,
         subject: subject,
         category: contentType,
@@ -540,51 +1012,216 @@
         desc: description || '',
         type: finalType,
         source: sourceType,
-        url: sourceType === 'link' ? link : null,
-        fileName: sourceType === 'file' ? file.name : null,
-        linkText: defaultLinkText[linkTextKey]
+        url: sourceType === 'link' ? link : fileBase64,
+        fileName: fileDataName,
+        linkText: defaultLinkText[linkTextKey],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
 
-      console.log('المحتوى الجاهز للنشر:', newItem);
+      try {
+        await db.collection("educational_contents").add(newItem);
+        
+        saveToHistory('title', title);
+        if (sourceType === 'link' && link) saveToHistory('link', link);
+        if (description) saveToHistory('description', description);
+        refreshSuggestions();
 
-      if (sourceType === 'file') {
-        alert('تم اختيار الملف "' + file.name + '" ✅\n(الرفع الفعلي وتوليد رابط دائم بينتظر ربط نظام التخزين — Firebase Storage)');
-      } else {
-        alert('تم تجهيز المحتوى بصيغة متوافقة مع الموقع ✅\n(الحفظ الفعلي بينتظر ربط قاعدة البيانات)');
+        alert('تم نشر المحتوى بنجاح بواسطة الأستاذة (' + activeTeacherArabicName + ') وحفظه في قاعدة البيانات ✅');
+        document.getElementById('addContentForm').reset();
+        handleContentTypeChange();
+        handleSourceChange();
+      } catch (error) {
+        console.error("خطأ في حفظ البيانات في فايربيس:", error);
+        logErrorToFirestore('addContentForm_submit', error, { title: title, grade: classValue, subject: subject });
+        alert("حدث خطأ أثناء الاتصال بقاعدة البيانات وتخزين المحتوى. يرجى المحاولة مرة أخرى.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'نشر المحتوى للملف';
       }
     });
 
-    document.getElementById('supportForm').addEventListener('submit', function (e) {
-      e.preventDefault();
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
 
-      const supportRequest = {
-        teacherName: document.getElementById('teacherName').value.trim(),
-        teacherEmail: document.getElementById('teacherEmail').value.trim(),
-        issueDescription: document.getElementById('issueDescription').value.trim(),
-        hasImage: document.getElementById('issueImage').files.length > 0
+    async function submitSupportTicket() {
+      const issueText = document.getElementById('issueDescription').value.trim();
+      const issueFile = document.getElementById('issueImage').files[0];
+      
+      let imageBase64 = null;
+      if (issueFile) {
+        try {
+          imageBase64 = await toBase64(issueFile);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      const supportBtn = document.getElementById('supportSubmitBtn');
+      supportBtn.disabled = true;
+      supportBtn.textContent = 'جاري الإرسال... ⏳';
+
+      const ticket = {
+        teacher_username: activeTeacherUsername,
+        teacher_name: activeTeacherArabicName,
+        teacher_email: FIXED_EMAIL,
+        issue: issueText,
+        image: imageBase64,
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
 
-      console.log('طلب الدعم الفني:', supportRequest);
-
-      alert('تم إرسال طلب الدعم الفني بنجاح! سيتم الرد عليك على "' + supportRequest.teacherEmail + '" قريباً.');
-      this.reset();
-    });
+      try {
+        await db.collection("teacher_support").add(ticket);
+        alert('تم إرسال طلب الدعم بنجاح وسيتم الرد قريباً.');
+        document.getElementById('supportForm').reset();
+      } catch (error) {
+        console.error("خطأ في إرسال الدعم الفني:", error);
+        logErrorToFirestore('submitSupportTicket', error);
+        alert("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة لاحقاً.");
+      } finally {
+        supportBtn.disabled = false;
+        supportBtn.textContent = 'إرسال طلب الدعم الفني';
+      }
+    }
 
     function checkClassSelection() {
       var selectBox = document.getElementById("classSelect");
       var subjectDiv = document.getElementById("subjectContainer");
-      subjectDiv.style.display = (selectBox.value !== "") ? "block" : "none";
+      var subjectSelect = document.getElementById("subjectSelect");
+
+      if (selectBox.value !== "") {
+        subjectDiv.style.display = "block";
+        subjectSelect.setAttribute("required", "true");
+      } else {
+        subjectDiv.style.display = "none";
+        subjectSelect.value = "";
+        subjectSelect.removeAttribute("required");
+      }
+    }
+
+    const HISTORY_KEY = 'azzoun_teacher_input_history_v3';
+
+    function loadHistory() {
+      try {
+        const data = JSON.parse(localStorage.getItem(HISTORY_KEY));
+        return data || { title: [], link: [], description: [], email: [], username: [] };
+      } catch (e) {
+        return { title: [], link: [], description: [], email: [], username: [] };
+      }
+    }
+
+    function saveToHistory(field, value) {
+      value = (value || '').trim();
+      if (!value) return;
+      const history = loadHistory();
+      const list = (history[field] || []).filter(v => v !== value);
+      list.unshift(value);
+      history[field] = list.slice(0, 30);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function renderDatalist(datalistId, values) {
+      const dl = document.getElementById(datalistId);
+      if (!dl) return;
+      dl.innerHTML = '';
+      values.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        dl.appendChild(opt);
+      });
+      if (datalistId === 'emailSuggestions') {
+        [FIXED_EMAIL, MANAGER_EMAIL].forEach(email => {
+          if (!values.includes(email)) {
+            const opt = document.createElement('option');
+            opt.value = email;
+            dl.appendChild(opt);
+          }
+        });
+      }
+    }
+
+    let descriptionHistoryCache = [];
+
+    function refreshSuggestions() {
+      const history = loadHistory();
+      renderDatalist('titleSuggestions', history.title);
+      renderDatalist('linkSuggestions', history.link);
+      renderDatalist('emailSuggestions', history.email || []);
+      renderDatalist('usernameSuggestions', history.username || []);
+      descriptionHistoryCache = history.description || [];
+    }
+
+    function showDescriptionSuggestions() {
+      const box = document.getElementById('descriptionSuggestions');
+      const val = document.getElementById('description').value.trim();
+      const matches = descriptionHistoryCache
+        .filter(v => !val || v.includes(val))
+        .slice(0, 6);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+
+      box.innerHTML = '';
+      matches.forEach(text => {
+        const li = document.createElement('li');
+        li.textContent = text.length > 90 ? text.slice(0, 90) + '…' : text;
+        li.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          document.getElementById('description').value = text;
+          box.classList.add('hidden');
+        });
+        box.appendChild(li);
+      });
+      box.classList.remove('hidden');
+    }
+
+    function guardBeforeClassSubject(e) {
+      const cls = document.getElementById('classSelect').value;
+      const subj = document.getElementById('subjectSelect').value;
+      if (!cls || !subj) {
+        e.target.blur();
+        alert(teacherGreeting() + 'يرجى اختيار الصف والشعبة والمادة الدراسية أولاً');
+        if (!cls) {
+          document.getElementById('classSelect').focus();
+        } else {
+          document.getElementById('subjectSelect').focus();
+        }
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
       handleContentTypeChange();
       handleSourceChange();
+      refreshSuggestions();
+
+      const description = document.getElementById('description');
+      description.addEventListener('focus', showDescriptionSuggestions);
+      description.addEventListener('input', showDescriptionSuggestions);
+      description.addEventListener('blur', function () {
+        setTimeout(() => document.getElementById('descriptionSuggestions').classList.add('hidden'), 150);
+      });
+
+      ['contentType', 'mediaType', 'title', 'description', 'link', 'fileUpload']
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('focus', guardBeforeClassSubject);
+        });
     });
   </script>
-<footer style="background-color: #001D39; color: #ffffff; text-align: center; padding: 1.5rem 1rem; margin-top: 40px; font-family: 'Tajawal', sans-serif;">
-  <p style="font-size: 1.1rem; margin-bottom: 5px;">منصة مدرسة ذكور عزون الأساسية</p>
-  <p style="font-size: 0.9rem; color: #BDD8E9;">جميع الحقوق محفوظة &copy; 2026</p>
-</footer>
+
+  <footer style="background-color: #001D39; color: #ffffff; text-align: center; padding: 1.5rem 1rem; margin-top: 40px; font-family: 'Tajawal', sans-serif;">
+    <p style="font-size: 1.1rem; margin-bottom: 5px;">منصة مدرسة ذكور عزون الأساسية</p>
+    <p style="font-size: 0.9rem; color: #BDD8E9;">جميع الحقوق محفوظة &copy; 2026</p>
+  </footer>
 
 </body>
 </html>

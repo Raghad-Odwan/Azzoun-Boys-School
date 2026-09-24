@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>منصة مدرسة ذكور عزون الأساسية</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -441,7 +443,6 @@
 </head>
 <body>
 
-  <!-- شريط التنقل العلوي -->
   <nav class="navbar">
     <div class="logo">
         <a href="index.html" class="logo-area"></a>
@@ -461,11 +462,10 @@
       <li><a href="#announcements" class="nav-link">الإعلانات</a></li>
       <li><a href="#classes" class="nav-link">الصفوف</a></li>
       <li><a href="#contact-section" class="nav-link">تواصل معنا</a></li>
-      <li><a href="dashboard.html" class="nav-link">لوحة تحكم المعلم</a></li>
+      <li><a href="dashboard.html" class="nav-link">لوحة التحكم</a></li>
     </ul>
   </nav>
 
-  <!-- القسم الرئيسي (Hero) -->
   <section class="hero" id="home">
     <h1>منصة مدرسة ذكور عزون الأساسية</h1>
     <p>كل ما يحتاجه الطالب وولي الأمر في مكان واحد: الواجبات اليومية، الخطط الأسبوعية، وملخصات الحصص والمواد التعليمية.</p>
@@ -475,7 +475,6 @@
     </div>
   </section>
 
-  <!-- قسم حول المنصة والخدمات -->
   <section class="about-section" id="about">
     <h2 class="section-title">حول المنصة والخدمات</h2>
     <p class="section-subtitle">
@@ -509,12 +508,10 @@
     </div>
   </section>
 
-<!-- قسم الإعلانات والتعاميم المدرسية (السلايدر) -->
   <section class="announcements-section" id="announcements">
     <h2 class="section-title" style="text-align: center;">إعلانات المدرسة</h2>
     <p class="section-subtitle" style="text-align: center;">تابع آخر المستجدات والفعاليات والتعاميم الصادرة عن إدارة المدرسة</p>
 
-    <!-- حاوية السلايدر -->
     <div class="announcements-slider-wrapper">
       <button class="slider-arrow prev-arrow" onclick="moveAnnouncementSlide(-1)">&#10095;</button>
       
@@ -528,7 +525,6 @@
     </div>
   </section>
 
-  <!-- قسم اختيار الصفوف -->
   <section class="classes-section" id="classes">
     <h2 class="section-title" style="font-size: 2.3rem; color: #001D39; margin-bottom: 0.8rem; font-weight: 700;">اختيار الصفوف الدراسية</h2>
     <p class="section-subtitle" style="font-size: 1.1rem; color: #49769F; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">اضغط على الصف المطلوب للوصول إلى المواد التعليمية الخاصة به</p>
@@ -560,7 +556,6 @@
     </div>
   </section>
 
-  <!-- قسم تواصل معنا -->
   <section id="contact-section">
     <h2 style="font-size: 2.2rem; color: #001D39; margin-bottom: 10px;">
       نحن هنا <span style="color: #0A4174;">لمساعدتك</span>
@@ -591,16 +586,15 @@
         <form id="contactForm">
           <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #34495e;">الاسم الكامل</label>
-            <input type="text" placeholder="أدخل اسمك هنا" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; font-size: 0.95rem;">
+            <input type="text" id="contactName" placeholder="أدخل اسمك هنا" required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; font-size: 0.95rem;">
           </div>
-
 
           <div style="margin-bottom: 25px;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #34495e;">الرسالة</label>
-            <textarea rows="4" placeholder="اكتب استفسارك أو رسالتك هنا..." required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; resize: vertical; font-size: 0.95rem;"></textarea>
+            <textarea id="contactMessage" rows="4" placeholder="اكتب استفسارك أو رسالتك هنا..." required style="width: 100%; padding: 12px 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; resize: vertical; font-size: 0.95rem;"></textarea>
           </div>
 
-          <button type="submit" style="width: 100%; background: #0A4174; color: white; padding: 14px; border: none; border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s;">
+          <button type="submit" id="contactSubmitBtn" style="width: 100%; background: #0A4174; color: white; padding: 14px; border: none; border-radius: 25px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s;">
             إرسال الرسالة
           </button>
         </form>
@@ -609,7 +603,6 @@
     </div>
   </section>
 
-  <!-- تذييل الصفحة (Footer) -->
   <footer>
     <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 40px; text-align: right;">
       
@@ -693,7 +686,6 @@
     window.addEventListener('scroll', setActiveLink);
     window.addEventListener('load', setActiveLink);
   </script>
-
 
 <style>
 .announcements-slider-wrapper {
@@ -791,166 +783,157 @@
   transition: all 0.3s ease;
 }
 
-
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-  const track = document.getElementById('announcementsTrack');
-  if (!track) return;
-
-  // جلب الإعلانات المخزنة من لوحة التحكم
-  let announcements = JSON.parse(localStorage.getItem('schoolAnnouncements')) || [];
-
-  if (announcements.length === 0) {
-    track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">لا توجد إعلانات حالياً.</p></div>`;
-    return;
-  }
-
-  // عرض الإعلانات داخل السلايدر
-  track.innerHTML = announcements.map(item => `
-    <div class="announcement-card-slide">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <span class="announcement-date">${item.date || ''}</span>
-      </div>
-      <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; font-weight: 700;">${item.title}</h3>
-      <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap;">${item.text}</p>
-      ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 250px; object-fit: cover;">` : ''}
-    </div>
-  `).join('');
-
-  // إعدادات الحركة والأسهم والتنقل التلقائي
-  let currentSlide = 0;
-  const slides = document.querySelectorAll('.announcement-card-slide');
-  const totalSlides = slides.length;
-  let slideInterval;
-
-  window.moveAnnouncementSlide = function(direction) {
-    currentSlide += direction;
-    if (currentSlide >= totalSlides) {
-      currentSlide = 0;
-    } else if (currentSlide < 0) {
-      currentSlide = totalSlides - 1;
-    }
-    updateSlidePosition();
-    resetTimer();
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
+    authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
+    projectId: "azzoun-boys-school-websi-9ed43",
+    storageBucket: "azzoun-boys-school-websi-9ed43.firebasestorage.app",
+    messagingSenderId: "21170501727",
+    appId: "1:21170501727:web:13916d098f6e823a4743ea"
   };
-
-  function updateSlidePosition() {
-    // استخدام الـ transform لعرض السلايد بسلاسة (مع مراعاة الاتجاه العربي RTL)
-    track.style.transform = `translateX(${currentSlide * 100}%)`;
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
   }
+  const db = firebase.firestore();
 
-  function startTimer() {
-    if (totalSlides > 1) {
-      slideInterval = setInterval(() => {
-        moveAnnouncementSlide(1);
-      }, 10000); // الانتقال التلقائي كل 10 ثوانٍ
+  document.addEventListener("DOMContentLoaded", function() {
+    const track = document.getElementById('announcementsTrack');
+    if (!track) return;
+
+    track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">جاري تحميل الإعلانات...</p></div>`;
+
+    db.collection("announcements").orderBy("createdAt", "desc").get()
+      .then(function (snapshot) {
+        const announcements = snapshot.docs.map(doc => doc.data());
+        renderAnnouncements(announcements);
+      })
+      .catch(function (error) {
+        console.error('خطأ بجلب الإعلانات:', error);
+        track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">تعذر تحميل الإعلانات حالياً.</p></div>`;
+      });
+  });
+
+  function renderAnnouncements(announcements) {
+    const track = document.getElementById('announcementsTrack');
+    if (!track) return;
+
+    if (!announcements || announcements.length === 0) {
+      track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">لا توجد إعلانات حالياً.</p></div>`;
+      return;
     }
-  }
 
-  function resetTimer() {
-    clearInterval(slideInterval);
+    track.innerHTML = announcements.map((item, index) => `
+      <div class="announcement-card-slide">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+          <span class="announcement-date">${item.date || ''}</span>
+        </div>
+        <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; font-weight: 700;">${item.title}</h3>
+
+        <div class="announcement-text-container" id="desc-${index}">
+          <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap; margin: 0;">${item.text}</p>
+          ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; display: block;">` : ''}
+        </div>
+
+        <button onclick="toggleAnnouncement(${index})" id="btn-${index}" style="background: none; border: none; color: var(--primary); font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Tajawal', sans-serif; display: none;">
+          عرض المزيد ↓
+        </button>
+      </div>
+    `).join('');
+
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.announcement-card-slide');
+    const totalSlides = slides.length;
+    let slideInterval;
+
+    window.moveAnnouncementSlide = function (direction) {
+      currentSlide += direction;
+      if (currentSlide >= totalSlides) {
+        currentSlide = 0;
+      } else if (currentSlide < 0) {
+        currentSlide = totalSlides - 1;
+      }
+      track.style.transform = `translateX(${currentSlide * 100}%)`;
+      clearInterval(slideInterval);
+      startTimer();
+    };
+
+    function startTimer() {
+      if (totalSlides > 1) {
+        slideInterval = setInterval(() => window.moveAnnouncementSlide(1), 10000);
+      }
+    }
     startTimer();
-  }
 
-  startTimer();
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-  const track = document.getElementById('announcementsTrack');
-  if (!track) return;
-
-  let announcements = JSON.parse(localStorage.getItem('schoolAnnouncements')) || [];
-
-  if (announcements.length === 0) {
-    track.innerHTML = `<div class="announcement-card-slide"><p style="text-align: center; color: #7f8c8d;">لا توجد إعلانات حالياً.</p></div>`;
-    return;
-  }
-
-  // عرض الإعلانات مع خاصية الطي والتوسيع للنصوص الطويلة والصور
-  track.innerHTML = announcements.map((item, index) => `
-    <div class="announcement-card-slide">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-        <span class="announcement-date">${item.date || ''}</span>
-      </div>
-      <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; font-weight: 700;">${item.title}</h3>
-      
-      <!-- نص الإعلان مع حاوية قابلة للطي إذا كان طويلاً -->
-      <div class="announcement-text-container" id="desc-${index}">
-        <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap; margin: 0;">${item.text}</p>
-        ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; display: block;">` : ''}
-      </div>
-
-      <!-- زر إظهار المزيد / طي النص -->
-      <button onclick="toggleAnnouncement(${index})" id="btn-${index}" style="background: none; border: none; color: var(--primary); font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Tajawal', sans-serif; display: none;">
-        عرض المزيد ↓
-      </button>
-    </div>
-  `).join('');
-
-  // فحص ما إذا كان النص طويلاً لتفعيل زر التوسيع تلقائياً
-  setTimeout(() => {
-    announcements.forEach((_, index) => {
-      const descBox = document.getElementById(`desc-${index}`);
-      const btn = document.getElementById(`btn-${index}`);
-      if (descBox && btn) {
-        // إذا كان ارتفاع محتوى النص أكبر من الحد المسموح، نظهر زر التوسيع
-        if (descBox.scrollHeight > 120) {
+    setTimeout(() => {
+      announcements.forEach((_, index) => {
+        const descBox = document.getElementById(`desc-${index}`);
+        const btn = document.getElementById(`btn-${index}`);
+        if (descBox && btn && descBox.scrollHeight > 120) {
           descBox.classList.add('collapsed');
           btn.style.display = 'inline-block';
         }
-      }
-    });
-  }, 100);
-});
-
-// دالة فتح وإغلاق النص الطويل والصورة عند الضغط على الزر
-window.toggleAnnouncement = function(index) {
-  const descBox = document.getElementById(`desc-${index}`);
-  const btn = document.getElementById(`btn-${index}`);
-  
-  if (descBox.classList.contains('collapsed')) {
-    descBox.classList.remove('collapsed');
-    btn.innerHTML = 'إخفاء التفاصيل ↑';
-  } else {
-    descBox.classList.add('collapsed');
-    btn.innerHTML = 'عرض المزيد ↓';
+      });
+    }, 100);
   }
-};
 
+  window.toggleAnnouncement = function(index) {
+    const descBox = document.getElementById(`desc-${index}`);
+    const btn = document.getElementById(`btn-${index}`);
 
-
-
-const testAnnouncements = [
-  {
-    title: "🏆 مسابقة «أنظف بيئة صفية» تنطلق في مدرسة ذكور عزون الأساسية 🌟",
-    text: "🌿 لأن النظافة عنوان الانتماء، والجمال يبدأ من صفوفنا، وحرصًا من إدارة مدرسة ذكور عزون الأساسية على تعزيز روح التعاون والمسؤولية لدى أبنائنا الطلبة، نعلن بكل حماس عن انطلاق:\n\n✨🏆 مسابقة أنظف بيئة صفية 🏆✨\n\n🎯 فلنجعل صفوفنا نموذجًا في:\n🧹 النظافة والترتيب\n📚 تنظيم المقاعد والأدوات\n✨ المحافظة على الجدران والسبورة\n🏫 المحافظة على مرافق المدرسة\n🤝 التعاون وروح الفريق\n\n📅 المتابعة والتقييم: يوميًا طوال أيام الدوام، والإعلان عن الصف الفائز شهريًا.\n\n🎁 والتميز له تكريم يليق به:\n🏆 درع البيئة الصفية النظيفة\n📜 شهادة تميز للصف الفائز\n🎙️ تكريم وإشادة بالصف الفائز عبر الإذاعة المدرسية\n\n🌱 كونوا جزءًا من التغيير... واجعلوا صفكم عنوانًا للنظافة والتميز.\n\nشعارنا: 💚\n✨«معًا نحو بيئة مدرسية نظيفة... وصفوف تليق بأبنائنا»✨",
-    date: "١٠ سبتمبر ٢٠٢٦"
-  },
-  {
-    title: "تنويه هام لأولياء الأمور الكرام - تحديث بيانات الطالب",
-    text: "تحية طيبة وبعد، 🌷\n\nنرجو منكم التكرم بتعبئة استمارة تحديث بيانات الطالب، والتأكد من إدخال المعلومات المطلوبة بشكل دقيق وكامل، وذلك لأهمية هذه البيانات في تحديث سجلات المدرسة ومتابعة شؤون أبنائنا الطلبة.\n\nرابط الاستمارة:\nhttps://tinyurl.com/StudentsUpdateInfo\n\nشاكرين لكم تعاونكم واهتمامكم،\nمع خالص التقدير والاحترام 🌿\nمديرة المدرسة: أ. نداء عدوان",
-    date: "٩ سبتمبر ٢٠٢٦"
-  }
-];
-
-
-//  عرضه فوراً دون حفظ دائم
-localStorage.setItem('schoolAnnouncements', JSON.stringify(testAnnouncements));
-
-if (window.location.hash) {
-  setTimeout(function() {
-    var target = document.querySelector(window.location.hash);
-    if (target) {
-      target.scrollIntoView();
+    if (descBox.classList.contains('collapsed')) {
+      descBox.classList.remove('collapsed');
+      btn.innerHTML = 'إخفاء التفاصيل ↑';
+    } else {
+      descBox.classList.add('collapsed');
+      btn.innerHTML = 'عرض المزيد ↓';
     }
-  }, 150);
-}
-</script>
+  };
 
+  // إرسال رسالة "تواصل معنا" وتخزينها بـ Firestore حتى تقدر الإدارة تشوفها من لوحة التحكم
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('contactName').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+      const btn = document.getElementById('contactSubmitBtn');
+
+      if (!name || !message) return;
+
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال... ⏳';
+
+      db.collection('contact_messages').add({
+        name: name,
+        message: message,
+        status: 'new',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function () {
+        alert('تم إرسال رسالتك بنجاح، شكراً لتواصلك معنا! سيتم الرد عليك قريباً.');
+        contactForm.reset();
+      }).catch(function (error) {
+        console.error('خطأ بإرسال الرسالة:', error);
+        alert('حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة مرة أخرى أو التواصل عبر البريد الإلكتروني.');
+      }).finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'إرسال الرسالة';
+      });
+    });
+  }
+
+  if (window.location.hash) {
+    setTimeout(function() {
+      var target = document.querySelector(window.location.hash);
+      if (target) {
+        target.scrollIntoView();
+      }
+    }, 150);
+  }
+</script>
 
 </body>
 </html>

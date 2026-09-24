@@ -403,12 +403,46 @@
       .slider-arrow {
         display: none !important;
       }
+    
     }
+
+    /* تنسيقات قسم الجدول الدراسي */
+.schedule-section {
+  background: #ffffff;
+  border: 2px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  text-align: center;
+}
+.schedule-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.schedule-img {
+  max-width: 100%;
+  height: auto;
+  max-height: 400px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+.schedule-img:hover {
+  transform: scale(1.01);
+}
+
+    .hidden-section {
+  display: none !important;
+}
+
   </style>
 </head>
 <body>
 
-  <!-- الهيدر -->
   <header>
     <div class="header-container">
       <a href="index.html" class="logo-area">
@@ -424,18 +458,16 @@
     </div>
   </header>
 
-  <!-- المحتوى الرئيسي -->
   <main>
     <div class="page-header-box">
       <h2>الصف الرابع الأساسي</h2>
       <p>اختر الشعبة الدراسية، ثم انقر على المادة لعرض المحتوى.</p>
     </div>
 
-    <!-- اختيار الشعب -->
     <div class="sections-container" id="classesSection">
       <h3 class="section-title">اختر الشعبة الدراسية</h3>
       <div class="sections-grid">
-        <div class="section-card active" onclick="selectSection('أ', this)">
+        <div class="section-card" onclick="selectSection('أ', this)">
           <h3>الشعبة (أ)</h3>
         </div>
         <div class="section-card" onclick="selectSection('ب', this)">
@@ -447,8 +479,14 @@
       </div>
     </div>
 
-    <!-- سلايدر المواد الدراسية -->
-    <div class="subjects-section">
+    <div class="schedule-section hidden-section" id="scheduleSection">
+      <h3 class="section-title" id="scheduleHeading" style="text-align: center;">الجدول الدراسي - الشعبة (أ)</h3>
+      <div class="schedule-container">
+        <img id="scheduleImage" src="schedule-4a.png" alt="الجدول الدراسي" class="schedule-img">
+      </div>
+    </div>
+
+    <div class="subjects-section hidden-section" id="subjectsSection">
       <h3 class="section-title" id="subjectsHeading">المواد الدراسية - الشعبة (أ)</h3>
       <div class="subjects-slider-wrapper">
         <button class="slider-arrow prev-arrow" onclick="scrollSubjects('right')">❮</button>
@@ -493,7 +531,6 @@
       </div>
     </div>
 
-    <!-- صندوق المعلمة -->
     <div id="teacherContentSection">
       <div class="content-header">
         <h3 id="contentTitle">مادة اللغة العربية - الشعبة (أ)</h3>
@@ -522,7 +559,6 @@
 
   </main>
 
-  <!-- الفوتر -->
   <footer>
     <div class="footer-content">
       <a href="index.html" class="footer-link">← العودة إلى الصفحة الرئيسية</a>
@@ -532,8 +568,8 @@
   </footer>
 
   <script>
-    let currentSection = 'أ';
-    let currentSubject = 'اللغة العربية';
+    let currentSection = null;
+    let currentSubject = null;
     let currentTab = 'lessons';
 
     /* قاعدة البيانات فارغة تماماً - جاهزة لربطها بلوحة التحكم أو الإضافة لاحقاً */
@@ -551,14 +587,6 @@
       navLinks.classList.toggle('show');
     }
 
-    function selectSection(sectionName, element) {
-      document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
-      element.classList.add('active');
-      currentSection = sectionName;
-      document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
-      updateHeaderTitle();
-    }
-
     function selectSubject(subjectName, element) {
       document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('active-subject'));
       element.classList.add('active-subject');
@@ -571,6 +599,27 @@
       loadFilesToSlider();
     }
 
+  const schedules = {
+  'أ': 'schedule-4a.png',
+  'ب': 'schedule-4b.png',
+  'ج': 'schedule-4c.png'
+};
+
+    function selectSection(sectionName, element) {
+      document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
+      element.classList.add('active');
+      currentSection = sectionName;
+
+      document.getElementById('scheduleSection').classList.remove('hidden-section');
+      document.getElementById('subjectsSection').classList.remove('hidden-section');
+      
+      document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
+      
+      document.getElementById('scheduleHeading').innerText = `الجدول الدراسي - الشعبة (${sectionName})`;
+      document.getElementById('scheduleImage').src = schedules[sectionName];
+      
+      updateHeaderTitle();
+    }
     function updateHeaderTitle() {
       document.getElementById('contentTitle').innerText = `مادة ${currentSubject} - الشعبة (${currentSection})`;
     }
@@ -609,6 +658,8 @@
       const container = document.getElementById('filesContainer');
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
+
+    
   </script>
 
 </body>
