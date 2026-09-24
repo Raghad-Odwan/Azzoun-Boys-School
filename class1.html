@@ -284,8 +284,8 @@
       direction: rtl;
     }
     .file-card {
-      min-width: 260px;
-      flex: 0 0 260px;
+      min-width: 280px;
+      flex: 0 0 280px;
       background: #f8fafc;
       border: 2px solid #e2e8f0;
       border-radius: 16px;
@@ -296,12 +296,6 @@
       flex-direction: column;
       gap: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .file-card:hover {
-      transform: translateY(-4px);
-      border-color: #0A4174;
-      background-color: #ffffff;
-      box-shadow: 0 8px 20px rgba(10, 65, 116, 0.1);
     }
     .file-icon {
       font-size: 2rem;
@@ -399,7 +393,6 @@
       overflow-y: auto;
       text-align: center;
     }
-    /* الفيديو: نسبة عرض/ارتفاع ثابتة 16:9 حتى ما يصير مضغوط */
     .modal-body iframe {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -518,44 +511,40 @@
       .slider-arrow {
         display: none !important;
       }
-      .modal-body iframe {
-        aspect-ratio: 16 / 10;
-      }
     }
 
     /* تنسيقات قسم الجدول الدراسي */
-.schedule-section {
-  background: #ffffff;
-  border: 2px solid #E2E8F0;
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  text-align: center;
-}
-.schedule-container {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.schedule-img {
-  max-width: 100%;
-  height: auto;
-  max-height: 400px;
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  transition: transform 0.3s ease;
-}
-.schedule-img:hover {
-  transform: scale(1.01);
-}
+    .schedule-section {
+      background: #ffffff;
+      border: 2px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      text-align: center;
+    }
+    .schedule-container {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .schedule-img {
+      max-width: 100%;
+      height: auto;
+      max-height: 400px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+    }
+    .schedule-img:hover {
+      transform: scale(1.01);
+    }
 
-.hidden-section {
-  display: none !important;
-}
-
+    .hidden-section {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -599,7 +588,6 @@
     <div class="schedule-section hidden-section" id="scheduleSection">
       <h3 class="section-title" id="scheduleHeading" style="text-align: center;">الجدول الدراسي - الشعبة (أ)</h3>
       <div class="schedule-container">
-       
         <img id="scheduleImage" src="schedule-1a.png" alt="الجدول الدراسي" class="schedule-img">
       </div>
     </div>
@@ -702,120 +690,14 @@
     let currentSubject = null;
     let currentTab = 'lessons';
 
-    /*
-      قاعدة البيانات:
-      - lessons و activities: كل عنصر لازم يكون فيه "type": "video" أو "image"
-          video -> حط رابط embed:
-              يوتيوب:  https://www.youtube.com/embed/VIDEO_ID
-              درايف:   https://drive.google.com/file/d/FILE_ID/preview
-          image -> حط رابط الصورة مباشرة (jpg/png/webp...)
-      - worksheets / assignments / exams: "type": "download" ورابط الملف (PDF مثلاً)
-    */
+    /* قاعدة البيانات فارغة تماماً - جاهزة لربطها بلوحة التحكم أو الإضافة لاحقاً */
     const schoolData = {
-      "اللغة العربية": {
-        lessons: [
-          { title: "شرح حرف الباء", desc: "فيديو تعليمي يوضح طريقة نطق وكتابة حرف الباء.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" },
-          { title: "شرح التنوين بالفتح", desc: "درس مبسط لشرح قواعد وأمثلة التنوين.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
-        ],
-        worksheets: [
-          { title: "ورقة عمل حرف الباء", desc: "تدريبات كتابة وتوصيل حرف الباء (PDF).", type: "download", url: "#", linkText: "تحميل الملف" },
-          { title: "ورقة عمل التنوين", desc: "أنشطة مميزة لقواعد التنوين (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
-        ],
-        activities: [
-          { title: "صيد الحروف البصرية", desc: "نشاط مصور تفاعلي لتثبيت الحروف.", type: "image", url: "https://via.placeholder.com/600x350?text=Activity+Image", linkText: "عرض النشاط" }
-        ],
-        assignments: [
-          { title: "مهمة الإملاء الأسبوعية", desc: "ملف الواجب المنزلي (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
-        ],
-        exams: [
-          { title: "امتحان الشهر الأول", desc: "نموذج اختبار مادة اللغة العربية الشامل (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
-        ]
-      },
-      "الرياضيات": {
-        lessons: [
-          { title: "درس الجمع ضمن العدد 10", desc: "شرح مصور لعملية الجمع.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
-        ],
-        worksheets: [
-          { title: "ورقة عمل الأعداد (1-10)", desc: "تمارين عد وكتابة الأرقام (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
-        ],
-        activities: [
-          { title: "نشاط قطار الأعداد", desc: "صورة توضيحية لنشاط الأعداد.", type: "image", url: "https://via.placeholder.com/600x350?text=Math+Activity", linkText: "عرض النشاط" }
-        ],
-        assignments: [
-          { title: "واجب كتاب النشاط ص 15", desc: "التمارين المطلوبة (PDF).", type: "download", url: "#", linkText: "تحميل الواجب" }
-        ],
-        exams: [
-          { title: "اختبار قصير في الأعداد", desc: "نموذج تقييمي (PDF).", type: "download", url: "#", linkText: "تحميل الاختبار" }
-        ]
-      },
-      "اللغة الإنجليزية": {
-        lessons: [
-          { title: "Letter A & B Sound", desc: "Phonics and pronunciation video.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "Watch Lesson" }
-        ],
-        worksheets: [
-          { title: "Alphabet Worksheet", desc: "Tracing letters (PDF).", type: "download", url: "#", linkText: "Download File" }
-        ],
-        activities: [
-          { title: "Colors Match", desc: "Colors activity card.", type: "image", url: "https://via.placeholder.com/600x350?text=English+Activity", linkText: "View Activity" }
-        ],
-        assignments: [
-          { title: "Vocabulary Homework", desc: "Home practice sheet (PDF).", type: "download", url: "#", linkText: "Download Task" }
-        ],
-        exams: [
-          { title: "Unit 1 Quiz", desc: "Short quiz (PDF).", type: "download", url: "#", linkText: "Download Quiz" }
-        ]
-      },
-      "العلوم الحياتية والوطنية": {
-        lessons: [
-          { title: "درس الحواس الخمس", desc: "شرح وظائف الحواس الخمس.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
-        ],
-        worksheets: [
-          { title: "ورقة عمل الحواس الخمس", desc: "أنشطة وتوصيل (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
-        ],
-        activities: [
-          { title: "نشاط تمييز الأصوات", desc: "بطاقة نشاط تفاعلية.", type: "image", url: "https://via.placeholder.com/600x350?text=Science+Activity", linkText: "عرض النشاط" }
-        ],
-        assignments: [
-          { title: "بحث كائنات حيّة", desc: "متطلبات المهمة (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
-        ],
-        exams: [
-          { title: "اختبار وحدة الحواس", desc: "تقييم الوحدة (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
-        ]
-      },
-      "التربية الإسلامية": {
-        lessons: [
-          { title: "شرح سورة الفاتحة", desc: "فيديو تحفيظ وتفسير.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
-        ],
-        worksheets: [
-          { title: "ورقة عمل سورة الفاتحة", desc: "تلوين وتثبيت (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
-        ],
-        activities: [
-          { title: "لعبة ترتيب الآيات", desc: "بطاقة تعليمية.", type: "image", url: "https://via.placeholder.com/600x350?text=Islamic+Activity", linkText: "عرض النشاط" }
-        ],
-        assignments: [
-          { title: "متابعة الحفظ", desc: "ورقة التسميع (PDF).", type: "download", url: "#", linkText: "تحميل المهمة" }
-        ],
-        exams: [
-          { title: "اختبار قصار السور", desc: "نموذج اختبار (PDF).", type: "download", url: "#", linkText: "تحميل الامتحان" }
-        ]
-      },
-      "التنشئة الوطنية والاجتماعية": {
-        lessons: [
-          { title: "درس أعرف وطني", desc: "فيديو تعليمي عن معالم الوطن ورموزه.", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", linkText: "مشاهدة الدرس" }
-        ],
-        worksheets: [
-          { title: "ورقة عمل رموز الوطن", desc: "تلوين وتوصيل رموز وطنية (PDF).", type: "download", url: "#", linkText: "تحميل الملف" }
-        ],
-        activities: [
-          { title: "نشاط علم بلادي", desc: "بطاقة تعليمية مصورة.", type: "image", url: "https://via.placeholder.com/600x350?text=Social+Activity", linkText: "عرض النشاط" }
-        ],
-        assignments: [
-          { title: "ارسم علم وطنك", desc: "نشاط منزلي مع الأهل.", type: "download", url: "#", linkText: "تحميل المهمة" }
-        ],
-        exams: [
-          { title: "اختبار قصير - رموز الوطن", desc: "تقييم قصير (PDF).", type: "download", url: "#", linkText: "تحميل الاختبار" }
-        ]
-      }
+      "اللغة العربية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
+      "الرياضيات": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
+      "اللغة الإنجليزية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
+      "العلوم الحياتية والوطنية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
+      "التربية الإسلامية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
+      "التنشئة الوطنية والاجتماعية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] }
     };
 
     function toggleMenu() {
@@ -823,11 +705,11 @@
       navLinks.classList.toggle('show');
     }
 
-const schedules = {
-  'أ': 'schedule-1a.png',
-  'ب': 'schedule-1b.png',
-  'ج': 'schedule-1c.png'
-};
+    const schedules = {
+      'أ': 'schedule-1a.png',
+      'ب': 'schedule-1b.png',
+      'ج': 'schedule-1c.png'
+    };
 
     function selectSection(sectionName, element) {
       document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
@@ -838,12 +720,12 @@ const schedules = {
       document.getElementById('subjectsSection').classList.remove('hidden-section');
       
       document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
-      
       document.getElementById('scheduleHeading').innerText = `الجدول الدراسي - الشعبة (${sectionName})`;
       document.getElementById('scheduleImage').src = schedules[sectionName];
       
       updateHeaderTitle();
     }
+
     function selectSubject(subjectName, element) {
       document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('active-subject'));
       element.classList.add('active-subject');
@@ -867,7 +749,6 @@ const schedules = {
       loadFilesToSlider();
     }
 
-    // تحميل العناصر في السلايدر: أزرار معاينة (مودال) للفيديو/الصورة، وأزرار تحميل فعلية للباقي
     function loadFilesToSlider() {
       const track = document.getElementById('filesTrack');
       track.innerHTML = '';
@@ -876,45 +757,14 @@ const schedules = {
       const items = (subjectData && subjectData[currentTab]) ? subjectData[currentTab] : [];
 
       if (items.length === 0) {
-        track.innerHTML = `<div class="file-card"><h4>لا توجد ملفات حالياً</h4><p>سيتم إدراج المحتوى قريباً من قبل المعلمة.</p></div>`;
+        track.innerHTML = `
+          <div class="file-card" style="min-width: 100%;">
+            <h4>لا توجد ملفات حالياً</h4>
+            <p>سيتم إدراج المحتوى قريباً من قبل المعلمة.</p>
+          </div>
+        `;
         return;
       }
-
-      items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'file-card';
-
-        const icon = item.type === 'video' ? '🎥' : item.type === 'image' ? '🖼️' : '📁';
-        card.innerHTML = `
-          <div class="file-icon">${icon}</div>
-          <h4></h4>
-          <p></p>
-        `;
-        // استخدام textContent بدل innerHTML للعنوان والوصف يحمي من أي رموز خاصة (' أو ") داخل النص
-        card.querySelector('h4').textContent = item.title;
-        card.querySelector('p').textContent = item.desc;
-
-        if (item.type === 'video' || item.type === 'image') {
-          // زر يفتح المودال الداخلي - نستخدم addEventListener بدل onclick لتفادي مشاكل علامات الاقتباس
-          const btn = document.createElement('button');
-          btn.className = 'action-btn';
-          btn.type = 'button';
-          btn.textContent = item.linkText;
-          btn.addEventListener('click', () => openMediaModal(item));
-          card.appendChild(btn);
-        } else {
-          // زر تحميل مباشر - يفتح بتاب جديد لأن سمة download ما بتشتغل مع روابط خارجية (درايف مثلاً)
-          const link = document.createElement('a');
-          link.className = 'action-btn';
-          link.href = item.url;
-          link.target = '_blank';
-          link.rel = 'noopener';
-          link.textContent = item.linkText;
-          card.appendChild(link);
-        }
-
-        track.appendChild(card);
-      });
     }
 
     function openMediaModal(item) {
@@ -947,10 +797,9 @@ const schedules = {
       }
 
       modal.classList.add('show');
-      document.body.style.overflow = 'hidden'; // قفل سكرول الصفحة خلف المودال
+      document.body.style.overflow = 'hidden';
     }
 
-    // إغلاق المودال (وإيقاف تشغيل الفيديو بحذف الـ iframe)
     function closeModal() {
       const modal = document.getElementById('mediaModal');
       const modalBodyContent = document.getElementById('modalBodyContent');
@@ -959,7 +808,6 @@ const schedules = {
       document.body.style.overflow = '';
     }
 
-    // ربط أحداث إغلاق المودال: زر الإغلاق، النقر خارج الصندوق، ومفتاح Esc
     document.getElementById('closeModalBtn').addEventListener('click', closeModal);
     document.getElementById('mediaModal').addEventListener('click', (e) => {
       if (e.target.id === 'mediaModal') closeModal();
