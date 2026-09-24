@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الصف الثاني الاساسي - مدرسة ذكور عزون الأساسية</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- مكتبات Firebase لعرض المحتوى المنشور من لوحة تحكم المعلمات -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
     /* تنسيقات عامة */
     * {
@@ -307,6 +310,124 @@
       font-size: 0.85rem;
     }
 
+    .file-icon {
+      font-size: 2rem;
+    }
+    .file-card h4 {
+      color: #001D39;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .file-card p {
+      color: #64748B;
+      font-size: 0.85rem;
+    }
+    .action-btn {
+      display: inline-block;
+      background: #0A4174;
+      color: #fff;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 5px;
+      font-family: inherit;
+    }
+    .action-btn:hover {
+      background: #001D39;
+      transform: scale(1.02);
+    }
+
+    /* تصميم النافذة المنبثقة (Modal) للشروحات والأنشطة */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 800px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      animation: modalScaleUp 0.3s ease-in-out;
+    }
+    @keyframes modalScaleUp {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      background: #001D39;
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      font-size: 1.2rem;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .close-modal:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    .modal-body {
+      padding: 1.5rem;
+      max-height: 75vh;
+      overflow-y: auto;
+      text-align: center;
+    }
+    .modal-body iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      height: auto;
+      border-radius: 12px;
+      border: none;
+      display: block;
+    }
+    .modal-body img {
+      width: 100%;
+      max-height: 70vh;
+      border-radius: 12px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .modal-empty-msg {
+      color: #64748B;
+      font-size: 0.95rem;
+      padding: 2rem 1rem;
+    }
+
     /* أسهم السلايدر */
     .slider-arrow {
       background: #0A4174;
@@ -558,6 +679,18 @@
 
   </main>
 
+  <div class="modal-overlay" id="mediaModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">عنوان الدرس أو النشاط</h3>
+        <button class="close-modal" id="closeModalBtn" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body" id="modalBodyContent">
+        <!-- يتم حقن الفيديو أو الصورة هنا ديناميكياً -->
+      </div>
+    </div>
+  </div>
+
   <footer>
     <div class="footer-content">
       <a href="index.html" class="footer-link">← العودة إلى الصفحة الرئيسية</a>
@@ -567,19 +700,37 @@
   </footer>
 
   <script>
+    // ================= إعداد Firebase =================
+    // نفس مشروع Firebase المستخدم في لوحة تحكم المعلمات، بصلاحية قراءة فقط هنا
+    const firebaseConfig = {
+      apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
+      authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
+      projectId: "azzoun-boys-school-websi-9ed43",
+      storageBucket: "azzoun-boys-school-websi-9ed43.firebasestorage.app",
+      messagingSenderId: "21170501727",
+      appId: "1:21170501727:web:13916d098f6e823a4743ea"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // رقم هذا الصف، ورمز كل شعبة كما هو مخزّن في قاعدة البيانات (نفس ترميز لوحة التحكم)
+    const GRADE_NUMBER = 2;
+    const SECTION_CODE = { 'أ': 'a', 'ب': 'b', 'ج': 'c' };
+
+    // أيقونة كل نوع محتوى (بنفس رموز أزرار التبويب أعلاه)
+    const categoryIcons = {
+      lessons: '🎥',
+      worksheets: '📄',
+      activities: '🎨',
+      assignments: '📝',
+      exams: '💡'
+    };
+
     let currentSection = null;
     let currentSubject = null;
     let currentTab = 'lessons';
-
-    /* قاعدة البيانات فارغة تماماً - جاهزة لربطها بلوحة التحكم أو الإضافة لاحقاً */
-    const schoolData = {
-      "اللغة العربية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
-      "الرياضيات": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
-      "اللغة الإنجليزية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
-      "العلوم الحياتية والوطنية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
-      "التربية الإسلامية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] },
-      "التنشئة الوطنية والاجتماعية": { lessons: [], worksheets: [], activities: [], assignments: [], exams: [] }
-    };
 
     function toggleMenu() {
       const navLinks = document.getElementById('navLinks');
@@ -599,12 +750,11 @@ const schedules = {
 
       document.getElementById('scheduleSection').classList.remove('hidden-section');
       document.getElementById('subjectsSection').classList.remove('hidden-section');
-      
+
       document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
-      
       document.getElementById('scheduleHeading').innerText = `الجدول الدراسي - الشعبة (${sectionName})`;
       document.getElementById('scheduleImage').src = schedules[sectionName];
-      
+
       updateHeaderTitle();
     }
 
@@ -631,23 +781,175 @@ const schedules = {
       loadFilesToSlider();
     }
 
-    function loadFilesToSlider() {
+    // ================= تحميل المحتوى من Firestore =================
+    let loadRequestId = 0;
+
+    async function loadFilesToSlider() {
+      if (!currentSection || !currentSubject) return;
+
       const track = document.getElementById('filesTrack');
-      track.innerHTML = '';
+      const requestId = ++loadRequestId;
 
-      const subjectData = schoolData[currentSubject];
-      const items = (subjectData && subjectData[currentTab]) ? subjectData[currentTab] : [];
+      track.innerHTML = `
+        <div class="file-card" style="min-width: 100%;">
+          <h4>جاري تحميل المحتوى...</h4>
+          <p>يرجى الانتظار قليلاً ⏳</p>
+        </div>
+      `;
 
-      if (items.length === 0) {
+      const gradeValue = `${GRADE_NUMBER}-${SECTION_CODE[currentSection]}`;
+
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', gradeValue)
+          .where('subject', '==', currentSubject)
+          .where('category', '==', currentTab)
+          .get();
+
+        if (requestId !== loadRequestId) return; // المستخدم بدّل التبويب أثناء التحميل
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+
+        // الأحدث أولاً
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="file-card" style="min-width: 100%;">
+              <h4>لا توجد ملفات حالياً</h4>
+              <p>سيتم إدراج المحتوى قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+
+        items.forEach(item => track.appendChild(buildFileCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل المحتوى من قاعدة البيانات:', err);
+        if (requestId !== loadRequestId) return;
         track.innerHTML = `
           <div class="file-card" style="min-width: 100%;">
-            <h4>لا توجد ملفات حالياً</h4>
-            <p>سيتم إدراج المحتوى قريباً من قبل المعلمة.</p>
+            <h4>تعذر تحميل المحتوى</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى تحديث الصفحة والمحاولة لاحقاً.</p>
           </div>
         `;
-        return;
       }
     }
+
+    function buildFileCard(item) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+
+      const icon = document.createElement('div');
+      icon.className = 'file-icon';
+      icon.textContent = categoryIcons[item.category] || '📁';
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'بدون عنوان';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      if (item.uploader_arabic_name) {
+        const teacherNote = document.createElement('p');
+        teacherNote.style.fontSize = '0.75rem';
+        teacherNote.style.color = '#94a3b8';
+        teacherNote.textContent = 'الأستاذة: ' + item.uploader_arabic_name;
+        card.appendChild(teacherNote);
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'action-btn';
+      btn.textContent = item.linkText || 'عرض المحتوى';
+
+      if (item.type === 'video' || item.type === 'image') {
+        btn.addEventListener('click', () => openMediaModal(item));
+      } else {
+        btn.addEventListener('click', () => {
+          if (!item.url) {
+            alert('الملف غير متوفر حالياً.');
+            return;
+          }
+          const a = document.createElement('a');
+          a.href = item.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          if (item.source === 'file' && item.fileName) {
+            a.download = item.fileName;
+          }
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
+      }
+      card.appendChild(btn);
+
+      return card;
+    }
+
+    function openMediaModal(item) {
+      const modal = document.getElementById('mediaModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBodyContent = document.getElementById('modalBodyContent');
+
+      modalTitle.textContent = item.title || '';
+      modalBodyContent.innerHTML = '';
+
+      if (!item.url) {
+        modalBodyContent.innerHTML = `<p class="modal-empty-msg">سيتم إضافة المحتوى قريباً من قبل المعلمة.</p>`;
+      } else if (item.type === 'video') {
+        if (item.source === 'file') {
+          const video = document.createElement('video');
+          video.src = item.url;
+          video.controls = true;
+          video.style.width = '100%';
+          video.style.borderRadius = '12px';
+          modalBodyContent.appendChild(video);
+        } else {
+          const iframe = document.createElement('iframe');
+          iframe.src = item.url;
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+          iframe.allowFullscreen = true;
+          modalBodyContent.appendChild(iframe);
+        }
+      } else if (item.type === 'image') {
+        const img = document.createElement('img');
+        img.src = item.url;
+        img.alt = item.title || '';
+        modalBodyContent.appendChild(img);
+      }
+
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('mediaModal');
+      const modalBodyContent = document.getElementById('modalBodyContent');
+      modal.classList.remove('show');
+      modalBodyContent.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('mediaModal').addEventListener('click', (e) => {
+      if (e.target.id === 'mediaModal') closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
 
     function scrollSubjects(direction) {
       const container = document.getElementById('subjectsContainer');
