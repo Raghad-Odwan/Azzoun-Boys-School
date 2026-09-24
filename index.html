@@ -892,10 +892,49 @@
     }
   };
 
+  // جلب بيانات الشبكة والجهاز الخاصة بمُرسل الرسالة (بصمت، بدون أي تأثير على تجربة الزائر)
+  // هاي المعلومات بتنخزن بقاعدة البيانات فقط للرجوع إليها عند الحاجة (مثلاً بلاغ أو رسالة مسيئة)
+  // وما بتظهر بلوحة تحكم الإدارة العادية.
+  function getSenderMetadata() {
+    const meta = {
+      device_info: navigator.userAgent || null,
+      ip: null,
+      ip_city: null,
+      ip_region: null,
+      ip_country: null,
+      isp: null
+    };
+
+    // مهلة قصوى 4 ثواني حتى ما تعلّق عملية الإرسال لو الخدمة الخارجية بطيئة أو غير متوفرة
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    return fetch('https://ipapi.co/json/', { signal: controller.signal })
+      .then(function (res) {
+        clearTimeout(timeoutId);
+        return res.ok ? res.json() : null;
+      })
+      .then(function (data) {
+        if (data) {
+          meta.ip = data.ip || null;
+          meta.ip_city = data.city || null;
+          meta.ip_region = data.region || null;
+          meta.ip_country = data.country_name || null;
+          meta.isp = data.org || null;
+        }
+        return meta;
+      })
+      .catch(function (err) {
+        clearTimeout(timeoutId);
+        console.error('تعذر جلب معلومات الشبكة:', err);
+        return meta; // نكمل الإرسال حتى لو تعذّر جلب الشبكة، مع الاحتفاظ ببيانات الجهاز فقط
+      });
+  }
+
   // إرسال رسالة "تواصل معنا" وتخزينها بـ Firestore حتى تقدر الإدارة تشوفها من لوحة التحكم
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', function (e) {
+    contactForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const name = document.getElementById('contactName').value.trim();
@@ -907,21 +946,27 @@
       btn.disabled = true;
       btn.textContent = 'جاري الإرسال... ⏳';
 
-      db.collection('contact_messages').add({
-        name: name,
-        message: message,
-        status: 'new',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function () {
-        alert('تم إرسال رسالتك بنجاح، شكراً لتواصلك معنا! سيتم الرد عليك قريباً.');
+      try {
+        const senderMeta = await getSenderMetadata();
+
+        await db.collection('contact_messages').add({
+          name: name,
+          message: message,
+          status: 'new',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          // بيانات تعريفية إضافية لغايات التوثيق فقط (مش ظاهرة بلوحة رسائل الإدارة)
+          sender_meta: senderMeta
+        });
+
+        alert('تم إرسال رسالتك بنجاح، شكراً لتواصلك معنا! ');
         contactForm.reset();
-      }).catch(function (error) {
+      } catch (error) {
         console.error('خطأ بإرسال الرسالة:', error);
-        alert('حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة مرة أخرى أو التواصل عبر البريد الإلكتروني.');
-      }).finally(function () {
+        alert('حدث خطأ أثناء إرسال الرسالة، يرجى المحاولة مرة أخرى أو التواصل عبر البريد الإلكتروني او التواصل مع المدرسة.');
+      } finally {
         btn.disabled = false;
         btn.textContent = 'إرسال الرسالة';
-      });
+      }
     });
   }
 

@@ -433,7 +433,9 @@
               <option value="activities"> نشاط تعليمي</option>
               <option value="assignments"> مهمة / واجب</option>
               <option value="exams"> اختبار</option>
+              <option value="games"> لعبة تفاعلية (Wordwall)</option>
             </select>
+            <p id="gamesHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: اللعبة التفاعلية بتظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه.</p>
           </div>
 
           <div class="form-group" id="mediaTypeContainer" style="display: none;">
@@ -442,6 +444,11 @@
               <option value="video">🎥 فيديو</option>
               <option value="image">🖼️ صورة</option>
             </select>
+          </div>
+
+          <div class="form-group" id="gameImageContainer" style="display: none;">
+            <label for="gameImage">صورة مرجعية للعبة (اختياري):</label>
+            <input type="file" id="gameImage" accept="image/*">
           </div>
 
           <div class="form-group">
@@ -457,30 +464,39 @@
           </div>
 
           <div class="form-group">
-            <label>طريقة إضافة المحتوى:</label>
-            <div class="source-toggle">
-              <label id="linkOptionLabel" class="selected">
-                <input type="radio" name="sourceType" value="link" checked onchange="handleSourceChange()">
-                🔗 وضع رابط
-              </label>
-              <label id="fileOptionLabel">
-                <input type="radio" name="sourceType" value="file" onchange="handleSourceChange()">
-                📤 رفع ملف من جهازي
-              </label>
+            <div id="sourceToggleWrapper">
+              <label>طريقة إضافة المحتوى:</label>
+              <div class="source-toggle">
+                <label id="linkOptionLabel" class="selected">
+                  <input type="radio" name="sourceType" value="link" checked onchange="handleSourceChange()">
+                  🔗 وضع رابط
+                </label>
+                <label id="fileOptionLabel">
+                  <input type="radio" name="sourceType" value="file" onchange="handleSourceChange()">
+                  📤 رفع ملف من جهازي
+                </label>
+              </div>
             </div>
 
+            <p id="videoLinkHint" class="hidden" style="margin: 8px 0 0 0; font-size: 0.85rem; color: #64748b;">
+              📹 الفيديوهات بتُضاف برابط فقط (من يوتيوب أو Google Drive أو أي منصة فيديو)، حتى ما تتعطل الصفحة على الطالب بتحميل فيديو كبير مباشرة. ارفعي الفيديو على إحدى هالمنصات وحطي رابطه هون.
+            </p>
+
             <div id="linkContainer">
+              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة (Wordwall):</label>
               <input type="url" id="link" name="content_link" autocomplete="on" placeholder="https://..." list="linkSuggestions">
               <datalist id="linkSuggestions"></datalist>
             </div>
 
             <div id="fileContainer" style="display: none;">
               <input type="file" id="fileUpload">
+              <p style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">الحد الأقصى لحجم الملف المرفوع مباشرة هو تقريباً 650 كيلوبايت (الصور تُضغط تلقائياً). للملفات الأكبر (مثل ملف PDF بعدة صفحات ممسوحة ضوئياً)، الأفضل ترفعيه على Google Drive وتحطي رابطه بدلاً من رفعه مباشرة.</p>
             </div>
           </div>
 
           <button type="submit" id="submitBtn">نشر المحتوى للملف</button>
         </form>
+
       </div>
 
       <div class="dashboard-card" id="teacherSupport">
@@ -530,6 +546,39 @@
           </div>
 
           <button type="submit" id="announcementSubmitBtn">نشر الإعلان</button>
+        </form>
+      </div>
+
+      <div class="dashboard-card">
+        <h2>إدارة الجدول الدراسي للشعب 🗓️</h2>
+        <form id="addScheduleForm" onsubmit="event.preventDefault(); submitSchedule();">
+
+          <div class="form-group">
+            <label for="scheduleClassSelect">الصف الدراسي والشعبة: <span style="color: red;">*</span></label>
+            <select id="scheduleClassSelect" required>
+              <option value="">اختر الصف والشعبة...</option>
+              <option value="1-a">الصف الأول - الشعبة (أ)</option>
+              <option value="1-b">الصف الأول - الشعبة (ب)</option>
+              <option value="1-c">الصف الأول - الشعبة (ج)</option>
+              <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+              <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+              <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+              <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+              <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+              <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+              <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+              <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+              <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="scheduleImageInput">صورة الجدول الدراسي: <span style="color: red;">*</span></label>
+            <input type="file" id="scheduleImageInput" accept="image/*" required>
+            <p style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">عند رفع جدول جديد لنفس الصف والشعبة، سيتم استبدال الجدول القديم تلقائياً، وسيظهر الجدول الجديد مباشرة في صفحة تلك الشعبة.</p>
+          </div>
+
+          <button type="submit" id="scheduleSubmitBtn">نشر الجدول</button>
         </form>
       </div>
 
@@ -741,15 +790,18 @@
       };
 
       if (imageInput.files && imageInput.files[0]) {
-        if (imageInput.files[0].size > 700 * 1024) {
-          alert('حجم الصورة كبير. الرجاء اختيار صورة أصغر من 700 كيلوبايت حتى تنحفظ بنجاح.');
-          return;
+        try {
+          btn.disabled = true;
+          btn.textContent = 'جاري ضغط الصورة... ⏳';
+          const compressedImage = await compressImageFile(imageInput.files[0]);
+          await saveAnnouncement(compressedImage);
+        } catch (err) {
+          console.error('خطأ بضغط صورة الإعلان:', err);
+          logErrorToFirestore('submitAnnouncement_compress', err, { title: title });
+          alert('تعذر معالجة صورة الإعلان، يرجى تجربة صورة أخرى.');
+          btn.disabled = false;
+          btn.textContent = 'نشر الإعلان';
         }
-        const reader = new FileReader();
-        reader.onload = function (uploadEvent) {
-          saveAnnouncement(uploadEvent.target.result);
-        };
-        reader.readAsDataURL(imageInput.files[0]);
       } else {
         saveAnnouncement('');
       }
@@ -886,7 +938,8 @@
       activities_video: 'مشاهدة النشاط',
       activities_image: 'عرض النشاط',
       assignments: 'تحميل المهمة',
-      exams: 'تحميل الاختبار'
+      exams: 'تحميل الاختبار',
+      games: '▶ الانتقال إلى اللعبة'
     };
 
     const fileAccept = {
@@ -909,10 +962,25 @@
 
     function handleContentTypeChange() {
       const contentType = document.getElementById('contentType').value;
-      const mediaTypeContainer = document.getElementById('mediaTypeContainer');
-      mediaTypeContainer.style.display = (contentType === 'activities') ? 'block' : 'none';
-
+      const isGame = contentType === 'games';
       const key = currentContentKey();
+      const isVideo = (key === 'lessons' || key === 'activities_video');
+
+      document.getElementById('mediaTypeContainer').style.display = (contentType === 'activities') ? 'block' : 'none';
+      document.getElementById('gameImageContainer').style.display = isGame ? 'block' : 'none';
+      document.getElementById('gamesHint').classList.toggle('hidden', !isGame);
+      document.getElementById('linkFieldLabel').classList.toggle('hidden', !isGame);
+      document.getElementById('videoLinkHint').classList.toggle('hidden', !isVideo);
+
+      // اللعبة التفاعلية والفيديوهات دايماً برابط، فمنخفي التبديل بين رابط/ملف ومنثبته على رابط
+      // (الفيديو ما بينضغط متل الصور، وبالتالي رفعه كملف مباشر شبه مستحيل ينجح ضمن حد Firestore)
+      const forceLinkOnly = isGame || isVideo;
+      document.getElementById('sourceToggleWrapper').classList.toggle('hidden', forceLinkOnly);
+      if (forceLinkOnly) {
+        document.querySelector('input[name="sourceType"][value="link"]').checked = true;
+        handleSourceChange();
+      }
+
       document.getElementById('fileUpload').setAttribute('accept', fileAccept[key] || '');
     }
 
@@ -979,6 +1047,9 @@
       } else if (contentType === 'activities') {
         finalType = mediaType;
         linkTextKey = mediaType === 'image' ? 'activities_image' : 'activities_video';
+      } else if (contentType === 'games') {
+        finalType = 'game';
+        linkTextKey = 'games';
       } else {
         finalType = 'download';
         linkTextKey = contentType;
@@ -988,12 +1059,44 @@
       let fileBase64 = null;
 
       if (sourceType === 'file' && file) {
-        try {
-          fileBase64 = await toBase64(file);
-        } catch (err) {
-          console.error("خطأ في قراءة الملف:", err);
-          alert("حدث خطأ أثناء معالجة الملف المرفوع.");
-          return;
+        // إذا كان الملف المرفوع صورة، نضغطها تلقائياً حتى ما تتخطى حد Firestore (1 ميجابايت) بعد تحويلها لنص
+        if (file.type && file.type.startsWith('image/')) {
+          try {
+            fileBase64 = await compressImageFile(file);
+          } catch (err) {
+            console.error("خطأ في ضغط الصورة المرفوعة:", err);
+            alert(teacherGreeting() + "حدث خطأ أثناء معالجة الصورة المرفوعة، جرّبي صورة أخرى.");
+            return;
+          }
+        } else {
+          // ملفات غير الصور (فيديو، PDF...) ما فينا نضغطها بنفس الطريقة، فلازم تبقى صغيرة الحجم أصلاً
+          // لأن تحويلها لنص (base64) بيكبّر حجمها حوالي 33%، وFirestore بيرفض أي مستند أكبر من 1 ميجابايت
+          if (file.size > 650 * 1024) {
+            alert(teacherGreeting() + 'حجم هذا الملف كبير جداً (' + Math.round(file.size / 1024) + ' كيلوبايت). بالنسبة للفيديوهات والملفات الكبيرة، يرجى استخدام "وضع رابط" بدلاً من رفع الملف مباشرة (مثلاً برفعه على Google Drive أو YouTube وربط الرابط هون). أما للملفات الصغيرة (PDF أو صور)، يرجى اختيار ملف أصغر من 650 كيلوبايت.');
+            return;
+          }
+          try {
+            fileBase64 = await toBase64(file);
+          } catch (err) {
+            console.error("خطأ في قراءة الملف:", err);
+            alert(teacherGreeting() + "حدث خطأ أثناء معالجة الملف المرفوع.");
+            return;
+          }
+        }
+      }
+
+      // صورة مرجعية اختيارية خاصة باللعبة التفاعلية (مستقلة عن رابط اللعبة نفسه)
+      let gameImageBase64 = null;
+      if (contentType === 'games') {
+        const gameImageFile = document.getElementById('gameImage').files[0];
+        if (gameImageFile) {
+          try {
+            gameImageBase64 = await compressImageFile(gameImageFile);
+          } catch (err) {
+            console.error("خطأ في قراءة صورة اللعبة:", err);
+            alert("حدث خطأ أثناء معالجة صورة اللعبة.");
+            return;
+          }
         }
       }
 
@@ -1001,11 +1104,14 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'جاري النشر والحفظ... ⏳';
 
+      // اللعبة التفاعلية بتنحفظ على مستوى الصف كامل (بدون تحديد شعبة) لأنها تظهر لكل الشعب بنفس المادة
+      const gradeToSave = (contentType === 'games') ? classValue.split('-')[0] : classValue;
+
       const newItem = {
         uploader_username: activeTeacherUsername,
         uploader_arabic_name: activeTeacherArabicName,
         teacher_email: FIXED_EMAIL,
-        grade: classValue,
+        grade: gradeToSave,
         subject: subject,
         category: contentType,
         title: title,
@@ -1014,6 +1120,7 @@
         source: sourceType,
         url: sourceType === 'link' ? link : fileBase64,
         fileName: fileDataName,
+        image: gameImageBase64,
         linkText: defaultLinkText[linkTextKey],
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -1049,6 +1156,116 @@
       });
     }
 
+    // ================= ضغط الصور تلقائياً قبل تخزينها =================
+    // Firestore بيرفض أي مستند حجمه أكبر من 1 ميجابايت، وتحويل الصورة لنص (base64) بيكبّر حجمها حوالي 33%.
+    // هاي الدالة بتصغّر أبعاد الصورة وبتقلل جودتها تدريجياً لحد ما توصل لحجم آمن، بدون ما نطلب من المعلمة/الإدارة
+    // تصغّر الصورة يدوياً قبل الرفع. بتشتغل بس على الصور (image/*)، وبترجع نص base64 جاهز للتخزين مباشرة.
+    function compressImageFile(file, options) {
+      const opts = options || {};
+      const maxDimension = opts.maxDimension || 1600;   // أقصى طول/عرض بالبكسل
+      const maxBytes = opts.maxBytes || 650 * 1024;      // الحجم الخام المستهدف قبل تحويله base64
+      const minQuality = opts.minQuality || 0.35;
+
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = function () {
+          let width = img.naturalWidth;
+          let height = img.naturalHeight;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width >= height) {
+              height = Math.round(height * (maxDimension / width));
+              width = maxDimension;
+            } else {
+              width = Math.round(width * (maxDimension / height));
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(objectUrl);
+
+          let quality = 0.85;
+
+          function tryExport() {
+            canvas.toBlob(function (blob) {
+              if (!blob) {
+                reject(new Error('تعذر ضغط الصورة.'));
+                return;
+              }
+              if (blob.size <= maxBytes || quality <= minQuality) {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              } else {
+                quality = Math.max(minQuality, quality - 0.15);
+                tryExport();
+              }
+            }, 'image/jpeg', quality);
+          }
+
+          tryExport();
+        };
+
+        img.onerror = function () {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('تعذر فتح الصورة، تأكد أنها بصيغة صورة سليمة.'));
+        };
+
+        img.src = objectUrl;
+      });
+    }
+
+    // نشر/تحديث صورة الجدول الدراسي لصف وشعبة معيّنة
+    // بما إن معرّف المستند هو نفسه "الصف-الشعبة"، أي رفع جديد لنفس الشعبة بيستبدل القديم تلقائياً،
+    // وصفحة تلك الشعبة بتعرض الجدول الجديد فوراً بدون أي تعديل يدوي على الملفات.
+    async function submitSchedule() {
+      const classValue = document.getElementById('scheduleClassSelect').value;
+      const fileInput = document.getElementById('scheduleImageInput');
+      const btn = document.getElementById('scheduleSubmitBtn');
+
+      if (!classValue) {
+        alert('الرجاء اختيار الصف والشعبة.');
+        return;
+      }
+      if (!fileInput.files || !fileInput.files[0]) {
+        alert('الرجاء اختيار صورة الجدول الدراسي.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const [gradeNumber, sectionCode] = classValue.split('-');
+
+      btn.disabled = true;
+      btn.textContent = 'جاري ضغط الصورة ونشرها... ⏳';
+
+      try {
+        const imageBase64 = await compressImageFile(file);
+        await db.collection('schedules').doc(classValue).set({
+          grade: gradeNumber,
+          section: sectionCode,
+          image: imageBase64,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('تم نشر الجدول الدراسي بنجاح، وسيظهر الآن تلقائياً لطلاب هذه الشعبة عند دخولهم صفحة الصف.');
+        document.getElementById('addScheduleForm').reset();
+      } catch (error) {
+        console.error('خطأ بنشر الجدول:', error);
+        logErrorToFirestore('submitSchedule', error, { class: classValue });
+        alert('حدث خطأ أثناء نشر الجدول، يرجى المحاولة مرة أخرى.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'نشر الجدول';
+      }
+    }
+
     async function submitSupportTicket() {
       const issueText = document.getElementById('issueDescription').value.trim();
       const issueFile = document.getElementById('issueImage').files[0];
@@ -1056,7 +1273,7 @@
       let imageBase64 = null;
       if (issueFile) {
         try {
-          imageBase64 = await toBase64(issueFile);
+          imageBase64 = await compressImageFile(issueFile);
         } catch (e) {
           console.error(e);
         }
@@ -1210,7 +1427,7 @@
         setTimeout(() => document.getElementById('descriptionSuggestions').classList.add('hidden'), 150);
       });
 
-      ['contentType', 'mediaType', 'title', 'description', 'link', 'fileUpload']
+      ['contentType', 'mediaType', 'title', 'description', 'link', 'fileUpload', 'gameImage']
         .forEach(id => {
           const el = document.getElementById(id);
           if (el) el.addEventListener('focus', guardBeforeClassSubject);

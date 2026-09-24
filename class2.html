@@ -553,12 +553,87 @@
 .schedule-img:hover {
   transform: scale(1.01);
 }
+    .schedule-status-msg {
+      color: #64748B;
+      font-size: 0.95rem;
+      padding: 2rem 1rem;
+    }
 
 .hidden-section {
   display: none !important;
 }
 
-  </style>
+  
+    /* قسم الألعاب التفاعلية */
+    .games-section {
+      background: #ffffff;
+      border: 2px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+    .game-card {
+      min-width: 260px;
+      flex: 0 0 260px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.3rem 1.1rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .game-card:hover {
+      border-color: #0A4174;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(10, 65, 116, 0.1);
+    }
+    .game-subject-badge {
+      background: #0A4174;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+    }
+    .game-icon {
+      font-size: 2rem;
+    }
+    .game-card h4 {
+      color: #001D39;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .game-card p {
+      color: #64748B;
+      font-size: 0.85rem;
+    }
+    .game-modal-image {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .game-modal-desc {
+      color: #475569;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+    .game-iframe-wrap iframe {
+      width: 100%;
+      height: 480px;
+      border: none;
+      border-radius: 12px;
+      display: block;
+    }
+</style>
 </head>
 <body>
 
@@ -600,9 +675,9 @@
 
     <div class="schedule-section hidden-section" id="scheduleSection">
       <h3 class="section-title" id="scheduleHeading" style="text-align: center;">الجدول الدراسي - الشعبة (أ)</h3>
-      <div class="schedule-container">
-
-        <img id="scheduleImage" src="schedule-2a.png" alt="الجدول الدراسي" class="schedule-img">
+      <div class="schedule-container" id="scheduleContainer">
+        <img id="scheduleImage" alt="الجدول الدراسي" class="schedule-img" style="display:none;">
+        <p class="schedule-status-msg" id="scheduleStatusMsg">جاري تحميل الجدول الدراسي...</p>
       </div>
     </div>
 
@@ -677,6 +752,19 @@
       </div>
     </div>
 
+    <div class="games-section" id="gamesSection">
+      <h3 class="section-title">الألعاب التفاعلية 🎮</h3>
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollGames('right')">❮</button>
+        <div class="files-track-container" id="gamesContainer">
+          <div class="files-track" id="gamesTrack">
+            <!-- يتم تعبئة الألعاب تلقائياً -->
+          </div>
+        </div>
+        <button class="slider-arrow next-arrow" onclick="scrollGames('left')">❯</button>
+      </div>
+    </div>
+
   </main>
 
   <div class="modal-overlay" id="mediaModal">
@@ -687,6 +775,18 @@
       </div>
       <div class="modal-body" id="modalBodyContent">
         <!-- يتم حقن الفيديو أو الصورة هنا ديناميكياً -->
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="gameModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="gameModalTitle">اسم اللعبة</h3>
+        <button class="close-modal" id="closeGameModalBtn" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body" id="gameModalBody">
+        <!-- يتم حقن اللعبة هنا ديناميكياً -->
       </div>
     </div>
   </div>
@@ -737,13 +837,7 @@
       navLinks.classList.toggle('show');
     }
 
-const schedules = {
-      'أ': 'schedule-2a.png',
-      'ب': 'schedule-2b.png',
-      'ج': 'schedule-2c.png'
-    };
-
-    function selectSection(sectionName, element) {
+function selectSection(sectionName, element) {
       document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
       element.classList.add('active');
       currentSection = sectionName;
@@ -753,9 +847,46 @@ const schedules = {
 
       document.getElementById('subjectsHeading').innerText = `المواد الدراسية - الشعبة (${sectionName})`;
       document.getElementById('scheduleHeading').innerText = `الجدول الدراسي - الشعبة (${sectionName})`;
-      document.getElementById('scheduleImage').src = schedules[sectionName];
+      loadSchedule(sectionName);
 
       updateHeaderTitle();
+    }
+
+    // ================= جلب صورة الجدول الدراسي من لوحة تحكم الإدارة =================
+    // كل صف وشعبة له مستند واحد بمعرّف "رقم الصف-رمز الشعبة" (مثال: 1-a)
+    // فأي جدول جديد ترفعه الإدارة لنفس الصف والشعبة يستبدل القديم تلقائياً، وتظهر آخر نسخة هنا مباشرة.
+    let scheduleRequestId = 0;
+
+    async function loadSchedule(sectionName) {
+      const requestId = ++scheduleRequestId;
+      const img = document.getElementById('scheduleImage');
+      const statusMsg = document.getElementById('scheduleStatusMsg');
+
+      img.style.display = 'none';
+      img.removeAttribute('src');
+      statusMsg.style.display = 'block';
+      statusMsg.textContent = 'جاري تحميل الجدول الدراسي...';
+
+      const docId = `${GRADE_NUMBER}-${SECTION_CODE[sectionName]}`;
+
+      try {
+        const doc = await db.collection('schedules').doc(docId).get();
+        if (requestId !== scheduleRequestId) return; // المستخدم بدّل الشعبة أثناء التحميل
+
+        if (doc.exists && doc.data().image) {
+          img.src = doc.data().image;
+          img.style.display = 'block';
+          statusMsg.style.display = 'none';
+        } else {
+          statusMsg.textContent = 'لم يتم رفع الجدول الدراسي لهذه الشعبة بعد، يرجى مراجعة الإدارة.';
+          statusMsg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error('تعذر تحميل الجدول الدراسي:', err);
+        if (requestId !== scheduleRequestId) return;
+        statusMsg.textContent = 'تعذر تحميل الجدول الدراسي، يرجى تحديث الصفحة والمحاولة لاحقاً.';
+        statusMsg.style.display = 'block';
+      }
     }
 
     function selectSubject(subjectName, element) {
@@ -948,7 +1079,7 @@ const schedules = {
       if (e.target.id === 'mediaModal') closeModal();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') { closeModal(); closeGameModal(); }
     });
 
     function scrollSubjects(direction) {
@@ -960,6 +1091,131 @@ const schedules = {
       const container = document.getElementById('filesContainer');
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
+
+    // ================= الألعاب التفاعلية (Wordwall) =================
+    const subjectIcons = {
+      'اللغة العربية': '📖',
+      'الرياضيات': '🔢',
+      'اللغة الإنجليزية': 'abc',
+      'العلوم الحياتية والوطنية': '🔬',
+      'التربية الإسلامية': '🕋',
+      'التنشئة الوطنية والاجتماعية': '🌏'
+    };
+
+    async function loadGames() {
+      const track = document.getElementById('gamesTrack');
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', String(GRADE_NUMBER))
+          .where('category', '==', 'games')
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="game-card" style="min-width: 100%; cursor: default;">
+              <h4>لا توجد ألعاب تفاعلية حالياً</h4>
+              <p>سيتم إضافة الألعاب قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+        items.forEach(item => track.appendChild(buildGameCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل الألعاب:', err);
+        track.innerHTML = `
+          <div class="game-card" style="min-width: 100%; cursor: default;">
+            <h4>تعذر تحميل الألعاب</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات.</p>
+          </div>
+        `;
+      }
+    }
+
+    function buildGameCard(item) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'game-subject-badge';
+      badge.textContent = item.subject || '';
+      card.appendChild(badge);
+
+      const icon = document.createElement('div');
+      icon.className = 'game-icon';
+      icon.textContent = subjectIcons[item.subject] || '🎮';
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'لعبة تفاعلية';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      card.addEventListener('click', () => openGameModal(item));
+      return card;
+    }
+
+    function openGameModal(item) {
+      document.getElementById('gameModalTitle').textContent = item.title || '';
+      const body = document.getElementById('gameModalBody');
+      body.innerHTML = '';
+
+      if (item.image) {
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.className = 'game-modal-image';
+        body.appendChild(img);
+      }
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.className = 'game-modal-desc';
+        desc.textContent = item.desc;
+        body.appendChild(desc);
+      }
+
+      const iframeWrap = document.createElement('div');
+      iframeWrap.className = 'game-iframe-wrap';
+      const iframe = document.createElement('iframe');
+      iframe.src = item.url;
+      iframe.allowFullscreen = true;
+      iframeWrap.appendChild(iframe);
+      body.appendChild(iframeWrap);
+
+      document.getElementById('gameModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeGameModal() {
+      document.getElementById('gameModal').classList.remove('show');
+      document.getElementById('gameModalBody').innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('closeGameModalBtn').addEventListener('click', closeGameModal);
+    document.getElementById('gameModal').addEventListener('click', (e) => {
+      if (e.target.id === 'gameModal') closeGameModal();
+    });
+
+    function scrollGames(direction) {
+      const container = document.getElementById('gamesContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
+    loadGames();
   </script>
 
 </body>
