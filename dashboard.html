@@ -517,7 +517,7 @@
 
     </div>
 
-    <!-- لوحة تحكم الإدارة (تظهر بدل لوحة المعلمة عند دخول حساب الإدارة) -->
+
     <div id="managerWrapper" class="hidden">
       <div style="max-width: 600px; margin: 0 auto 20px auto; background: #eef2ff; padding: 12px 20px; border-radius: 8px; border-right: 4px solid var(--accent-color); font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
         <span>مرحباً بك، الإدارة 👋</span>
@@ -635,7 +635,7 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       } catch (logErr) {
-        // إذا فشل حتى تسجيل الخطأ، منسجله بالكونسول بس حتى ما تقف الصفحة
+        
         console.error('فشل تسجيل الخطأ بقاعدة البيانات:', logErr);
       }
     }
@@ -677,8 +677,7 @@
       "hind": "هند"
     };
 
-    // البريد الإلكتروني الموحد للمعلمات، وإيميل حساب الإدارة
-    // كلمتا المرور الفعليتان محفوظتان داخل Firebase Authentication نفسه، مش بالكود
+  
     const FIXED_EMAIL = "teachers@azzounboys.com";
     const MANAGER_EMAIL = "manager@azzounboys.com";
 
@@ -863,7 +862,7 @@
       }
     }
 
-    // خطوة 1: يقرأ الإيميل ويحدد أي فورم يظهر بعده
+    
     function checkLoginEmail() {
       const email = document.getElementById('loginEmailInput').value.trim().toLowerCase();
 
@@ -880,7 +879,7 @@
       }
     }
 
-    // يرجع لخطوة إدخال الإيميل من جديد (من فورم المعلمة أو فورم الإدارة)
+    
     function backToEmailStep() {
       document.getElementById('teacherLoginForm').classList.add('hidden');
       document.getElementById('teacherLoginForm').reset();
@@ -891,7 +890,7 @@
       document.getElementById('loginEmailInput').focus();
     }
 
-    // تسجيل دخول الإدارة - يعتمد بالكامل على Firebase Authentication الحقيقي، بدون أي تجاوز
+    
     async function verifyManagerLogin() {
       const password = document.getElementById('managerPasswordInput').value.trim();
       const btn = document.querySelector('#managerLoginForm button[type="submit"]');
@@ -941,7 +940,7 @@
       backToEmailStep();
     }
 
-    // إرسال وحفظ الإعلان على Firestore (يظهر فوراً لكل زوار الموقع من أي جهاز)
+   
     async function submitAnnouncement() {
       const title = document.getElementById('announcementTitle').value.trim();
       const text = document.getElementById('announcementText').value.trim();
@@ -990,7 +989,7 @@
       }
     }
 
-    // جلب رسائل "تواصل معنا" اللي بعتها زوار الموقع وعرضها بلوحة الإدارة
+   
     function loadContactMessages() {
       const listEl = document.getElementById('contactMessagesList');
       if (!listEl) return;
@@ -1025,7 +1024,6 @@
         });
     }
 
-    // جلب وعرض التنبيهات الأمنية (محاولات فاشلة متكررة / جهاز جديد) للإدارة
     function loadSecurityAlerts() {
       const listEl = document.getElementById('securityAlertsList');
       if (!listEl) return;
@@ -1079,7 +1077,7 @@
       const emailInput = FIXED_EMAIL;
       const passwordInput = document.getElementById('fixedPasswordInput').value.trim();
 
-      // اسم المستخدم لازم يكون من قائمة المعلمات المعروفة (هذا الجزء داخلي بالتطبيق فقط)
+      
       if (!teachersRegistry.hasOwnProperty(usernameInput)) {
         alert('عذراً، اسم المستخدم غير موجود. تأكدي من كتابته بشكل صحيح.');
         return;
@@ -1089,7 +1087,7 @@
       if (loginBtn) { loginBtn.disabled = true; loginBtn.textContent = 'جاري تسجيل الدخول... ⏳'; }
 
       try {
-        // التحقق الفعلي من الإيميل وكلمة المرور يصير عبر Firebase Authentication
+        
         await auth.signInWithEmailAndPassword(emailInput, passwordInput);
 
         activeTeacherUsername = usernameInput;
@@ -1146,7 +1144,7 @@
       backToEmailStep();
     }
 
-    // لو الصفحة انعملها تحديث (Refresh) وكان في حدا مسجل دخول أصلاً (معلمة أو إدارة)، منرجعه على لوحته تلقائياً
+    
     auth.onAuthStateChanged(function (user) {
       const savedRole = sessionStorage.getItem(SESSION_ROLE_KEY);
       const savedUsername = sessionStorage.getItem(SESSION_USERNAME_KEY);
@@ -1215,8 +1213,7 @@
       document.getElementById('linkFieldLabel').classList.toggle('hidden', !isGame);
       document.getElementById('videoLinkHint').classList.toggle('hidden', !isVideo);
 
-      // اللعبة التفاعلية والفيديوهات دايماً برابط، فمنخفي التبديل بين رابط/ملف ومنثبته على رابط
-      // (الفيديو ما بينضغط متل الصور، وبالتالي رفعه كملف مباشر شبه مستحيل ينجح ضمن حد Firestore)
+      
       const forceLinkOnly = isGame || isVideo;
       document.getElementById('sourceToggleWrapper').classList.toggle('hidden', forceLinkOnly);
       if (forceLinkOnly) {
@@ -1254,7 +1251,7 @@
       }
     }
 
-    // إرسال المحتوى وحفظه في Firebase Firestore
+  e
     document.getElementById('addContentForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -1302,7 +1299,7 @@
       let fileBase64 = null;
 
       if (sourceType === 'file' && file) {
-        // إذا كان الملف المرفوع صورة، نضغطها تلقائياً حتى ما تتخطى حد Firestore (1 ميجابايت) بعد تحويلها لنص
+      
         if (file.type && file.type.startsWith('image/')) {
           try {
             fileBase64 = await compressImageFile(file);
@@ -1312,8 +1309,7 @@
             return;
           }
         } else {
-          // ملفات غير الصور (فيديو، PDF...) ما فينا نضغطها بنفس الطريقة، فلازم تبقى صغيرة الحجم أصلاً
-          // لأن تحويلها لنص (base64) بيكبّر حجمها حوالي 33%، وFirestore بيرفض أي مستند أكبر من 1 ميجابايت
+          
           if (file.size > 650 * 1024) {
             alert(teacherGreeting() + 'حجم هذا الملف كبير جداً (' + Math.round(file.size / 1024) + ' كيلوبايت). بالنسبة للفيديوهات والملفات الكبيرة، يرجى استخدام "وضع رابط" بدلاً من رفع الملف مباشرة (مثلاً برفعه على Google Drive أو YouTube وربط الرابط هون). أما للملفات الصغيرة (PDF أو صور)، يرجى اختيار ملف أصغر من 650 كيلوبايت.');
             return;
@@ -1328,7 +1324,6 @@
         }
       }
 
-      // صورة مرجعية اختيارية خاصة باللعبة التفاعلية (مستقلة عن رابط اللعبة نفسه)
       let gameImageBase64 = null;
       if (contentType === 'games') {
         const gameImageFile = document.getElementById('gameImage').files[0];
@@ -1347,7 +1342,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'جاري النشر والحفظ... ⏳';
 
-      // اللعبة التفاعلية بتنحفظ على مستوى الصف كامل (بدون تحديد شعبة) لأنها تظهر لكل الشعب بنفس المادة
+    
       const gradeToSave = (contentType === 'games') ? classValue.split('-')[0] : classValue;
 
       const newItem = {
@@ -1399,14 +1394,11 @@
       });
     }
 
-    // ================= ضغط الصور تلقائياً قبل تخزينها =================
-    // Firestore بيرفض أي مستند حجمه أكبر من 1 ميجابايت، وتحويل الصورة لنص (base64) بيكبّر حجمها حوالي 33%.
-    // هاي الدالة بتصغّر أبعاد الصورة وبتقلل جودتها تدريجياً لحد ما توصل لحجم آمن، بدون ما نطلب من المعلمة/الإدارة
-    // تصغّر الصورة يدوياً قبل الرفع. بتشتغل بس على الصور (image/*)، وبترجع نص base64 جاهز للتخزين مباشرة.
+   
     function compressImageFile(file, options) {
       const opts = options || {};
-      const maxDimension = opts.maxDimension || 1600;   // أقصى طول/عرض بالبكسل
-      const maxBytes = opts.maxBytes || 650 * 1024;      // الحجم الخام المستهدف قبل تحويله base64
+      const maxDimension = opts.maxDimension || 1600;   
+      const maxBytes = opts.maxBytes || 650 * 1024;      
       const minQuality = opts.minQuality || 0.35;
 
       return new Promise((resolve, reject) => {
@@ -1466,9 +1458,7 @@
       });
     }
 
-    // نشر/تحديث صورة الجدول الدراسي لصف وشعبة معيّنة
-    // بما إن معرّف المستند هو نفسه "الصف-الشعبة"، أي رفع جديد لنفس الشعبة بيستبدل القديم تلقائياً،
-    // وصفحة تلك الشعبة بتعرض الجدول الجديد فوراً بدون أي تعديل يدوي على الملفات.
+
     async function submitSchedule() {
       const classValue = document.getElementById('scheduleClassSelect').value;
       const fileInput = document.getElementById('scheduleImageInput');
