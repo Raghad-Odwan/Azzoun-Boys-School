@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>منصة ذكور عزون الأساسية - لوحة تحكم المعلمة</title>
-  <!-- مكتبات Firebase الأساسية -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -977,7 +976,6 @@
       activeSessionUnsub = db.collection('active_sessions').doc(key)
         .onSnapshot(function (doc) {
           const data = doc.data();
-          // لو حدا ثاني دخل بنفس الحساب من جهاز تاني، رح يكتب sessionId جديد فوق هذا
           if (data && data.sessionId && activeSessionId && data.sessionId !== activeSessionId) {
             alert('تم تسجيل الدخول لهذا الحساب من جهاز آخر الآن، لذلك تم إنهاء الجلسة هنا تلقائياً.');
             if (role === 'manager') { managerLogout(); } else { teacherLogout(); }
@@ -1442,10 +1440,6 @@
       }
     }
 
-    // ملاحظة للمبرمج: تم إزالة عرض "التنبيهات الأمنية" من واجهة المعلمة عمداً.
-    // التنبيهات ما زالت تُسجَّل في قاعدة البيانات (Firestore) ضمن كولكشن security_alerts،
-    // ويمكن مراجعتها مباشرة من Firebase Console بدل عرضها للإدارة/المعلمات.
-
     async function verifyTeacherLogin() {
       const usernameInput = document.getElementById('teacherUsernameInput').value.trim().toLowerCase();
       const emailInput = FIXED_EMAIL;
@@ -1627,7 +1621,6 @@
       }
     }
 
-  e
     document.getElementById('addContentForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
