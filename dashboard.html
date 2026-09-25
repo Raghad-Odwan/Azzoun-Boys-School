@@ -310,7 +310,7 @@
       }
     }
 
-    /* ===== مراجعة المحتوى التعليمي (لوحة الإدارة) ===== */
+   
     .content-review-item {
       border: 1px solid #e2e8f0;
       border-radius: 10px;
@@ -479,7 +479,8 @@
       <form id="emailStepForm" onsubmit="event.preventDefault(); checkLoginEmail();" autocomplete="off">
         <div class="form-group">
           <label for="loginEmailInput">البريد الإلكتروني :</label>
-          <input type="email" id="loginEmailInput" name="login_email" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+          <input type="email" id="loginEmailInput" name="login_email" autocomplete="off" autocapitalize="off" spellcheck="false" list="savedEmailsList" required>
+          <datalist id="savedEmailsList"></datalist>
         </div>
         <button type="submit" class="action-btn">التالي</button>
       </form>
@@ -628,10 +629,9 @@
             </p>
 
             <div id="linkContainer">
-              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة (Wordwall):</label>
+              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة :</label>
               <input type="url" id="link" name="content_link" autocomplete="on" placeholder="https://..." list="linkSuggestions">
               <datalist id="linkSuggestions"></datalist>
-              <p id="satelliteLinkHint" class="hidden" style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">مصدر شروحات فضائية فلسطين التعليمية على يوتيوب (مثال توضيحي فقط، مش شرط يكون الرابط منها بالتحديد): <span dir="ltr">https://www.youtube.com/@PsELearn</span></p>
             </div>
 
             <div id="fileContainer" style="display: none;">
@@ -1087,6 +1087,30 @@
     }
 
     
+    function populateSavedEmailsList() {
+      const datalist = document.getElementById('savedEmailsList');
+      if (!datalist) return;
+      try {
+        const saved = JSON.parse(localStorage.getItem('savedLoginEmails') || '[]');
+        datalist.innerHTML = saved.map(e => `<option value="${e}"></option>`).join('');
+      } catch (e) {
+        console.error('تعذر تحميل اقتراحات البريد الإلكتروني:', e);
+      }
+    }
+
+    function saveLoginEmailSuggestion(email) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('savedLoginEmails') || '[]');
+        if (!saved.includes(email)) {
+          saved.push(email);
+          localStorage.setItem('savedLoginEmails', JSON.stringify(saved));
+        }
+        populateSavedEmailsList();
+      } catch (e) {
+        console.error('تعذر حفظ اقتراح البريد الإلكتروني:', e);
+      }
+    }
+
     function checkLoginEmail() {
       const email = document.getElementById('loginEmailInput').value.trim().toLowerCase();
 
@@ -1125,6 +1149,7 @@
 
         sessionStorage.setItem(SESSION_ROLE_KEY, 'manager');
         sessionStorage.removeItem(SESSION_USERNAME_KEY);
+        saveLoginEmailSuggestion(MANAGER_EMAIL);
         resetFailedLogin('manager', null);
         startSessionLock('manager', null);
         resetIdleTimer();
@@ -1479,6 +1504,7 @@
         activeTeacherArabicName = teachersRegistry[usernameInput];
         sessionStorage.setItem(SESSION_USERNAME_KEY, usernameInput);
         sessionStorage.setItem(SESSION_ROLE_KEY, 'teacher');
+        saveLoginEmailSuggestion(FIXED_EMAIL);
         resetFailedLogin('teacher', usernameInput);
         checkAndRegisterDevice(usernameInput);
         startSessionLock('teacher', usernameInput);
@@ -1606,6 +1632,7 @@
       const isGame = contentType === 'games';
       const isSatellite = contentType === 'satellite';
       const isOpenResources = contentType === 'open_resources';
+      const isWholeGrade = wholeGradeCategories.indexOf(contentType) !== -1;
       const key = currentContentKey();
       const isVideo = (key === 'lessons' || key === 'activities_video' || key === 'open_resources_video');
 
@@ -1619,7 +1646,6 @@
       linkFieldLabelEl.classList.toggle('hidden', !(isGame || isSatellite));
       if (isSatellite) linkFieldLabelEl.textContent = 'رابط شرح الفضائية:';
       else if (isGame) linkFieldLabelEl.textContent = 'رابط اللعبة (Wordwall):';
-      document.getElementById('satelliteLinkHint').classList.toggle('hidden', !isSatellite);
       document.getElementById('videoLinkHint').classList.toggle('hidden', !isVideo);
 
       
@@ -2054,6 +2080,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      populateSavedEmailsList();
       handleContentTypeChange();
       handleSourceChange();
       refreshSuggestions();
