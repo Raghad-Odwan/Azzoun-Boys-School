@@ -547,12 +547,12 @@
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية: <span style="color: red;">*</span></label>
             <select id="subjectSelect" name="subject_select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
               <option value="">اختر المادة...</option>
-              <option value="اللغة العربية">اللغة العربية</option>
-              <option value="الرياضيات">الرياضيات</option>
-              <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
-              <option value="العلوم الحياتية والوطنية">العلوم الحياتية والوطنية</option>
-              <option value="التربية الإسلامية">التربية الإسلامية</option>
-              <option value="التنشئة الوطنية والاجتماعية">التنشئة الوطنية والاجتماعية</option>
+              <option value="اللغة العربية" style="background-color:#7C3AED; color:#ffffff;">اللغة العربية</option>
+              <option value="الرياضيات" style="background-color:#FACC15; color:#78350F;">الرياضيات</option>
+              <option value="اللغة الإنجليزية" style="background-color:#0EA5E9; color:#ffffff;">اللغة الإنجليزية</option>
+              <option value="العلوم الحياتية والوطنية" id="scienceSubjectOption" style="background-color:#F97316; color:#ffffff;">العلوم الحياتية والوطنية</option>
+              <option value="التربية الإسلامية" style="background-color:#22C55E; color:#ffffff;">التربية الإسلامية</option>
+              <option value="التنشئة الوطنية والاجتماعية" style="background-color:#14B8A6; color:#ffffff;">التنشئة الوطنية والاجتماعية</option>
             </select>
           </div>
 
@@ -565,7 +565,7 @@
               <option value="activities"> نشاط تعليمي</option>
               <option value="assignments"> مهمة / واجب</option>
               <option value="exams"> اختبار</option>
-              <option value="games"> لعبة تفاعلية </option>
+              <option value="games"> لعبة تفاعلية (Wordwall)</option>
               <option value="satellite"> شرح فضائية فلسطين التعليمية 📡</option>
               <option value="open_resources"> مصدر تعلم مفتوح 📚</option>
             </select>
@@ -1986,10 +1986,22 @@
       var selectBox = document.getElementById("classSelect");
       var subjectDiv = document.getElementById("subjectContainer");
       var subjectSelect = document.getElementById("subjectSelect");
+      var scienceOption = document.getElementById("scienceSubjectOption");
 
       if (selectBox.value !== "") {
         subjectDiv.style.display = "block";
         subjectSelect.setAttribute("required", "true");
+
+        if (scienceOption) {
+          var grade = selectBox.value.split('-')[0];
+          if (grade === '3' || grade === '4') {
+            scienceOption.value = 'العلوم والحياة';
+            scienceOption.textContent = 'العلوم والحياة';
+          } else {
+            scienceOption.value = 'العلوم الحياتية والوطنية';
+            scienceOption.textContent = 'العلوم الحياتية والوطنية';
+          }
+        }
       } else {
         subjectDiv.style.display = "none";
         subjectSelect.value = "";

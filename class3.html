@@ -171,6 +171,7 @@
       border-radius: 16px;
       padding: 1.8rem 1.2rem;
       border: 2px solid #E2E8F0;
+      border-top: 5px solid var(--subject-color, #E2E8F0);
       box-shadow: 0 4px 12px rgba(0, 29, 57, 0.03);
       text-align: center;
       transition: all 0.3s ease;
@@ -182,16 +183,16 @@
     }
     .subject-card:hover {
       transform: translateY(-4px);
-      border-color: #0A4174;
+      border-color: var(--subject-color, #0A4174);
       box-shadow: 0 10px 25px rgba(10, 65, 116, 0.1);
     }
     .subject-card.active-subject {
-      background-color: #0A4174;
-      border-color: #0A4174;
-      color: #ffffff;
+      background-color: var(--subject-color, #0A4174);
+      border-color: var(--subject-color, #0A4174);
+      color: var(--subject-text, #ffffff);
     }
     .subject-card.active-subject h4 {
-      color: #ffffff;
+      color: var(--subject-text, #ffffff);
     }
     .subject-icon {
       font-size: 2.5rem;
@@ -695,32 +696,32 @@
         <div class="subjects-track-container" id="subjectsContainer">
           <div class="subjects-track">
 
-            <div class="subject-card" onclick="selectSubject('اللغة العربية', this)">
+            <div class="subject-card" style="--subject-color:#7C3AED; --subject-text:#ffffff;" onclick="selectSubject('اللغة العربية', this)">
               <div class="subject-icon">📖</div>
               <h4>اللغة العربية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('الرياضيات', this)">
+            <div class="subject-card" style="--subject-color:#FACC15; --subject-text:#78350F;" onclick="selectSubject('الرياضيات', this)">
               <div class="subject-icon">🔢</div>
               <h4>الرياضيات</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('اللغة الإنجليزية', this)">
+            <div class="subject-card" style="--subject-color:#0EA5E9; --subject-text:#ffffff;" onclick="selectSubject('اللغة الإنجليزية', this)">
               <div class="subject-icon">abc</div>
               <h4>اللغة الإنجليزية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('العلوم الحياتية والوطنية', this)">
+            <div class="subject-card" style="--subject-color:#FFA07A; --subject-text:#7C2D12;" onclick="selectSubject('العلوم والحياة', this)">
               <div class="subject-icon">🔬</div>
-              <h4>العلوم الحياتية والوطنية</h4>
+              <h4>العلوم والحياة</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('التربية الإسلامية', this)">
+            <div class="subject-card" style="--subject-color:#22C55E; --subject-text:#ffffff;" onclick="selectSubject('التربية الإسلامية', this)">
               <div class="subject-icon">🕋</div>
               <h4>التربية الإسلامية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('التنشئة الوطنية والاجتماعية', this)">
+            <div class="subject-card" style="--subject-color:#14B8A6; --subject-text:#ffffff;" onclick="selectSubject('التنشئة الوطنية والاجتماعية', this)">
               <div class="subject-icon">🌏</div>
               <h4>التنشئة الوطنية والاجتماعية</h4>
             </div>
@@ -1129,16 +1130,16 @@ function selectSection(sectionName, element) {
       'اللغة العربية': '📖',
       'الرياضيات': '🔢',
       'اللغة الإنجليزية': 'abc',
-      'العلوم الحياتية والوطنية': '🔬',
+      'العلوم والحياة': '🔬',
       'التربية الإسلامية': '🕋',
       'التنشئة الوطنية والاجتماعية': '🌏'
     };
 
     const subjectBadgeColors = {
       'اللغة العربية': { bg: '#7C3AED', color: '#ffffff' },
-      'العلوم الحياتية والوطنية': { bg: '#F97316', color: '#ffffff' },
+      'العلوم والحياة': { bg: '#FFA07A', color: '#7C2D12' },
       'الرياضيات': { bg: '#FACC15', color: '#78350F' },
-      'اللغة الإنجليزية': { bg: '#3B82F6', color: '#ffffff' },
+      'اللغة الإنجليزية': { bg: '#0EA5E9', color: '#ffffff' },
       'التربية الإسلامية': { bg: '#22C55E', color: '#ffffff' },
       'التنشئة الوطنية والاجتماعية': { bg: '#14B8A6', color: '#ffffff' }
     };
