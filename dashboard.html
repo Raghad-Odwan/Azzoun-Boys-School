@@ -310,7 +310,7 @@
       }
     }
 
-   
+    /* ===== مراجعة المحتوى التعليمي (لوحة الإدارة) ===== */
     .content-review-item {
       border: 1px solid #e2e8f0;
       border-radius: 10px;
@@ -628,9 +628,10 @@
             </p>
 
             <div id="linkContainer">
-              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة :</label>
+              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة (Wordwall):</label>
               <input type="url" id="link" name="content_link" autocomplete="on" placeholder="https://..." list="linkSuggestions">
               <datalist id="linkSuggestions"></datalist>
+              <p id="satelliteLinkHint" class="hidden" style="margin-top: 6px; font-size: 0.8rem; color: #64748b;">مصدر شروحات فضائية فلسطين التعليمية على يوتيوب (مثال توضيحي فقط، مش شرط يكون الرابط منها بالتحديد): <span dir="ltr">https://www.youtube.com/@PsELearn</span></p>
             </div>
 
             <div id="fileContainer" style="display: none;">
@@ -1605,7 +1606,6 @@
       const isGame = contentType === 'games';
       const isSatellite = contentType === 'satellite';
       const isOpenResources = contentType === 'open_resources';
-      const isWholeGrade = wholeGradeCategories.indexOf(contentType) !== -1;
       const key = currentContentKey();
       const isVideo = (key === 'lessons' || key === 'activities_video' || key === 'open_resources_video');
 
@@ -1619,6 +1619,7 @@
       linkFieldLabelEl.classList.toggle('hidden', !(isGame || isSatellite));
       if (isSatellite) linkFieldLabelEl.textContent = 'رابط شرح الفضائية:';
       else if (isGame) linkFieldLabelEl.textContent = 'رابط اللعبة (Wordwall):';
+      document.getElementById('satelliteLinkHint').classList.toggle('hidden', !isSatellite);
       document.getElementById('videoLinkHint').classList.toggle('hidden', !isVideo);
 
       
