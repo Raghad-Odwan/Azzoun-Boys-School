@@ -156,6 +156,49 @@
       text-align: right;
     }
 
+    .honor-add-btn {
+      width: auto;
+      white-space: nowrap;
+      background-color: #1B2A4A;
+      color: #FFD700;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .honor-add-btn:hover {
+      background-color: #16213E;
+    }
+    .honor-student-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-bottom: 8px;
+    }
+    .honor-student-row span {
+      font-weight: 600;
+      color: #001D39;
+    }
+    .honor-delete-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .honor-delete-btn:hover {
+      background: #b91c1c;
+    }
+
     label {
       display: block;
       margin-bottom: 5px;
@@ -643,6 +686,59 @@
           <button type="submit" id="submitBtn">نشر المحتوى للملف</button>
         </form>
 
+      </div>
+
+      <div class="dashboard-card" id="topStudentsCard">
+        <h2>لوحة المتفوقين 🌟</h2>
+        <p style="text-align: center; color: #64748b; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">
+          أضيفي أسماء الطلاب المتفوقين لأي شعبة ومادة، وح تظهر أسماؤهم مباشرة للطلاب على لوحة المتفوقين ⭐
+        </p>
+
+        <div class="form-group">
+          <label for="honorClassSelect">الصف الدراسي والشعبة:</label>
+          <select id="honorClassSelect" onchange="checkHonorClassSelection()">
+            <option value="">اختر الصف والشعبة...</option>
+            <option value="1-a">الصف الأول - الشعبة (أ)</option>
+            <option value="1-b">الصف الأول - الشعبة (ب)</option>
+            <option value="1-c">الصف الأول - الشعبة (ج)</option>
+            <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+            <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+            <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+            <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+            <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+            <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+            <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+            <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+            <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="honorSubjectContainer" style="display: none;">
+          <label for="honorSubjectSelect">المادة الدراسية:</label>
+          <select id="honorSubjectSelect" onchange="handleHonorSubjectChange()">
+            <option value="">اختر المادة...</option>
+            <option value="اللغة العربية" style="background-color:#7C3AED; color:#ffffff;">اللغة العربية</option>
+            <option value="الرياضيات" style="background-color:#FACC15; color:#78350F;">الرياضيات</option>
+            <option value="اللغة الإنجليزية" style="background-color:#0EA5E9; color:#ffffff;">اللغة الإنجليزية</option>
+            <option value="العلوم الحياتية والوطنية" id="honorScienceSubjectOption" style="background-color:#F97316; color:#ffffff;">العلوم الحياتية والوطنية</option>
+            <option value="التربية الإسلامية" style="background-color:#22C55E; color:#ffffff;">التربية الإسلامية</option>
+            <option value="التنشئة الوطنية والاجتماعية" style="background-color:#14B8A6; color:#ffffff;">التنشئة الوطنية والاجتماعية</option>
+          </select>
+        </div>
+
+        <div id="topStudentsManageBox" style="display: none;">
+          <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+            <div style="flex: 1;">
+              <label for="topStudentNameInput">اسم الطالب المتفوق:</label>
+              <input type="text" id="topStudentNameInput" placeholder="اكتبي اسم الطالب هنا..." onkeydown="if(event.key==='Enter'){event.preventDefault(); addTopStudent();}">
+            </div>
+            <button type="button" class="honor-add-btn" onclick="addTopStudent()">إضافة ⭐</button>
+          </div>
+
+          <div id="topStudentsCurrentList" style="margin-top: 15px;">
+            <p style="text-align: center; color: #94a3b8;">اختاري الصف والمادة لعرض القائمة...</p>
+          </div>
+        </div>
       </div>
 
       <div class="dashboard-card" id="adminNotesCard">
@@ -2006,6 +2102,143 @@
         subjectDiv.style.display = "none";
         subjectSelect.value = "";
         subjectSelect.removeAttribute("required");
+      }
+    }
+
+    function checkHonorClassSelection() {
+      var selectBox = document.getElementById("honorClassSelect");
+      var subjectDiv = document.getElementById("honorSubjectContainer");
+      var subjectSelect = document.getElementById("honorSubjectSelect");
+      var scienceOption = document.getElementById("honorScienceSubjectOption");
+      var manageBox = document.getElementById("topStudentsManageBox");
+
+      if (selectBox.value !== "") {
+        subjectDiv.style.display = "block";
+
+        if (scienceOption) {
+          var grade = selectBox.value.split('-')[0];
+          if (grade === '3' || grade === '4') {
+            scienceOption.value = 'العلوم والحياة';
+            scienceOption.textContent = 'العلوم والحياة';
+          } else {
+            scienceOption.value = 'العلوم الحياتية والوطنية';
+            scienceOption.textContent = 'العلوم الحياتية والوطنية';
+          }
+        }
+      } else {
+        subjectDiv.style.display = "none";
+      }
+
+      subjectSelect.value = "";
+      manageBox.style.display = "none";
+    }
+
+    function handleHonorSubjectChange() {
+      const subject = document.getElementById('honorSubjectSelect').value;
+      const manageBox = document.getElementById('topStudentsManageBox');
+      if (subject) {
+        manageBox.style.display = "block";
+        loadTopStudentsForManagement();
+      } else {
+        manageBox.style.display = "none";
+      }
+    }
+
+    async function loadTopStudentsForManagement() {
+      const classValue = document.getElementById('honorClassSelect').value;
+      const subject = document.getElementById('honorSubjectSelect').value;
+      const listBox = document.getElementById('topStudentsCurrentList');
+      if (!classValue || !subject) return;
+
+      listBox.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل القائمة...</p>';
+
+      try {
+        const snapshot = await db.collection('top_students')
+          .where('grade', '==', classValue)
+          .where('subject', '==', subject)
+          .get();
+
+        const docs = [];
+        snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+
+        docs.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return at - bt;
+        });
+
+        if (docs.length === 0) {
+          listBox.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا يوجد أسماء مضافة بعد لهذه الشعبة والمادة.</p>';
+          return;
+        }
+
+        listBox.innerHTML = '';
+        docs.forEach(d => {
+          const row = document.createElement('div');
+          row.className = 'honor-student-row';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = '⭐ ' + (d.name || '');
+          row.appendChild(nameSpan);
+
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'honor-delete-btn';
+          delBtn.textContent = '🗑️ حذف';
+          delBtn.onclick = function () { removeTopStudent(d.id); };
+          row.appendChild(delBtn);
+
+          listBox.appendChild(row);
+        });
+      } catch (err) {
+        console.error('تعذر تحميل قائمة المتفوقين:', err);
+        logErrorToFirestore('loadTopStudentsForManagement', err, { grade: classValue, subject: subject });
+        listBox.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل القائمة، يرجى المحاولة لاحقاً.</p>';
+      }
+    }
+
+    async function addTopStudent() {
+      const classValue = document.getElementById('honorClassSelect').value;
+      const subject = document.getElementById('honorSubjectSelect').value;
+      const nameInput = document.getElementById('topStudentNameInput');
+      const name = nameInput.value.trim();
+
+      if (!classValue || !subject) {
+        alert('يرجى اختيار الصف والشعبة والمادة أولاً.');
+        return;
+      }
+      if (!name) {
+        alert('يرجى كتابة اسم الطالب.');
+        return;
+      }
+
+      try {
+        await db.collection('top_students').add({
+          grade: classValue,
+          subject: subject,
+          name: name,
+          addedByUsername: activeTeacherUsername || null,
+          addedByArabicName: activeTeacherArabicName || null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        nameInput.value = '';
+        loadTopStudentsForManagement();
+      } catch (err) {
+        console.error('تعذر إضافة اسم الطالب:', err);
+        logErrorToFirestore('addTopStudent', err, { grade: classValue, subject: subject });
+        alert('حدث خطأ أثناء إضافة الاسم، حاولي مرة أخرى.');
+      }
+    }
+
+    async function removeTopStudent(docId) {
+      if (!confirm('هل تريدين حذف هذا الاسم من لوحة المتفوقين؟')) return;
+      try {
+        await db.collection('top_students').doc(docId).delete();
+        loadTopStudentsForManagement();
+      } catch (err) {
+        console.error('تعذر حذف اسم الطالب:', err);
+        logErrorToFirestore('removeTopStudent', err, { docId: docId });
+        alert('حدث خطأ أثناء الحذف، حاولي مرة أخرى.');
       }
     }
 

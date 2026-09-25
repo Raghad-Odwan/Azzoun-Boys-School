@@ -203,6 +203,66 @@
       font-weight: 700;
     }
 
+    .honor-board-section {
+      margin: 3rem auto;
+      max-width: 1200px;
+    }
+    .honor-board-heading {
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+    .honor-board-box {
+      position: relative;
+      background: linear-gradient(135deg, #0B1229 0%, #16213E 55%, #1B2A4A 100%);
+      border-radius: 20px;
+      padding: 2.2rem 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(11, 18, 41, 0.35);
+    }
+    .honor-board-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255,255,255,0.8) 1.3px, transparent 1.9px);
+      background-size: 140px 140px, 90px 90px, 190px 190px;
+      background-position: 0 0, 45px 65px, 110px 25px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    .honor-board-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .honor-board-empty {
+      color: #BDD8E9;
+      text-align: center;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .honor-student-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .honor-student-chip .honor-star {
+      color: #FFD700;
+      font-size: 1.1rem;
+    }
+
     #teacherContentSection {
       display: none;
       background: #ffffff;
@@ -748,6 +808,15 @@
       </div>
     </div>
 
+    <div class="honor-board-section" id="honorBoardSection">
+      <h3 class="section-title honor-board-heading">لوحة المتفوقين 🌟</h3>
+      <div class="honor-board-box">
+        <div class="honor-board-content" id="honorBoardContent">
+          <p class="honor-board-empty">جاري تحميل لوحة المتفوقين...</p>
+        </div>
+      </div>
+    </div>
+
     <div class="games-section" id="gamesSection">
       <h3 class="section-title">الألعاب التفاعلية 🎮</h3>
       <div class="files-slider-wrapper">
@@ -909,6 +978,58 @@
 
       updateHeaderTitle();
       loadFilesToSlider();
+      loadTopStudents();
+    }
+
+    async function loadTopStudents() {
+      if (!currentSection || !currentSubject) return;
+
+      const contentBox = document.getElementById('honorBoardContent');
+      contentBox.innerHTML = '<p class="honor-board-empty">جاري تحميل لوحة المتفوقين...</p>';
+
+      const gradeValue = `${GRADE_NUMBER}-${SECTION_CODE[currentSection]}`;
+
+      try {
+        const snapshot = await db.collection('top_students')
+          .where('grade', '==', gradeValue)
+          .where('subject', '==', currentSubject)
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return at - bt;
+        });
+
+        contentBox.innerHTML = '';
+
+        if (items.length === 0) {
+          contentBox.innerHTML = '<p class="honor-board-empty">سيتم إعلان أسماء المتفوقين قريباً ✨</p>';
+          return;
+        }
+
+        items.forEach(item => {
+          const chip = document.createElement('div');
+          chip.className = 'honor-student-chip';
+
+          const star = document.createElement('span');
+          star.className = 'honor-star';
+          star.textContent = '⭐';
+          chip.appendChild(star);
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = item.name || '';
+          chip.appendChild(nameSpan);
+
+          contentBox.appendChild(chip);
+        });
+      } catch (err) {
+        console.error('تعذر تحميل لوحة المتفوقين:', err);
+        contentBox.innerHTML = '<p class="honor-board-empty">تعذر تحميل لوحة المتفوقين حالياً.</p>';
+      }
     }
 
     function updateHeaderTitle() {
