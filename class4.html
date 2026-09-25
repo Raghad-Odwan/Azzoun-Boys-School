@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الصف الرابع الاساسي - مدرسة ذكور عزون الأساسية</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- مكتبات Firebase لعرض المحتوى المنشور من لوحة تحكم المعلمات -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
-    /* تنسيقات عامة */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -24,7 +22,6 @@
       min-height: 100vh;
     }
 
-    /* الهيدر المتجاوب */
     header {
       background-color: #ffffff;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -83,7 +80,6 @@
       cursor: pointer;
     }
 
-    /* المحتوى الرئيسي */
     main {
       flex: 1;
       max-width: 1200px;
@@ -145,7 +141,6 @@
       font-weight: 700;
     }
 
-    /* سلايدر المواد الدراسية */
     .subjects-section {
       margin-bottom: 3rem;
     }
@@ -207,7 +202,6 @@
       font-weight: 700;
     }
 
-    /* صندوق محتوى المعلمة */
     #teacherContentSection {
       display: none;
       background: #ffffff;
@@ -264,7 +258,6 @@
       box-shadow: 0 4px 12px rgba(10, 65, 116, 0.2);
     }
 
-    /* سلايدر الملفات الأفقي */
     .files-slider-wrapper {
       position: relative;
       display: flex;
@@ -342,7 +335,6 @@
       transform: scale(1.02);
     }
 
-    /* تصميم النافذة المنبثقة (Modal) للشروحات والأنشطة */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -428,7 +420,6 @@
       padding: 2rem 1rem;
     }
 
-    /* أسهم السلايدر */
     .slider-arrow {
       background: #0A4174;
       color: white;
@@ -455,7 +446,6 @@
     .prev-arrow { right: -15px; }
     .next-arrow { left: -15px; }
 
-    /* الفوتر */
     footer {
       background-color: #001D39;
       color: #ffffff;
@@ -527,7 +517,6 @@
     
     }
 
-    /* تنسيقات قسم الجدول الدراسي */
 .schedule-section {
   background: #ffffff;
   border: 2px solid #E2E8F0;
@@ -566,7 +555,6 @@
 }
 
   
-    /* قسم الألعاب التفاعلية */
     .games-section {
       background: #ffffff;
       border: 2px solid #E2E8F0;
@@ -746,7 +734,6 @@
 
         <div class="files-track-container" id="filesContainer">
           <div class="files-track" id="filesTrack">
-            <!-- يتم تعبئة الملفات تلقائياً -->
           </div>
         </div>
 
@@ -760,7 +747,6 @@
         <button class="slider-arrow prev-arrow" onclick="scrollGames('right')">❮</button>
         <div class="files-track-container" id="gamesContainer">
           <div class="files-track" id="gamesTrack">
-            <!-- يتم تعبئة الألعاب تلقائياً -->
           </div>
         </div>
         <button class="slider-arrow next-arrow" onclick="scrollGames('left')">❯</button>
@@ -776,7 +762,6 @@
         <button class="close-modal" id="closeModalBtn" aria-label="إغلاق">×</button>
       </div>
       <div class="modal-body" id="modalBodyContent">
-        <!-- يتم حقن الفيديو أو الصورة هنا ديناميكياً -->
       </div>
     </div>
   </div>
@@ -788,7 +773,6 @@
         <button class="close-modal" id="closeGameModalBtn" aria-label="إغلاق">×</button>
       </div>
       <div class="modal-body" id="gameModalBody">
-        <!-- يتم حقن اللعبة هنا ديناميكياً -->
       </div>
     </div>
   </div>
@@ -802,8 +786,6 @@
   </footer>
 
   <script>
-    // ================= إعداد Firebase =================
-    // نفس مشروع Firebase المستخدم في لوحة تحكم المعلمات، بصلاحية قراءة فقط هنا
     const firebaseConfig = {
       apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
       authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
@@ -817,11 +799,9 @@
     }
     const db = firebase.firestore();
 
-    // رقم هذا الصف، ورمز كل شعبة كما هو مخزّن في قاعدة البيانات (نفس ترميز لوحة التحكم)
     const GRADE_NUMBER = 4;
     const SECTION_CODE = { 'أ': 'a', 'ب': 'b', 'ج': 'c' };
 
-    // أيقونة كل نوع محتوى (بنفس رموز أزرار التبويب أعلاه)
     const categoryIcons = {
       lessons: '🎥',
       worksheets: '📄',
@@ -854,9 +834,6 @@
       updateHeaderTitle();
     }
 
-    // ================= جلب صورة الجدول الدراسي من لوحة تحكم الإدارة =================
-    // كل صف وشعبة له مستند واحد بمعرّف "رقم الصف-رمز الشعبة" (مثال: 1-a)
-    // فأي جدول جديد ترفعه الإدارة لنفس الصف والشعبة يستبدل القديم تلقائياً، وتظهر آخر نسخة هنا مباشرة.
     let scheduleRequestId = 0;
 
     async function loadSchedule(sectionName) {
@@ -914,7 +891,6 @@
       loadFilesToSlider();
     }
 
-    // ================= تحميل المحتوى من Firestore =================
     let loadRequestId = 0;
 
     async function loadFilesToSlider() {
@@ -944,7 +920,6 @@
         const items = [];
         snapshot.forEach(doc => items.push(doc.data()));
 
-        // الأحدث أولاً
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
           const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
@@ -1094,7 +1069,6 @@
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
 
-    // ================= الألعاب التفاعلية (Wordwall) =================
     const subjectIcons = {
       'اللغة العربية': '📖',
       'الرياضيات': '🔢',
