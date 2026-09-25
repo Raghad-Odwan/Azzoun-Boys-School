@@ -310,7 +310,7 @@
       }
     }
 
-    /* ===== مراجعة المحتوى التعليمي (لوحة الإدارة) ===== */
+   
     .content-review-item {
       border: 1px solid #e2e8f0;
       border-radius: 10px;
@@ -565,8 +565,22 @@
               <option value="assignments"> مهمة / واجب</option>
               <option value="exams"> اختبار</option>
               <option value="games"> لعبة تفاعلية (Wordwall)</option>
+              <option value="satellite"> شرح فضائية فلسطين التعليمية 📡</option>
+              <option value="open_resources"> مصدر تعلم مفتوح 📚</option>
             </select>
             <p id="gamesHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: اللعبة التفاعلية بتظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه.</p>
+            <p id="satelliteHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: شرح الفضائية بيظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه. الرابط بيفتح للطالب داخل الصفحة (تعتيم الشاشة) تماماً متل الفيديو.</p>
+            <p id="openResourcesHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: مصدر التعلم المفتوح بيظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه. للطالب زرّان: عرض المصدر (تعتيم الشاشة) وتحميل المصدر.</p>
+          </div>
+
+          <div class="form-group" id="openResourceTypeContainer" style="display: none;">
+            <label for="openResourceType">نوع المصدر:</label>
+            <select id="openResourceType" name="open_resource_type" onchange="handleContentTypeChange()">
+              <option value="file">📄 ملف (مستند / PDF)</option>
+              <option value="image">🖼️ صورة</option>
+              <option value="link">🔗 رابط خارجي (موقع أو مصدر آخر)</option>
+              <option value="video">🎥 فيديو</option>
+            </select>
           </div>
 
           <div class="form-group" id="mediaTypeContainer" style="display: none;">
@@ -614,7 +628,7 @@
             </p>
 
             <div id="linkContainer">
-              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة (Wordwall):</label>
+              <label for="link" id="linkFieldLabel" class="hidden">رابط اللعبة :</label>
               <input type="url" id="link" name="content_link" autocomplete="on" placeholder="https://..." list="linkSuggestions">
               <datalist id="linkSuggestions"></datalist>
             </div>
@@ -880,7 +894,7 @@
     function getGradeLabel(grade) {
       if (!grade) return '';
       if (gradeLabelsMap[grade]) return gradeLabelsMap[grade];
-      if (gradeNumberLabels[grade]) return gradeNumberLabels[grade] + ' (لعبة تفاعلية لكل الشعب)';
+      if (gradeNumberLabels[grade]) return gradeNumberLabels[grade] + ' (محتوى يظهر لكل الشعب)';
       return grade;
     }
 
@@ -890,7 +904,9 @@
       activities: 'نشاط تعليمي',
       assignments: 'مهمة / واجب',
       exams: 'اختبار',
-      games: 'لعبة تفاعلية'
+      games: 'لعبة تفاعلية',
+      satellite: 'شرح فضائية تعليمية',
+      open_resources: 'مصدر تعلم مفتوح'
     };
 
     function escapeHtml(str) {
@@ -1254,7 +1270,7 @@
             docs = docs.filter(function (item) {
               const g = item.data.grade;
               if (g === filterValue) return true;
-              if (item.data.category === 'games' && g === filterValue.split('-')[0]) return true;
+              if (wholeGradeCategories.indexOf(item.data.category) !== -1 && g === filterValue.split('-')[0]) return true;
               return false;
             });
           }
@@ -1550,7 +1566,12 @@
       activities_image: 'عرض النشاط',
       assignments: 'تحميل المهمة',
       exams: 'تحميل الاختبار',
-      games: '▶ الانتقال إلى اللعبة'
+      games: '▶ الانتقال إلى اللعبة',
+      satellite: '📡 مشاهدة الشرح',
+      open_resources_file: 'عرض المصدر',
+      open_resources_image: 'عرض المصدر',
+      open_resources_link: 'فتح الرابط',
+      open_resources_video: '📡 مشاهدة الفيديو'
     };
 
     const fileAccept = {
@@ -1559,8 +1580,12 @@
       activities_video: 'video/*',
       activities_image: 'image/*',
       assignments: 'application/pdf',
-      exams: 'application/pdf'
+      exams: 'application/pdf',
+      open_resources_file: 'application/pdf',
+      open_resources_image: 'image/*'
     };
+
+    const wholeGradeCategories = ['games', 'satellite', 'open_resources'];
 
     function currentContentKey() {
       const contentType = document.getElementById('contentType').value;
@@ -1568,23 +1593,36 @@
         const mediaType = document.getElementById('mediaType').value;
         return mediaType === 'image' ? 'activities_image' : 'activities_video';
       }
+      if (contentType === 'open_resources') {
+        const openResourceType = document.getElementById('openResourceType').value;
+        return 'open_resources_' + openResourceType;
+      }
       return contentType;
     }
 
     function handleContentTypeChange() {
       const contentType = document.getElementById('contentType').value;
       const isGame = contentType === 'games';
+      const isSatellite = contentType === 'satellite';
+      const isOpenResources = contentType === 'open_resources';
+      const isWholeGrade = wholeGradeCategories.indexOf(contentType) !== -1;
       const key = currentContentKey();
-      const isVideo = (key === 'lessons' || key === 'activities_video');
+      const isVideo = (key === 'lessons' || key === 'activities_video' || key === 'open_resources_video');
 
       document.getElementById('mediaTypeContainer').style.display = (contentType === 'activities') ? 'block' : 'none';
+      document.getElementById('openResourceTypeContainer').style.display = isOpenResources ? 'block' : 'none';
       document.getElementById('gameImageContainer').style.display = isGame ? 'block' : 'none';
       document.getElementById('gamesHint').classList.toggle('hidden', !isGame);
-      document.getElementById('linkFieldLabel').classList.toggle('hidden', !isGame);
+      document.getElementById('satelliteHint').classList.toggle('hidden', !isSatellite);
+      document.getElementById('openResourcesHint').classList.toggle('hidden', !isOpenResources);
+      const linkFieldLabelEl = document.getElementById('linkFieldLabel');
+      linkFieldLabelEl.classList.toggle('hidden', !(isGame || isSatellite));
+      if (isSatellite) linkFieldLabelEl.textContent = 'رابط شرح الفضائية:';
+      else if (isGame) linkFieldLabelEl.textContent = 'رابط اللعبة (Wordwall):';
       document.getElementById('videoLinkHint').classList.toggle('hidden', !isVideo);
 
       
-      const forceLinkOnly = isGame || isVideo;
+      const forceLinkOnly = isGame || isSatellite || isVideo || key === 'open_resources_link';
       document.getElementById('sourceToggleWrapper').classList.toggle('hidden', forceLinkOnly);
       if (forceLinkOnly) {
         document.querySelector('input[name="sourceType"][value="link"]').checked = true;
@@ -1649,6 +1687,8 @@
         return;
       }
 
+      const openResourceType = document.getElementById('openResourceType').value;
+
       let finalType, linkTextKey;
       if (contentType === 'lessons') {
         finalType = 'video';
@@ -1659,6 +1699,12 @@
       } else if (contentType === 'games') {
         finalType = 'game';
         linkTextKey = 'games';
+      } else if (contentType === 'satellite') {
+        finalType = 'video';
+        linkTextKey = 'satellite';
+      } else if (contentType === 'open_resources') {
+        finalType = openResourceType === 'link' ? 'download' : openResourceType;
+        linkTextKey = 'open_resources_' + openResourceType;
       } else {
         finalType = 'download';
         linkTextKey = contentType;
@@ -1712,7 +1758,7 @@
       submitBtn.textContent = 'جاري النشر والحفظ... ⏳';
 
     
-      const gradeToSave = (contentType === 'games') ? classValue.split('-')[0] : classValue;
+      const gradeToSave = (wholeGradeCategories.indexOf(contentType) !== -1) ? classValue.split('-')[0] : classValue;
 
       const newItem = {
         uploader_username: activeTeacherUsername,

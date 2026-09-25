@@ -583,7 +583,7 @@
       box-shadow: 0 8px 20px rgba(10, 65, 116, 0.1);
     }
     .game-subject-badge {
-      background: #0A4174;
+      background: #64748b;
       color: #fff;
       font-size: 0.75rem;
       font-weight: 700;
@@ -620,6 +620,23 @@
       border: none;
       border-radius: 12px;
       display: block;
+    }
+
+    .open-resource-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .action-btn-secondary {
+      background: #f1f5f9;
+      color: #0A4174;
+      border: 2px solid #0A4174;
+    }
+    .action-btn-secondary:hover {
+      background: #e2e8f0;
+      color: #001D39;
     }
 </style>
 </head>
@@ -751,6 +768,30 @@
       </div>
     </div>
 
+    <div class="games-section" id="satelliteSection">
+      <h3 class="section-title">شروحات فضائية فلسطين التعليمية 📡</h3>
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollSatellite('right')">❮</button>
+        <div class="files-track-container" id="satelliteContainer">
+          <div class="files-track" id="satelliteTrack">
+          </div>
+        </div>
+        <button class="slider-arrow next-arrow" onclick="scrollSatellite('left')">❯</button>
+      </div>
+    </div>
+
+    <div class="games-section" id="openResourcesSection">
+      <h3 class="section-title">مصادر التعلم المفتوح 📔</h3>
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollOpenResources('right')">❮</button>
+        <div class="files-track-container" id="openResourcesContainer">
+          <div class="files-track" id="openResourcesTrack">
+          </div>
+        </div>
+        <button class="slider-arrow next-arrow" onclick="scrollOpenResources('left')">❯</button>
+      </div>
+    </div>
+
   </main>
 
   <div class="modal-overlay" id="mediaModal">
@@ -855,7 +896,7 @@ function selectSection(sectionName, element) {
           img.style.display = 'block';
           statusMsg.style.display = 'none';
         } else {
-          statusMsg.textContent = 'لم يتم رفع الجدول الدراسي لهذه الشعبة بعد، يرجى مراجعة الإدارة.';
+          statusMsg.textContent = 'لم يتم رفع الجدول الدراسي لهذه الشعبة بعد.';
           statusMsg.style.display = 'block';
         }
       } catch (err) {
@@ -1035,6 +1076,22 @@ function selectSection(sectionName, element) {
         img.src = item.url;
         img.alt = item.title || '';
         modalBodyContent.appendChild(img);
+      } else {
+        const iframe = document.createElement('iframe');
+        iframe.src = item.url;
+        iframe.allow = 'fullscreen';
+        modalBodyContent.appendChild(iframe);
+        const openLink = document.createElement('p');
+        openLink.style.marginTop = '10px';
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.style.color = '#0A4174';
+        a.style.fontWeight = '700';
+        a.textContent = 'فتح المصدر في نافذة جديدة ⤴';
+        openLink.appendChild(a);
+        modalBodyContent.appendChild(openLink);
       }
 
       modal.classList.add('show');
@@ -1075,6 +1132,22 @@ function selectSection(sectionName, element) {
       'التربية الإسلامية': '🕋',
       'التنشئة الوطنية والاجتماعية': '🌏'
     };
+
+    const subjectBadgeColors = {
+      'اللغة العربية': { bg: '#7C3AED', color: '#ffffff' },
+      'العلوم الحياتية والوطنية': { bg: '#F97316', color: '#ffffff' },
+      'الرياضيات': { bg: '#FACC15', color: '#78350F' },
+      'اللغة الإنجليزية': { bg: '#3B82F6', color: '#ffffff' },
+      'التربية الإسلامية': { bg: '#22C55E', color: '#ffffff' },
+      'التنشئة الوطنية والاجتماعية': { bg: '#14B8A6', color: '#ffffff' }
+    };
+    function applySubjectBadgeColor(badgeEl, subject) {
+      const c = subjectBadgeColors[subject];
+      if (c) {
+        badgeEl.style.background = c.bg;
+        badgeEl.style.color = c.color;
+      }
+    }
 
     async function loadGames() {
       const track = document.getElementById('gamesTrack');
@@ -1121,6 +1194,7 @@ function selectSection(sectionName, element) {
       const badge = document.createElement('span');
       badge.className = 'game-subject-badge';
       badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
       card.appendChild(badge);
 
       const icon = document.createElement('div');
@@ -1189,7 +1263,184 @@ function selectSection(sectionName, element) {
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
 
+    async function loadSatellite() {
+      const track = document.getElementById('satelliteTrack');
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', String(GRADE_NUMBER))
+          .where('category', '==', 'satellite')
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="game-card" style="min-width: 100%; cursor: default;">
+              <h4>لا توجد شروحات فضائية حالياً</h4>
+              <p>سيتم إضافة الشروحات قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+        items.forEach(item => track.appendChild(buildSatelliteCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل شروحات الفضائية:', err);
+        track.innerHTML = `
+          <div class="game-card" style="min-width: 100%; cursor: default;">
+            <h4>تعذر تحميل الشروحات</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات.</p>
+          </div>
+        `;
+      }
+    }
+
+    function buildSatelliteCard(item) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'game-subject-badge';
+      badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
+      card.appendChild(badge);
+
+      const icon = document.createElement('div');
+      icon.className = 'game-icon';
+      icon.textContent = '📡';
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'شرح فضائية تعليمية';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      card.addEventListener('click', () => openMediaModal(item));
+      return card;
+    }
+
+    function scrollSatellite(direction) {
+      const container = document.getElementById('satelliteContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
+    async function loadOpenResources() {
+      const track = document.getElementById('openResourcesTrack');
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', String(GRADE_NUMBER))
+          .where('category', '==', 'open_resources')
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="file-card" style="min-width: 100%;">
+              <h4>لا توجد مصادر تعلم مفتوح حالياً</h4>
+              <p>سيتم إضافة المصادر قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+        items.forEach(item => track.appendChild(buildOpenResourceCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل مصادر التعلم المفتوح:', err);
+        track.innerHTML = `
+          <div class="file-card" style="min-width: 100%;">
+            <h4>تعذر تحميل المصادر</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات.</p>
+          </div>
+        `;
+      }
+    }
+
+    function buildOpenResourceCard(item) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'game-subject-badge';
+      badge.style.alignSelf = 'center';
+      badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
+      card.appendChild(badge);
+
+      const icon = document.createElement('div');
+      icon.className = 'file-icon';
+      icon.textContent = item.type === 'image' ? '🖼️' : (item.type === 'video' ? '🎥' : '📁');
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'مصدر تعلم مفتوح';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'open-resource-actions';
+
+      const viewBtn = document.createElement('button');
+      viewBtn.className = 'action-btn';
+      viewBtn.textContent = '👁️ عرض';
+      viewBtn.addEventListener('click', () => openMediaModal(item));
+      actions.appendChild(viewBtn);
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'action-btn action-btn-secondary';
+      downloadBtn.textContent = '⬇️ تحميل';
+      downloadBtn.addEventListener('click', () => {
+        if (!item.url) {
+          alert('المصدر غير متوفر حالياً.');
+          return;
+        }
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        if (item.source === 'file' && item.fileName) {
+          a.download = item.fileName;
+        }
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+      actions.appendChild(downloadBtn);
+
+      card.appendChild(actions);
+      return card;
+    }
+
+    function scrollOpenResources(direction) {
+      const container = document.getElementById('openResourcesContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
     loadGames();
+    loadSatellite();
+    loadOpenResources();
   </script>
 
 </body>
