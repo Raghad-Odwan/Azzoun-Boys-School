@@ -768,6 +768,49 @@
   transition: all 0.3s ease;
 }
 
+.image-lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  padding: 1.5rem;
+}
+.image-lightbox-overlay.show {
+  display: flex;
+}
+.image-lightbox-overlay img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  object-fit: contain;
+}
+.image-lightbox-close {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.image-lightbox-close:hover {
+  background: rgba(255,255,255,0.3);
+}
+
 </style>
 
 <script>
@@ -819,7 +862,7 @@
 
         <div class="announcement-text-container" id="desc-${index}">
           <p style="font-size: 1rem; color: #64748b; line-height: 1.7; white-space: pre-wrap; margin: 0;">${item.text}</p>
-          ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; display: block;">` : ''}
+          ${item.image ? `<img src="${item.image}" alt="صورة الإعلان" onclick="openAnnouncementImage(this.src)" style="margin-top: 15px; max-width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; display: block; cursor: zoom-in;">` : ''}
         </div>
 
         <button onclick="toggleAnnouncement(${index})" id="btn-${index}" style="background: none; border: none; color: var(--primary); font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Tajawal', sans-serif; display: none;">
@@ -957,7 +1000,37 @@
       }
     }, 150);
   }
+
+  function openAnnouncementImage(src) {
+    const overlay = document.getElementById('imageLightboxOverlay');
+    const img = document.getElementById('imageLightboxImg');
+    if (!overlay || !img) return;
+    img.src = src;
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAnnouncementImage() {
+    const overlay = document.getElementById('imageLightboxOverlay');
+    const img = document.getElementById('imageLightboxImg');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    if (img) img.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('imageLightboxOverlay').addEventListener('click', function (e) {
+    if (e.target.id === 'imageLightboxOverlay') closeAnnouncementImage();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeAnnouncementImage();
+  });
 </script>
+
+<div class="image-lightbox-overlay" id="imageLightboxOverlay">
+  <button type="button" class="image-lightbox-close" onclick="closeAnnouncementImage()" aria-label="إغلاق">×</button>
+  <img id="imageLightboxImg" src="" alt="صورة الإعلان مكبّرة">
+</div>
 
 </body>
 </html>
