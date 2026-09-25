@@ -31,7 +31,6 @@
       scroll-behavior: smooth;
     }
 
-    /* Navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -59,7 +58,6 @@
       object-fit: contain;
     }
 
-    /* Nav Menu */
     .nav-menu {
       display: flex;
       align-items: center;
@@ -114,7 +112,6 @@
       border-radius: 3px;
     }
 
-    /* Hero Section */
     .hero {
       background: linear-gradient(135deg, var(--bg-dark) 0%, var(--primary) 100%);
       color: #ffffff;
@@ -178,7 +175,6 @@
       transform: translateY(-2px);
     }
 
-    /* About & Features Section */
     .about-section {
       padding: 5rem 1.5rem;
       max-width: 1200px;
@@ -246,7 +242,6 @@
       flex-grow: 1;
     }
 
-    /* Announcements Section (قسم الإعلانات الجديد) */
     .announcements-section {
       padding: 4rem 1.5rem;
       max-width: 1200px;
@@ -316,7 +311,6 @@
       line-height: 1.7;
     }
 
-    /* Classes Section */
     .classes-section {
       padding: 4rem 1.5rem;
       max-width: 1200px;
@@ -374,7 +368,6 @@
       background-color: var(--bg-dark);
     }
 
-    /* Contact Section */
     #contact-section {
       padding: 50px 20px;
       background-color: #ffffff;
@@ -382,7 +375,6 @@
       direction: rtl;
     }
 
-    /* Footer */
     footer {
       background-color: #001D39;
       color: #ecf0f1;
@@ -391,7 +383,6 @@
       direction: rtl;
     }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       .hero h1 {
         font-size: 1.8rem;
@@ -517,7 +508,6 @@
       
       <div class="announcements-viewport">
         <div class="announcements-track" id="announcementsTrack">
-          <!-- سيتم جلب الإعلانات وتعبئتها هنا ديناميكياً من لوحة التحكم -->
         </div>
       </div>
 
@@ -690,11 +680,11 @@
 <style>
 .announcements-slider-wrapper {
   position: relative;
-  max-width: 950px; /* زيادة العرض الكلي للسلايدر */
+  max-width: 950px;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  padding: 0 10px; /* تقليل الحشوة الجانبية عشان الأسهم تقرب عالبطاقة */
+  padding: 0 10px;
 }
 .announcements-viewport {
   width: 100%;
@@ -718,7 +708,6 @@
   text-align: right;
 }
 
-/* تعديل موقع الأسهم لتصير على حواف البطاقة مباشرة */
 .slider-arrow {
   position: absolute;
   top: 50%;
@@ -744,23 +733,19 @@
   transform: translateY(-50%) scale(1.05);
 }
 
-/* إخراج الأسهم قليلاً على أطراف الكارد أو تركها على الحافة مباشرة */
 .prev-arrow { 
-  right: -20px; /* سهم اليمين للخارج قليلاً */
+  right: -20px;
 } 
 
 .next-arrow { 
-  left: -20px; /* سهم اليسار للخارج قليلاً */
+  left: -20px;
 }
-/* تنسيق الاعلان */
-/* تنسيق خاص لحالة طي النص الطويل لضمان ثبات حجم البطاقة */
 .announcement-text-container.collapsed {
-  max-height: 90px; /* الحد الأقصى للارتفاع وهو مغلق */
+  max-height: 90px;
   overflow: hidden;
   position: relative;
 }
 
-/* تأثير تدرج خفيف في أسفل النص المغلق ليوضح أن هناك المزيد */
 .announcement-text-container.collapsed::after {
   content: "";
   position: absolute;
@@ -892,9 +877,6 @@
     }
   };
 
-  // جلب بيانات الشبكة والجهاز الخاصة بمُرسل الرسالة (بصمت، بدون أي تأثير على تجربة الزائر)
-  // هاي المعلومات بتنخزن بقاعدة البيانات فقط للرجوع إليها عند الحاجة (مثلاً بلاغ أو رسالة مسيئة)
-  // وما بتظهر بلوحة تحكم الإدارة العادية.
   function getSenderMetadata() {
     const meta = {
       device_info: navigator.userAgent || null,
@@ -905,7 +887,6 @@
       isp: null
     };
 
-    // مهلة قصوى 4 ثواني حتى ما تعلّق عملية الإرسال لو الخدمة الخارجية بطيئة أو غير متوفرة
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
 
@@ -927,11 +908,10 @@
       .catch(function (err) {
         clearTimeout(timeoutId);
         console.error('تعذر جلب معلومات الشبكة:', err);
-        return meta; // نكمل الإرسال حتى لو تعذّر جلب الشبكة، مع الاحتفاظ ببيانات الجهاز فقط
+        return meta;
       });
   }
 
-  // إرسال رسالة "تواصل معنا" وتخزينها بـ Firestore حتى تقدر الإدارة تشوفها من لوحة التحكم
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
     contactForm.addEventListener('submit', async function (e) {
@@ -954,7 +934,6 @@
           message: message,
           status: 'new',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          // بيانات تعريفية إضافية لغايات التوثيق فقط (مش ظاهرة بلوحة رسائل الإدارة)
           sender_meta: senderMeta
         });
 
