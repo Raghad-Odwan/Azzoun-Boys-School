@@ -577,14 +577,6 @@
       </div>
 
       <div class="dashboard-card">
-        <h2>التنبيهات الأمنية 🔐</h2>
-        <p style="margin-bottom: 10px; font-size: 0.85rem; color: #64748b;">محاولات دخول فاشلة متكررة، أو دخول من جهاز جديد لأول مرة.</p>
-        <div id="securityAlertsList" style="text-align: right;">
-          <p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>
-        </div>
-      </div>
-
-      <div class="dashboard-card">
         <h2>الرسائل الواردة من زوار الموقع ✉️</h2>
         <div id="contactMessagesList" style="text-align: right;">
           <p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>
@@ -894,7 +886,6 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
-        loadSecurityAlerts();
       } catch (error) {
         console.error('خطأ بتسجيل دخول الإدارة:', error);
         logErrorToFirestore('verifyManagerLogin', error);
@@ -1010,53 +1001,9 @@
         });
     }
 
-    function loadSecurityAlerts() {
-      const listEl = document.getElementById('securityAlertsList');
-      if (!listEl) return;
-      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>';
-
-      db.collection('security_alerts').orderBy('createdAt', 'desc').limit(20).get()
-        .then(function (snapshot) {
-          if (snapshot.empty) {
-            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد تنبيهات أمنية حالياً 🎉</p>';
-            return;
-          }
-          listEl.innerHTML = snapshot.docs.map(function (doc) {
-            const data = doc.data();
-            const dateStr = data.createdAt && data.createdAt.toDate
-              ? data.createdAt.toDate().toLocaleString('ar-EG')
-              : '';
-            let title = 'تنبيه أمني';
-            if (data.type === 'multiple_failed_logins') {
-              title = '⚠️ محاولات دخول فاشلة متكررة' + (data.username ? ' — ' + data.username : ' — حساب الإدارة');
-            } else if (data.type === 'new_device_login') {
-              title = '📱 دخول من جهاز جديد' + (data.username ? ' — ' + data.username : '');
-            }
-            return `
-              <div style="border: 1px solid #fde68a; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; background: ${data.seen ? '#f8fafc' : '#fffbeb'};">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: #b45309;">${title}</strong>
-                  <span style="font-size: 0.78rem; color: #94a3b8;">${dateStr}</span>
-                </div>
-                <p style="margin: 0; font-size: 0.85rem; color: #475569;">
-                  الآي بي: ${data.ip || 'غير معروف'} — الجهاز: ${data.deviceId ? data.deviceId.slice(0, 16) + '…' : 'غير معروف'}
-                </p>
-                <button type="button" onclick="dismissSecurityAlert('${doc.id}')" style="margin-top: 8px; width: auto; background: #64748b; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; cursor: pointer;">إخفاء</button>
-              </div>
-            `;
-          }).join('');
-        })
-        .catch(function (error) {
-          console.error('خطأ بجلب التنبيهات الأمنية:', error);
-          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل التنبيهات.</p>';
-        });
-    }
-
-    function dismissSecurityAlert(id) {
-      db.collection('security_alerts').doc(id).delete()
-        .then(loadSecurityAlerts)
-        .catch(function (e) { console.error('تعذر حذف التنبيه:', e); });
-    }
+    // ملاحظة للمبرمج: تم إزالة عرض "التنبيهات الأمنية" من واجهة المعلمة عمداً.
+    // التنبيهات ما زالت تُسجَّل في قاعدة البيانات (Firestore) ضمن كولكشن security_alerts،
+    // ويمكن مراجعتها مباشرة من Firebase Console بدل عرضها للإدارة/المعلمات.
 
     async function verifyTeacherLogin() {
       const usernameInput = document.getElementById('teacherUsernameInput').value.trim().toLowerCase();
@@ -1139,7 +1086,6 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
-        loadSecurityAlerts();
         startSessionLock('manager', null);
         resetIdleTimer();
       } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
