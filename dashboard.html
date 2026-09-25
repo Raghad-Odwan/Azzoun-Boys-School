@@ -334,12 +334,11 @@
 
   <div class="main-content">
     
-    <!-- شاشة تسجيل الدخول الموحّدة (معلمة أو إدارة) -->
+  
     <div class="auth-container" id="authBox">
       <h2>تسجيل الدخول للوحة التحكم 🔒</h2>
       <p style="margin-bottom: 20px; color: #555;">الرجاء إدخال البريد الإلكتروني</p>
 
-      <!-- خطوة 1: البريد الإلكتروني فقط -->
       <form id="emailStepForm" onsubmit="event.preventDefault(); checkLoginEmail();" autocomplete="off">
         <div class="form-group">
           <label for="loginEmailInput">البريد الإلكتروني :</label>
@@ -348,7 +347,6 @@
         <button type="submit" class="action-btn">التالي</button>
       </form>
 
-      <!-- خطوة 2 - أ: دخول المعلمة (يظهر فقط إذا كان الإيميل إيميل المعلمات) -->
       <form id="teacherLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyTeacherLogin();" autocomplete="off">
         <div class="form-group">
           <label for="teacherUsernameInput">اسم المستخدم :</label>
@@ -364,7 +362,7 @@
         <button type="button" class="action-btn" style="background:#64748b; margin-top:8px;" onclick="backToEmailStep()">رجوع</button>
       </form>
 
-      <!-- خطوة 2 - ب: دخول الإدارة (يظهر فقط إذا كان الإيميل إيميل الإدارة) -->
+      
       <form id="managerLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyManagerLogin();" autocomplete="on">
         <div class="form-group">
           <label for="managerPasswordInput">كلمة المرور :</label>
@@ -376,7 +374,6 @@
       </form>
     </div>
 
-    <!-- لوحة التحكم الفعلية -->
     <div id="dashboardWrapper" class="hidden">
       
       <div style="max-width: 600px; margin: 0 auto 20px auto; background: #eef2ff; padding: 12px 20px; border-radius: 8px; border-right: 4px solid var(--accent-color); font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
@@ -388,7 +385,6 @@
         <h2>إضافة محتوى تعليمي جديد 📚</h2>
         <form id="addContentForm">
 
-          <!-- 1. الصف الدراسي والشعبة (إجباري) -->
           <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">الصف الدراسي والشعبة: <span style="color: red;">*</span></label>
             <select id="classSelect" name="class_select" onchange="checkClassSelection()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif; background-color: #fff;" required>
@@ -408,7 +404,7 @@
             </select>
           </div>
 
-          <!-- 2. المادة الدراسية (تظهر بعد اختيار الصف وتكون إجبارية) -->
+          
           <div id="subjectContainer" style="margin-bottom: 20px; display: none;">
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية: <span style="color: red;">*</span></label>
             <select id="subjectSelect" name="subject_select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
@@ -422,7 +418,7 @@
             </select>
           </div>
 
-          <!-- 3. نوع المحتوى -->
+          
           <div class="form-group">
             <label for="contentType">نوع المحتوى:</label>
             <select id="contentType" name="content_type" onchange="handleContentTypeChange()" required>
@@ -599,7 +595,7 @@
   </div>
 
   <script>
-    // تهيئة Firebase
+ 
     const firebaseConfig = {
       apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
       authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
@@ -614,12 +610,12 @@
     }
     const db = firebase.firestore();
     const auth = firebase.auth();
-    // خلي الجلسة محفوظة بالمتصفح حتى لو المعلمة سكرت وفتحت الصفحة من جديد
+    
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function (e) {
       console.error('تعذر ضبط نوع الجلسة:', e);
     });
 
-    // تسجيل أي خطأ غير متوقع بقاعدة البيانات حتى تقدروا تتابعوا المشاكل
+  
     async function logErrorToFirestore(source, error, extra) {
       try {
         await db.collection('error_logs').add({
@@ -640,7 +636,7 @@
       }
     }
 
-    // يلتقط أي خطأ برمجي غير متوقع بأي مكان بالصفحة
+   
     window.addEventListener('error', function (event) {
       logErrorToFirestore('window.onerror', event.error || event.message);
     });
@@ -654,7 +650,7 @@
       navLinks.classList.toggle('open');
     });
 
-    // قائمة المعلمات وأسمائهم المقابلة لليوزر
+    
     const teachersRegistry = {
       "jenan": "جنان",
       "hanan": "حنان",
@@ -692,12 +688,7 @@
     const SESSION_USERNAME_KEY = 'azzoun_active_teacher_username';
     const SESSION_ROLE_KEY = 'azzoun_active_role';
 
-    // =====================================================================
-    // أمان الجلسة: مهلة خمول، منع الدخول من جهازين معاً، تتبع محاولات
-    // الدخول الفاشلة، وربط كل معلمة بالجهاز اللي بتدخل منه عادةً.
-    // =====================================================================
-
-    // ---------- هوية الجهاز (رقم عشوائي ثابت يتخزن بهذا المتصفح فقط) ----------
+   
     const DEVICE_ID_KEY = 'azzoun_device_id';
     function getDeviceId() {
       let id = localStorage.getItem(DEVICE_ID_KEY);
@@ -708,7 +699,6 @@
       return id;
     }
 
-    // ---------- عنوان الآي بي (بأفضل جهد، عن طريق خدمة خارجية مجانية) ----------
     let cachedClientIp = null;
     async function getClientIp() {
       if (cachedClientIp) return cachedClientIp;
@@ -717,7 +707,7 @@
         const data = await res.json();
         cachedClientIp = data.ip || null;
       } catch (e) {
-        cachedClientIp = null; // لو الخدمة ما اشتغلت، منكمل عادي بدون ما نوقف تسجيل الدخول
+        cachedClientIp = null; 
       }
       return cachedClientIp;
     }
@@ -726,7 +716,6 @@
       return role === 'manager' ? 'manager' : ('teacher_' + username);
     }
 
-    // ---------- تسجيل خروج تلقائي بعد فترة خمول (15 دقيقة) ----------
     const IDLE_LIMIT_MS = 15 * 60 * 1000;
     let idleTimer = null;
     function resetIdleTimer() {
@@ -745,7 +734,8 @@
       document.addEventListener(evt, resetIdleTimer, { passive: true });
     });
 
-    // ---------- منع الدخول لنفس الحساب من جهازين بنفس الوقت ----------
+  
+
     let activeSessionId = null;
     let activeSessionUnsub = null;
     function startSessionLock(role, username) {
@@ -779,10 +769,7 @@
       sessionStorage.removeItem('azzoun_session_id');
     }
 
-    // ---------- تتبع محاولات الدخول الفاشلة، وتنبيه بعد 3 محاولات فأكثر ----------
-    // ملاحظة: العداد هنا تقريبي (مبني على هذا المتصفح/الجهاز) لأنه وقت فشل الدخول
-    // المستخدم لسا مش مسجل دخول أصلاً على Firebase، فما بنقدر نقرأ عداد مشترك بأمان.
-    // كل محاولة فاشلة مع ذلك بتنكتب فوراً بقاعدة البيانات مع الآي بي والجهاز.
+   
     async function recordFailedLogin(role, username) {
       const key = sessionKeyFor(role, username);
       const ip = await getClientIp();
@@ -822,7 +809,6 @@
       localStorage.removeItem('azzoun_fail_count_' + sessionKeyFor(role, username));
     }
 
-    // ---------- ربط كل معلمة بالجهاز اللي بتدخل منه عادةً، وتنبيه لو صار جهاز جديد ----------
     async function checkAndRegisterDevice(username) {
       const deviceId = getDeviceId();
       const ref = db.collection('teacher_devices').doc(username);
