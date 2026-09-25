@@ -340,21 +340,19 @@
       <p style="margin-bottom: 20px; color: #555;">الرجاء إدخال البريد الإلكتروني</p>
 
       <!-- خطوة 1: البريد الإلكتروني فقط -->
-      <form id="emailStepForm" onsubmit="event.preventDefault(); checkLoginEmail();" autocomplete="on">
+      <form id="emailStepForm" onsubmit="event.preventDefault(); checkLoginEmail();" autocomplete="off">
         <div class="form-group">
           <label for="loginEmailInput">البريد الإلكتروني :</label>
-          <input type="email" id="loginEmailInput" name="login_email" autocomplete="email" list="emailSuggestions" required>
-          <datalist id="emailSuggestions"></datalist>
+          <input type="email" id="loginEmailInput" name="login_email" autocomplete="off" autocapitalize="off" spellcheck="false" required>
         </div>
         <button type="submit" class="action-btn">التالي</button>
       </form>
 
       <!-- خطوة 2 - أ: دخول المعلمة (يظهر فقط إذا كان الإيميل إيميل المعلمات) -->
-      <form id="teacherLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyTeacherLogin();" autocomplete="on">
+      <form id="teacherLoginForm" class="hidden" onsubmit="event.preventDefault(); verifyTeacherLogin();" autocomplete="off">
         <div class="form-group">
           <label for="teacherUsernameInput">اسم المستخدم :</label>
-          <input type="text" id="teacherUsernameInput" name="teacher_username" autocomplete="username" list="usernameSuggestions" required>
-          <datalist id="usernameSuggestions"></datalist>
+          <input type="text" id="teacherUsernameInput" name="teacher_username" autocomplete="off" autocapitalize="off" spellcheck="false" required>
         </div>
 
         <div class="form-group">
@@ -583,6 +581,14 @@
       </div>
 
       <div class="dashboard-card">
+        <h2>التنبيهات الأمنية 🔐</h2>
+        <p style="margin-bottom: 10px; font-size: 0.85rem; color: #64748b;">محاولات دخول فاشلة متكررة، أو دخول من جهاز جديد لأول مرة.</p>
+        <div id="securityAlertsList" style="text-align: right;">
+          <p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
         <h2>الرسائل الواردة من زوار الموقع ✉️</h2>
         <div id="contactMessagesList" style="text-align: right;">
           <p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>
@@ -687,6 +693,176 @@
     const SESSION_USERNAME_KEY = 'azzoun_active_teacher_username';
     const SESSION_ROLE_KEY = 'azzoun_active_role';
 
+    // =====================================================================
+    // أمان الجلسة: مهلة خمول، منع الدخول من جهازين معاً، تتبع محاولات
+    // الدخول الفاشلة، وربط كل معلمة بالجهاز اللي بتدخل منه عادةً.
+    // =====================================================================
+
+    // ---------- هوية الجهاز (رقم عشوائي ثابت يتخزن بهذا المتصفح فقط) ----------
+    const DEVICE_ID_KEY = 'azzoun_device_id';
+    function getDeviceId() {
+      let id = localStorage.getItem(DEVICE_ID_KEY);
+      if (!id) {
+        id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(DEVICE_ID_KEY, id);
+      }
+      return id;
+    }
+
+    // ---------- عنوان الآي بي (بأفضل جهد، عن طريق خدمة خارجية مجانية) ----------
+    let cachedClientIp = null;
+    async function getClientIp() {
+      if (cachedClientIp) return cachedClientIp;
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        cachedClientIp = data.ip || null;
+      } catch (e) {
+        cachedClientIp = null; // لو الخدمة ما اشتغلت، منكمل عادي بدون ما نوقف تسجيل الدخول
+      }
+      return cachedClientIp;
+    }
+
+    function sessionKeyFor(role, username) {
+      return role === 'manager' ? 'manager' : ('teacher_' + username);
+    }
+
+    // ---------- تسجيل خروج تلقائي بعد فترة خمول (15 دقيقة) ----------
+    const IDLE_LIMIT_MS = 15 * 60 * 1000;
+    let idleTimer = null;
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      const role = sessionStorage.getItem(SESSION_ROLE_KEY);
+      if (!role) return; // ما في حدا مسجل دخول حالياً
+      idleTimer = setTimeout(handleIdleTimeout, IDLE_LIMIT_MS);
+    }
+    function handleIdleTimeout() {
+      const role = sessionStorage.getItem(SESSION_ROLE_KEY);
+      if (!role) return;
+      alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط لمدة 15 دقيقة، لحماية الحساب.');
+      if (role === 'manager') { managerLogout(); } else { teacherLogout(); }
+    }
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (evt) {
+      document.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    // ---------- منع الدخول لنفس الحساب من جهازين بنفس الوقت ----------
+    let activeSessionId = null;
+    let activeSessionUnsub = null;
+    function startSessionLock(role, username) {
+      const key = sessionKeyFor(role, username);
+      activeSessionId = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem('azzoun_session_id', activeSessionId);
+
+      db.collection('active_sessions').doc(key).set({
+        sessionId: activeSessionId,
+        deviceId: getDeviceId(),
+        userAgent: navigator.userAgent,
+        loginAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function (e) { logErrorToFirestore('startSessionLock', e, { key: key }); });
+
+      if (activeSessionUnsub) activeSessionUnsub();
+      activeSessionUnsub = db.collection('active_sessions').doc(key)
+        .onSnapshot(function (doc) {
+          const data = doc.data();
+          // لو حدا ثاني دخل بنفس الحساب من جهاز تاني، رح يكتب sessionId جديد فوق هذا
+          if (data && data.sessionId && activeSessionId && data.sessionId !== activeSessionId) {
+            alert('تم تسجيل الدخول لهذا الحساب من جهاز آخر الآن، لذلك تم إنهاء الجلسة هنا تلقائياً.');
+            if (role === 'manager') { managerLogout(); } else { teacherLogout(); }
+          }
+        }, function (err) {
+          console.error('خطأ بمراقبة الجلسة:', err);
+        });
+    }
+    function stopSessionLock() {
+      if (activeSessionUnsub) { activeSessionUnsub(); activeSessionUnsub = null; }
+      activeSessionId = null;
+      sessionStorage.removeItem('azzoun_session_id');
+    }
+
+    // ---------- تتبع محاولات الدخول الفاشلة، وتنبيه بعد 3 محاولات فأكثر ----------
+    // ملاحظة: العداد هنا تقريبي (مبني على هذا المتصفح/الجهاز) لأنه وقت فشل الدخول
+    // المستخدم لسا مش مسجل دخول أصلاً على Firebase، فما بنقدر نقرأ عداد مشترك بأمان.
+    // كل محاولة فاشلة مع ذلك بتنكتب فوراً بقاعدة البيانات مع الآي بي والجهاز.
+    async function recordFailedLogin(role, username) {
+      const key = sessionKeyFor(role, username);
+      const ip = await getClientIp();
+      const deviceId = getDeviceId();
+
+      const localKey = 'azzoun_fail_count_' + key;
+      const localCount = (parseInt(localStorage.getItem(localKey) || '0', 10) || 0) + 1;
+      localStorage.setItem(localKey, String(localCount));
+
+      try {
+        await db.collection('login_attempts').doc(key).set({
+          failCount: firebase.firestore.FieldValue.increment(1),
+          lastAttemptAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastIp: ip,
+          lastDeviceId: deviceId,
+          lastUserAgent: navigator.userAgent
+        }, { merge: true });
+
+        if (localCount >= 3) {
+          await db.collection('security_alerts').add({
+            type: 'multiple_failed_logins',
+            accountKey: key,
+            username: role === 'manager' ? null : username,
+            approxFailCount: localCount,
+            ip: ip,
+            deviceId: deviceId,
+            userAgent: navigator.userAgent,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            seen: false
+          });
+        }
+      } catch (e) {
+        console.error('تعذر تسجيل محاولة الدخول الفاشلة:', e);
+      }
+    }
+    function resetFailedLogin(role, username) {
+      localStorage.removeItem('azzoun_fail_count_' + sessionKeyFor(role, username));
+    }
+
+    // ---------- ربط كل معلمة بالجهاز اللي بتدخل منه عادةً، وتنبيه لو صار جهاز جديد ----------
+    async function checkAndRegisterDevice(username) {
+      const deviceId = getDeviceId();
+      const ref = db.collection('teacher_devices').doc(username);
+      try {
+        const snap = await ref.get();
+        if (!snap.exists) {
+          await ref.set({
+            deviceId: deviceId,
+            userAgent: navigator.userAgent,
+            firstSeenAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastSeenAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          return;
+        }
+        const known = snap.data();
+        if (known.deviceId !== deviceId) {
+          const ip = await getClientIp();
+          await db.collection('security_alerts').add({
+            type: 'new_device_login',
+            accountKey: sessionKeyFor('teacher', username),
+            username: username,
+            ip: ip,
+            deviceId: deviceId,
+            previousDeviceId: known.deviceId,
+            userAgent: navigator.userAgent,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            seen: false
+          });
+        }
+        await ref.set({
+          deviceId: deviceId,
+          userAgent: navigator.userAgent,
+          lastSeenAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        logErrorToFirestore('checkAndRegisterDevice', e, { username: username });
+      }
+    }
+
     // خطوة 1: يقرأ الإيميل ويحدد أي فورم يظهر بعده
     function checkLoginEmail() {
       const email = document.getElementById('loginEmailInput').value.trim().toLowerCase();
@@ -726,13 +902,18 @@
 
         sessionStorage.setItem(SESSION_ROLE_KEY, 'manager');
         sessionStorage.removeItem(SESSION_USERNAME_KEY);
+        resetFailedLogin('manager', null);
+        startSessionLock('manager', null);
+        resetIdleTimer();
 
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
+        loadSecurityAlerts();
       } catch (error) {
         console.error('خطأ بتسجيل دخول الإدارة:', error);
         logErrorToFirestore('verifyManagerLogin', error);
+        recordFailedLogin('manager', null);
 
         if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
           alert('عذراً، كلمة المرور غير صحيحة.');
@@ -752,6 +933,8 @@
       auth.signOut().catch(function (e) {
         console.error('خطأ بتسجيل خروج الإدارة:', e);
       });
+      stopSessionLock();
+      clearTimeout(idleTimer);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       document.getElementById('managerWrapper').classList.add('hidden');
       document.getElementById('authBox').classList.remove('hidden');
@@ -842,6 +1025,55 @@
         });
     }
 
+    // جلب وعرض التنبيهات الأمنية (محاولات فاشلة متكررة / جهاز جديد) للإدارة
+    function loadSecurityAlerts() {
+      const listEl = document.getElementById('securityAlertsList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>';
+
+      db.collection('security_alerts').orderBy('createdAt', 'desc').limit(20).get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد تنبيهات أمنية حالياً 🎉</p>';
+            return;
+          }
+          listEl.innerHTML = snapshot.docs.map(function (doc) {
+            const data = doc.data();
+            const dateStr = data.createdAt && data.createdAt.toDate
+              ? data.createdAt.toDate().toLocaleString('ar-EG')
+              : '';
+            let title = 'تنبيه أمني';
+            if (data.type === 'multiple_failed_logins') {
+              title = '⚠️ محاولات دخول فاشلة متكررة' + (data.username ? ' — ' + data.username : ' — حساب الإدارة');
+            } else if (data.type === 'new_device_login') {
+              title = '📱 دخول من جهاز جديد' + (data.username ? ' — ' + data.username : '');
+            }
+            return `
+              <div style="border: 1px solid #fde68a; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; background: ${data.seen ? '#f8fafc' : '#fffbeb'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: #b45309;">${title}</strong>
+                  <span style="font-size: 0.78rem; color: #94a3b8;">${dateStr}</span>
+                </div>
+                <p style="margin: 0; font-size: 0.85rem; color: #475569;">
+                  الآي بي: ${data.ip || 'غير معروف'} — الجهاز: ${data.deviceId ? data.deviceId.slice(0, 16) + '…' : 'غير معروف'}
+                </p>
+                <button type="button" onclick="dismissSecurityAlert('${doc.id}')" style="margin-top: 8px; width: auto; background: #64748b; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; cursor: pointer;">إخفاء</button>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('خطأ بجلب التنبيهات الأمنية:', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل التنبيهات.</p>';
+        });
+    }
+
+    function dismissSecurityAlert(id) {
+      db.collection('security_alerts').doc(id).delete()
+        .then(loadSecurityAlerts)
+        .catch(function (e) { console.error('تعذر حذف التنبيه:', e); });
+    }
+
     async function verifyTeacherLogin() {
       const usernameInput = document.getElementById('teacherUsernameInput').value.trim().toLowerCase();
       const emailInput = FIXED_EMAIL;
@@ -864,19 +1096,23 @@
         activeTeacherArabicName = teachersRegistry[usernameInput];
         sessionStorage.setItem(SESSION_USERNAME_KEY, usernameInput);
         sessionStorage.setItem(SESSION_ROLE_KEY, 'teacher');
+        resetFailedLogin('teacher', usernameInput);
+        checkAndRegisterDevice(usernameInput);
+        startSessionLock('teacher', usernameInput);
+        resetIdleTimer();
 
         document.getElementById('currentTeacherDisplay').textContent = activeTeacherArabicName + ' (' + activeTeacherUsername + ')';
 
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('dashboardWrapper').classList.remove('hidden');
 
-        saveToHistory('username', usernameInput);
         refreshSuggestions();
 
         alert('مرحباً بكِ الأستاذة ' + activeTeacherArabicName + '، تم تسجيل الدخول بنجاح! 🎉');
       } catch (error) {
         console.error('خطأ بتسجيل الدخول:', error);
         logErrorToFirestore('verifyTeacherLogin', error, { attempted_username: usernameInput });
+        recordFailedLogin('teacher', usernameInput);
 
         if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
           alert('عذراً، البريد الإلكتروني أو كلمة المرور غير صحيحة.');
@@ -901,6 +1137,8 @@
       }
       activeTeacherUsername = "";
       activeTeacherArabicName = "";
+      stopSessionLock();
+      clearTimeout(idleTimer);
       sessionStorage.removeItem(SESSION_USERNAME_KEY);
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       document.getElementById('dashboardWrapper').classList.add('hidden');
@@ -917,6 +1155,9 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
+        loadSecurityAlerts();
+        startSessionLock('manager', null);
+        resetIdleTimer();
       } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
         activeTeacherUsername = savedUsername;
         activeTeacherArabicName = teachersRegistry[savedUsername];
@@ -924,6 +1165,8 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('dashboardWrapper').classList.remove('hidden');
         refreshSuggestions();
+        startSessionLock('teacher', savedUsername);
+        resetIdleTimer();
       } else if (!user) {
         activeTeacherUsername = "";
         activeTeacherArabicName = "";
@@ -1352,15 +1595,6 @@
         opt.value = v;
         dl.appendChild(opt);
       });
-      if (datalistId === 'emailSuggestions') {
-        [FIXED_EMAIL, MANAGER_EMAIL].forEach(email => {
-          if (!values.includes(email)) {
-            const opt = document.createElement('option');
-            opt.value = email;
-            dl.appendChild(opt);
-          }
-        });
-      }
     }
 
     let descriptionHistoryCache = [];
@@ -1369,8 +1603,6 @@
       const history = loadHistory();
       renderDatalist('titleSuggestions', history.title);
       renderDatalist('linkSuggestions', history.link);
-      renderDatalist('emailSuggestions', history.email || []);
-      renderDatalist('usernameSuggestions', history.username || []);
       descriptionHistoryCache = history.description || [];
     }
 
