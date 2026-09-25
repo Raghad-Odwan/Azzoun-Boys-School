@@ -310,6 +310,144 @@
         width: 100%;
       }
     }
+
+    /* ===== مراجعة المحتوى التعليمي (لوحة الإدارة) ===== */
+    .content-review-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      background: #f8fafc;
+      text-align: right;
+    }
+    .content-review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .content-review-title {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .content-review-meta {
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.9;
+      margin-top: 8px;
+    }
+    .content-review-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .content-review-actions button {
+      width: auto;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #fff;
+    }
+    .btn-delete-content { background-color: #dc2626; }
+    .btn-delete-content:hover { background-color: #991b1b; }
+    .btn-note-content { background-color: var(--accent-color); }
+    .btn-note-content:hover { background-color: #052441; }
+
+    /* ===== نافذة إرسال ملاحظة الإدارة ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 29, 57, 0.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    }
+    .modal-box h3 {
+      color: var(--primary);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .modal-cancel-btn { background-color: #e2e8f0; color: #334155; }
+    .modal-cancel-btn:hover { background-color: #cbd5e1; }
+    .modal-send-btn { background-color: var(--accent-color); color: #fff; }
+    .modal-send-btn:hover { background-color: #052441; }
+
+    /* ===== ملاحظات الإدارة (لوحة المعلمة) ===== */
+    .admin-note-item {
+      border-right: 4px solid var(--accent-color);
+      background: #eef2ff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      text-align: right;
+    }
+    .admin-note-item.unread {
+      border-right-color: #dc2626;
+      background: #fef2f2;
+    }
+    .admin-note-content-ref {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    .admin-note-text {
+      color: #1e293b;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .admin-note-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .admin-note-date { font-size: 0.75rem; color: #94a3b8; }
+    .mark-read-btn {
+      width: auto;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      background: var(--accent-color);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .mark-read-btn:hover { background-color: #052441; }
   </style>
 </head>
 <body>
@@ -493,6 +631,13 @@
 
       </div>
 
+      <div class="dashboard-card" id="adminNotesCard">
+        <h2>ملاحظات الإدارة 🔔<span id="unreadNotesBadge"></span></h2>
+        <div id="adminNotesList" style="text-align: right;">
+          <p style="text-align: center; color: #94a3b8;">جاري تحميل الملاحظات...</p>
+        </div>
+      </div>
+
       <div class="dashboard-card" id="teacherSupport">
         <h2>الدعم الفني واستفسارات المعلمات</h2>
         <form id="supportForm" onsubmit="event.preventDefault(); submitSupportTicket();">
@@ -582,8 +727,49 @@
           <p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>
         </div>
       </div>
+
+      <div class="dashboard-card">
+        <h2>مراجعة المحتوى التعليمي المرفوع 🗂️</h2>
+        <div class="form-group">
+          <label for="reviewClassFilter">تصفية حسب الصف والشعبة:</label>
+          <select id="reviewClassFilter" onchange="loadContentForReview()">
+            <option value="">جميع الصفوف</option>
+            <option value="1-a">الصف الأول - الشعبة (أ)</option>
+            <option value="1-b">الصف الأول - الشعبة (ب)</option>
+            <option value="1-c">الصف الأول - الشعبة (ج)</option>
+            <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+            <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+            <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+            <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+            <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+            <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+            <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+            <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+            <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+          </select>
+        </div>
+        <div id="contentReviewList" style="text-align: right; margin-top: 10px;">
+          <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+        </div>
+      </div>
     </div>
 
+  </div>
+
+  
+  <div class="modal-overlay" id="noteModalOverlay">
+    <div class="modal-box">
+      <h3>إرسال ملاحظة إلى المعلمة</h3>
+      <p id="noteModalContentInfo" style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px; text-align: center;"></p>
+      <div class="form-group">
+        <label for="noteModalText">نص الملاحظة:</label>
+        <textarea id="noteModalText" placeholder="اكتبي/اكتب ملاحظتك هنا لترسل للمعلمة..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel-btn" onclick="closeNoteModal()">إلغاء</button>
+        <button type="button" class="modal-send-btn" id="noteModalSendBtn" onclick="sendAdminNote()">إرسال الملاحظة</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -642,6 +828,13 @@
       navLinks.classList.toggle('open');
     });
 
+    document.getElementById('noteModalOverlay').addEventListener('click', function (e) {
+      if (e.target.id === 'noteModalOverlay') closeNoteModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeNoteModal();
+    });
+
     
     const teachersRegistry = {
       "jenan": "جنان",
@@ -668,6 +861,44 @@
   
     const FIXED_EMAIL = "teachers@azzounboys.com";
     const MANAGER_EMAIL = "manager@azzounboys.com";
+
+    
+    const gradeLabelsMap = {
+      "1-a": "الصف الأول - الشعبة (أ)",
+      "1-b": "الصف الأول - الشعبة (ب)",
+      "1-c": "الصف الأول - الشعبة (ج)",
+      "2-a": "الصف الثاني - الشعبة (أ)",
+      "2-b": "الصف الثاني - الشعبة (ب)",
+      "2-c": "الصف الثاني - الشعبة (ج)",
+      "3-a": "الصف الثالث - الشعبة (أ)",
+      "3-b": "الصف الثالث - الشعبة (ب)",
+      "3-c": "الصف الثالث - الشعبة (ج)",
+      "4-a": "الصف الرابع - الشعبة (أ)",
+      "4-b": "الصف الرابع - الشعبة (ب)",
+      "4-c": "الصف الرابع - الشعبة (ج)"
+    };
+    const gradeNumberLabels = { "1": "الصف الأول", "2": "الصف الثاني", "3": "الصف الثالث", "4": "الصف الرابع" };
+    function getGradeLabel(grade) {
+      if (!grade) return '';
+      if (gradeLabelsMap[grade]) return gradeLabelsMap[grade];
+      if (gradeNumberLabels[grade]) return gradeNumberLabels[grade] + ' (لعبة تفاعلية لكل الشعب)';
+      return grade;
+    }
+
+    const categoryLabelsMap = {
+      lessons: 'شرح درس',
+      worksheets: 'ورقة عمل',
+      activities: 'نشاط تعليمي',
+      assignments: 'مهمة / واجب',
+      exams: 'اختبار',
+      games: 'لعبة تفاعلية'
+    };
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
 
     let activeTeacherUsername = ""; 
     let activeTeacherArabicName = ""; 
@@ -886,6 +1117,7 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
+        loadContentForReview();
       } catch (error) {
         console.error('خطأ بتسجيل دخول الإدارة:', error);
         logErrorToFirestore('verifyManagerLogin', error);
@@ -1001,6 +1233,215 @@
         });
     }
 
+    
+    let currentReviewDocs = {}; 
+
+    function loadContentForReview() {
+      const listEl = document.getElementById('contentReviewList');
+      if (!listEl) return;
+      const filterValue = document.getElementById('reviewClassFilter').value;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>';
+
+      db.collection('educational_contents').get()
+        .then(function (snapshot) {
+          let docs = snapshot.docs.map(function (d) { return { id: d.id, data: d.data() }; });
+
+          docs.sort(function (a, b) {
+            const at = (a.data.createdAt && a.data.createdAt.toMillis) ? a.data.createdAt.toMillis() : 0;
+            const bt = (b.data.createdAt && b.data.createdAt.toMillis) ? b.data.createdAt.toMillis() : 0;
+            return bt - at;
+          });
+
+          if (filterValue) {
+            docs = docs.filter(function (item) {
+              const g = item.data.grade;
+              if (g === filterValue) return true;
+              if (item.data.category === 'games' && g === filterValue.split('-')[0]) return true;
+              return false;
+            });
+          }
+
+          currentReviewDocs = {};
+          docs.forEach(function (item) { currentReviewDocs[item.id] = item.data; });
+
+          if (docs.length === 0) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا يوجد محتوى مطابق حالياً.</p>';
+            return;
+          }
+
+          listEl.innerHTML = docs.map(function (item) {
+            const data = item.data;
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            return `
+              <div class="content-review-item">
+                <div class="content-review-header">
+                  <span class="content-review-title">${escapeHtml(data.title || 'بدون عنوان')}</span>
+                  <span style="font-size:0.8rem; color:#94a3b8;">${dateStr}</span>
+                </div>
+                <div class="content-review-meta">
+                  👩‍🏫 الأستاذة: ${escapeHtml(data.uploader_arabic_name || 'غير معروف')} (${escapeHtml(data.uploader_username || '')})<br>
+                  🏫 ${escapeHtml(getGradeLabel(data.grade))}${data.subject ? ' — 📘 ' + escapeHtml(data.subject) : ''}<br>
+                  📂 النوع: ${escapeHtml(categoryLabelsMap[data.category] || data.category || '')}
+                  ${data.desc ? '<br>📝 ' + escapeHtml(data.desc) : ''}
+                </div>
+                <div class="content-review-actions">
+                  <button type="button" class="btn-note-content" onclick="openNoteModal('${item.id}')">✉️ إرسال ملاحظة للمعلمة</button>
+                  <button type="button" class="btn-delete-content" onclick="deleteReviewedContent('${item.id}')">🗑️ حذف المحتوى</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('تعذر تحميل المحتوى للمراجعة:', error);
+          logErrorToFirestore('loadContentForReview', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل المحتوى، يرجى المحاولة لاحقاً.</p>';
+        });
+    }
+
+    async function deleteReviewedContent(docId) {
+      const item = currentReviewDocs[docId];
+      const title = item ? item.title : '';
+      const confirmed = confirm('هل أنت متأكد من حذف هذا المحتوى؟\n"' + (title || '') + '"\nلا يمكن التراجع عن هذا الإجراء.');
+      if (!confirmed) return;
+
+      try {
+        await db.collection('educational_contents').doc(docId).delete();
+        alert('تم حذف المحتوى بنجاح.');
+        loadContentForReview();
+      } catch (error) {
+        console.error('تعذر حذف المحتوى:', error);
+        logErrorToFirestore('deleteReviewedContent', error, { docId: docId });
+        alert('حدث خطأ أثناء حذف المحتوى، يرجى المحاولة مرة أخرى.');
+      }
+    }
+
+    let noteModalTargetDocId = null;
+
+    function openNoteModal(docId) {
+      const item = currentReviewDocs[docId];
+      if (!item) return;
+      noteModalTargetDocId = docId;
+      document.getElementById('noteModalContentInfo').textContent =
+        'بخصوص محتوى: "' + (item.title || 'بدون عنوان') + '" — الأستاذة ' + (item.uploader_arabic_name || '');
+      document.getElementById('noteModalText').value = '';
+      document.getElementById('noteModalOverlay').classList.add('show');
+    }
+
+    function closeNoteModal() {
+      noteModalTargetDocId = null;
+      document.getElementById('noteModalOverlay').classList.remove('show');
+    }
+
+    async function sendAdminNote() {
+      if (!noteModalTargetDocId) return;
+      const item = currentReviewDocs[noteModalTargetDocId];
+      const noteText = document.getElementById('noteModalText').value.trim();
+
+      if (!noteText) {
+        alert('يرجى كتابة نص الملاحظة قبل الإرسال.');
+        return;
+      }
+      if (!item || !item.uploader_username) {
+        alert('تعذر تحديد المعلمة المرتبطة بهذا المحتوى.');
+        return;
+      }
+
+      const btn = document.getElementById('noteModalSendBtn');
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال... ⏳';
+
+      try {
+        await db.collection('admin_notes').add({
+          content_id: noteModalTargetDocId,
+          content_title: item.title || '',
+          teacher_username: item.uploader_username,
+          teacher_name: item.uploader_arabic_name || '',
+          grade: item.grade || '',
+          subject: item.subject || '',
+          note: noteText,
+          status: 'unread',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('تم إرسال الملاحظة للمعلمة بنجاح.');
+        closeNoteModal();
+      } catch (error) {
+        console.error('تعذر إرسال الملاحظة:', error);
+        logErrorToFirestore('sendAdminNote', error, { docId: noteModalTargetDocId });
+        alert('حدث خطأ أثناء إرسال الملاحظة، يرجى المحاولة مرة أخرى.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'إرسال الملاحظة';
+      }
+    }
+
+    
+    function loadAdminNotesForTeacher() {
+      const listEl = document.getElementById('adminNotesList');
+      if (!listEl || !activeTeacherUsername) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل الملاحظات...</p>';
+
+      db.collection('admin_notes')
+        .where('teacher_username', '==', activeTeacherUsername)
+        .get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد ملاحظات من الإدارة حالياً.</p>';
+            updateUnreadNotesBadge(0);
+            return;
+          }
+
+          let docs = snapshot.docs.map(function (d) { return { id: d.id, data: d.data() }; });
+          docs.sort(function (a, b) {
+            const at = (a.data.createdAt && a.data.createdAt.toMillis) ? a.data.createdAt.toMillis() : 0;
+            const bt = (b.data.createdAt && b.data.createdAt.toMillis) ? b.data.createdAt.toMillis() : 0;
+            return bt - at;
+          });
+
+          const unreadCount = docs.filter(function (item) { return item.data.status !== 'read'; }).length;
+          updateUnreadNotesBadge(unreadCount);
+
+          listEl.innerHTML = docs.map(function (item) {
+            const data = item.data;
+            const isUnread = data.status !== 'read';
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            return `
+              <div class="admin-note-item ${isUnread ? 'unread' : ''}">
+                <div class="admin-note-content-ref">بخصوص: "${escapeHtml(data.content_title || 'محتوى محذوف')}"${data.subject ? ' — ' + escapeHtml(data.subject) : ''}</div>
+                <p class="admin-note-text">${escapeHtml(data.note || '')}</p>
+                <div class="admin-note-footer">
+                  <span class="admin-note-date">${dateStr}</span>
+                  ${isUnread ? `<button type="button" class="mark-read-btn" onclick="markNoteAsRead('${item.id}')">تم الاطلاع ✓</button>` : '<span style="font-size:0.75rem; color:#16a34a;">تمت القراءة ✓</span>'}
+                </div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('تعذر تحميل ملاحظات الإدارة:', error);
+          logErrorToFirestore('loadAdminNotesForTeacher', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل الملاحظات.</p>';
+        });
+    }
+
+    function updateUnreadNotesBadge(count) {
+      const badge = document.getElementById('unreadNotesBadge');
+      if (!badge) return;
+      badge.textContent = count > 0 ? ' (' + count + ' جديدة)' : '';
+      badge.style.color = '#dc2626';
+      badge.style.fontSize = '0.9rem';
+    }
+
+    async function markNoteAsRead(noteId) {
+      try {
+        await db.collection('admin_notes').doc(noteId).update({ status: 'read' });
+        loadAdminNotesForTeacher();
+      } catch (error) {
+        console.error('تعذر تحديث حالة الملاحظة:', error);
+        logErrorToFirestore('markNoteAsRead', error, { noteId: noteId });
+      }
+    }
+
     // ملاحظة للمبرمج: تم إزالة عرض "التنبيهات الأمنية" من واجهة المعلمة عمداً.
     // التنبيهات ما زالت تُسجَّل في قاعدة البيانات (Firestore) ضمن كولكشن security_alerts،
     // ويمكن مراجعتها مباشرة من Firebase Console بدل عرضها للإدارة/المعلمات.
@@ -1038,6 +1479,7 @@
         document.getElementById('dashboardWrapper').classList.remove('hidden');
 
         refreshSuggestions();
+        loadAdminNotesForTeacher();
 
         alert('مرحباً بكِ الأستاذة ' + activeTeacherArabicName + '، تم تسجيل الدخول بنجاح! 🎉');
       } catch (error) {
@@ -1086,6 +1528,7 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         loadContactMessages();
+        loadContentForReview();
         startSessionLock('manager', null);
         resetIdleTimer();
       } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
@@ -1095,6 +1538,7 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('dashboardWrapper').classList.remove('hidden');
         refreshSuggestions();
+        loadAdminNotesForTeacher();
         startSessionLock('teacher', savedUsername);
         resetIdleTimer();
       } else if (!user) {
