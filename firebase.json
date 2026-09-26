@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "azzoun-boys-school",
     "public": ".",
     "ignore": [
       "firebase.json",
