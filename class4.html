@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>الصف الرابع الاساسي - مدرسة ذكور عزون الأساسية</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- مكتبات Firebase لعرض المحتوى المنشور من لوحة تحكم المعلمات -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <style>
-    /* تنسيقات عامة */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -24,7 +22,6 @@
       min-height: 100vh;
     }
 
-    /* الهيدر المتجاوب */
     header {
       background-color: #ffffff;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -83,7 +80,6 @@
       cursor: pointer;
     }
 
-    /* المحتوى الرئيسي */
     main {
       flex: 1;
       max-width: 1200px;
@@ -145,7 +141,6 @@
       font-weight: 700;
     }
 
-    /* سلايدر المواد الدراسية */
     .subjects-section {
       margin-bottom: 3rem;
     }
@@ -176,6 +171,7 @@
       border-radius: 16px;
       padding: 1.8rem 1.2rem;
       border: 2px solid #E2E8F0;
+      border-top: 5px solid var(--subject-color, #E2E8F0);
       box-shadow: 0 4px 12px rgba(0, 29, 57, 0.03);
       text-align: center;
       transition: all 0.3s ease;
@@ -187,16 +183,16 @@
     }
     .subject-card:hover {
       transform: translateY(-4px);
-      border-color: #0A4174;
+      border-color: var(--subject-color, #0A4174);
       box-shadow: 0 10px 25px rgba(10, 65, 116, 0.1);
     }
     .subject-card.active-subject {
-      background-color: #0A4174;
-      border-color: #0A4174;
-      color: #ffffff;
+      background-color: var(--subject-color, #0A4174);
+      border-color: var(--subject-color, #0A4174);
+      color: var(--subject-text, #ffffff);
     }
     .subject-card.active-subject h4 {
-      color: #ffffff;
+      color: var(--subject-text, #ffffff);
     }
     .subject-icon {
       font-size: 2.5rem;
@@ -207,7 +203,66 @@
       font-weight: 700;
     }
 
-    /* صندوق محتوى المعلمة */
+    .honor-board-section {
+      margin: 3rem auto;
+      max-width: 1200px;
+    }
+    .honor-board-heading {
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+    .honor-board-box {
+      position: relative;
+      background: linear-gradient(135deg, #0B1229 0%, #16213E 55%, #1B2A4A 100%);
+      border-radius: 20px;
+      padding: 2.2rem 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(11, 18, 41, 0.35);
+    }
+    .honor-board-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255,255,255,0.55) 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255,255,255,0.8) 1.3px, transparent 1.9px);
+      background-size: 140px 140px, 90px 90px, 190px 190px;
+      background-position: 0 0, 45px 65px, 110px 25px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    .honor-board-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .honor-board-empty {
+      color: #BDD8E9;
+      text-align: center;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .honor-student-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .honor-student-chip .honor-star {
+      color: #FFD700;
+      font-size: 1.1rem;
+    }
+
     #teacherContentSection {
       display: none;
       background: #ffffff;
@@ -264,7 +319,6 @@
       box-shadow: 0 4px 12px rgba(10, 65, 116, 0.2);
     }
 
-    /* سلايدر الملفات الأفقي */
     .files-slider-wrapper {
       position: relative;
       display: flex;
@@ -342,7 +396,6 @@
       transform: scale(1.02);
     }
 
-    /* تصميم النافذة المنبثقة (Modal) للشروحات والأنشطة */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -428,7 +481,6 @@
       padding: 2rem 1rem;
     }
 
-    /* أسهم السلايدر */
     .slider-arrow {
       background: #0A4174;
       color: white;
@@ -455,7 +507,6 @@
     .prev-arrow { right: -15px; }
     .next-arrow { left: -15px; }
 
-    /* الفوتر */
     footer {
       background-color: #001D39;
       color: #ffffff;
@@ -527,7 +578,6 @@
     
     }
 
-    /* تنسيقات قسم الجدول الدراسي */
 .schedule-section {
   background: #ffffff;
   border: 2px solid #E2E8F0;
@@ -566,7 +616,6 @@
 }
 
   
-    /* قسم الألعاب التفاعلية */
     .games-section {
       background: #ffffff;
       border: 2px solid #E2E8F0;
@@ -597,7 +646,7 @@
       box-shadow: 0 8px 20px rgba(10, 65, 116, 0.1);
     }
     .game-subject-badge {
-      background: #0A4174;
+      background: #64748b;
       color: #fff;
       font-size: 0.75rem;
       font-weight: 700;
@@ -635,6 +684,23 @@
       border-radius: 12px;
       display: block;
     }
+
+    .open-resource-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .action-btn-secondary {
+      background: #f1f5f9;
+      color: #0A4174;
+      border: 2px solid #0A4174;
+    }
+    .action-btn-secondary:hover {
+      background: #e2e8f0;
+      color: #001D39;
+    }
 </style>
 </head>
 <body>
@@ -650,6 +716,7 @@
         <li><a href="index.html">الرئيسية</a></li>
         <li><a href="index.html#classes" onclick="toggleMenu()">الصفوف</a></li>
         <li><a href="index.html#announcements">الإعلانات المدرسية</a></li>
+        <li><a href="dashboard.html">لوحة التحكم</a></li>
       </ul>
     </div>
   </header>
@@ -691,32 +758,32 @@
         <div class="subjects-track-container" id="subjectsContainer">
           <div class="subjects-track">
 
-            <div class="subject-card" onclick="selectSubject('اللغة العربية', this)">
+            <div class="subject-card" style="--subject-color:#7C3AED; --subject-text:#ffffff;" onclick="selectSubject('اللغة العربية', this)">
               <div class="subject-icon">📖</div>
               <h4>اللغة العربية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('الرياضيات', this)">
+            <div class="subject-card" style="--subject-color:#FACC15; --subject-text:#78350F;" onclick="selectSubject('الرياضيات', this)">
               <div class="subject-icon">🔢</div>
               <h4>الرياضيات</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('اللغة الإنجليزية', this)">
+            <div class="subject-card" style="--subject-color:#0EA5E9; --subject-text:#ffffff;" onclick="selectSubject('اللغة الإنجليزية', this)">
               <div class="subject-icon">abc</div>
               <h4>اللغة الإنجليزية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('العلوم الحياتية والوطنية', this)">
+            <div class="subject-card" style="--subject-color:#FFA07A; --subject-text:#7C2D12;" onclick="selectSubject('العلوم والحياة', this)">
               <div class="subject-icon">🔬</div>
-              <h4>العلوم الحياتية والوطنية</h4>
+              <h4>العلوم والحياة</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('التربية الإسلامية', this)">
+            <div class="subject-card" style="--subject-color:#22C55E; --subject-text:#ffffff;" onclick="selectSubject('التربية الإسلامية', this)">
               <div class="subject-icon">🕋</div>
               <h4>التربية الإسلامية</h4>
             </div>
 
-            <div class="subject-card" onclick="selectSubject('التنشئة الوطنية والاجتماعية', this)">
+            <div class="subject-card" style="--subject-color:#14B8A6; --subject-text:#ffffff;" onclick="selectSubject('التنشئة الوطنية والاجتماعية', this)">
               <div class="subject-icon">🌏</div>
               <h4>التنشئة الوطنية والاجتماعية</h4>
             </div>
@@ -746,11 +813,19 @@
 
         <div class="files-track-container" id="filesContainer">
           <div class="files-track" id="filesTrack">
-            <!-- يتم تعبئة الملفات تلقائياً -->
           </div>
         </div>
 
         <button class="slider-arrow next-arrow" onclick="scrollFiles('left')">❯</button>
+      </div>
+    </div>
+
+    <div class="honor-board-section" id="honorBoardSection">
+      <h3 class="section-title honor-board-heading">لوحة المتفوقين 🌟</h3>
+      <div class="honor-board-box">
+        <div class="honor-board-content" id="honorBoardContent">
+          <p class="honor-board-empty">جاري تحميل لوحة المتفوقين...</p>
+        </div>
       </div>
     </div>
 
@@ -760,10 +835,33 @@
         <button class="slider-arrow prev-arrow" onclick="scrollGames('right')">❮</button>
         <div class="files-track-container" id="gamesContainer">
           <div class="files-track" id="gamesTrack">
-            <!-- يتم تعبئة الألعاب تلقائياً -->
           </div>
         </div>
         <button class="slider-arrow next-arrow" onclick="scrollGames('left')">❯</button>
+      </div>
+    </div>
+
+    <div class="games-section" id="satelliteSection">
+      <h3 class="section-title">شروحات فضائية فلسطين التعليمية 📡</h3>
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollSatellite('right')">❮</button>
+        <div class="files-track-container" id="satelliteContainer">
+          <div class="files-track" id="satelliteTrack">
+          </div>
+        </div>
+        <button class="slider-arrow next-arrow" onclick="scrollSatellite('left')">❯</button>
+      </div>
+    </div>
+
+    <div class="games-section" id="openResourcesSection">
+      <h3 class="section-title">مصادر التعلم المفتوح 📔</h3>
+      <div class="files-slider-wrapper">
+        <button class="slider-arrow prev-arrow" onclick="scrollOpenResources('right')">❮</button>
+        <div class="files-track-container" id="openResourcesContainer">
+          <div class="files-track" id="openResourcesTrack">
+          </div>
+        </div>
+        <button class="slider-arrow next-arrow" onclick="scrollOpenResources('left')">❯</button>
       </div>
     </div>
 
@@ -776,7 +874,6 @@
         <button class="close-modal" id="closeModalBtn" aria-label="إغلاق">×</button>
       </div>
       <div class="modal-body" id="modalBodyContent">
-        <!-- يتم حقن الفيديو أو الصورة هنا ديناميكياً -->
       </div>
     </div>
   </div>
@@ -788,7 +885,6 @@
         <button class="close-modal" id="closeGameModalBtn" aria-label="إغلاق">×</button>
       </div>
       <div class="modal-body" id="gameModalBody">
-        <!-- يتم حقن اللعبة هنا ديناميكياً -->
       </div>
     </div>
   </div>
@@ -802,8 +898,6 @@
   </footer>
 
   <script>
-    // ================= إعداد Firebase =================
-    // نفس مشروع Firebase المستخدم في لوحة تحكم المعلمات، بصلاحية قراءة فقط هنا
     const firebaseConfig = {
       apiKey: "AIzaSyCqMEm29IXc4YrmVlqysFowm_HPMcnmZME",
       authDomain: "azzoun-boys-school-websi-9ed43.firebaseapp.com",
@@ -817,11 +911,9 @@
     }
     const db = firebase.firestore();
 
-    // رقم هذا الصف، ورمز كل شعبة كما هو مخزّن في قاعدة البيانات (نفس ترميز لوحة التحكم)
     const GRADE_NUMBER = 4;
     const SECTION_CODE = { 'أ': 'a', 'ب': 'b', 'ج': 'c' };
 
-    // أيقونة كل نوع محتوى (بنفس رموز أزرار التبويب أعلاه)
     const categoryIcons = {
       lessons: '🎥',
       worksheets: '📄',
@@ -854,9 +946,6 @@
       updateHeaderTitle();
     }
 
-    // ================= جلب صورة الجدول الدراسي من لوحة تحكم الإدارة =================
-    // كل صف وشعبة له مستند واحد بمعرّف "رقم الصف-رمز الشعبة" (مثال: 1-a)
-    // فأي جدول جديد ترفعه الإدارة لنفس الصف والشعبة يستبدل القديم تلقائياً، وتظهر آخر نسخة هنا مباشرة.
     let scheduleRequestId = 0;
 
     async function loadSchedule(sectionName) {
@@ -880,7 +969,7 @@
           img.style.display = 'block';
           statusMsg.style.display = 'none';
         } else {
-          statusMsg.textContent = 'لم يتم رفع الجدول الدراسي لهذه الشعبة بعد، يرجى مراجعة الإدارة.';
+          statusMsg.textContent = 'لم يتم رفع الجدول الدراسي لهذه الشعبة بعد.';
           statusMsg.style.display = 'block';
         }
       } catch (err) {
@@ -901,6 +990,58 @@
 
       updateHeaderTitle();
       loadFilesToSlider();
+      loadTopStudents();
+    }
+
+    async function loadTopStudents() {
+      if (!currentSection || !currentSubject) return;
+
+      const contentBox = document.getElementById('honorBoardContent');
+      contentBox.innerHTML = '<p class="honor-board-empty">جاري تحميل لوحة المتفوقين...</p>';
+
+      const gradeValue = `${GRADE_NUMBER}-${SECTION_CODE[currentSection]}`;
+
+      try {
+        const snapshot = await db.collection('top_students')
+          .where('grade', '==', gradeValue)
+          .where('subject', '==', currentSubject)
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return at - bt;
+        });
+
+        contentBox.innerHTML = '';
+
+        if (items.length === 0) {
+          contentBox.innerHTML = '<p class="honor-board-empty">سيتم إعلان أسماء المتفوقين قريباً ✨</p>';
+          return;
+        }
+
+        items.forEach(item => {
+          const chip = document.createElement('div');
+          chip.className = 'honor-student-chip';
+
+          const star = document.createElement('span');
+          star.className = 'honor-star';
+          star.textContent = '⭐';
+          chip.appendChild(star);
+
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = item.name || '';
+          chip.appendChild(nameSpan);
+
+          contentBox.appendChild(chip);
+        });
+      } catch (err) {
+        console.error('تعذر تحميل لوحة المتفوقين:', err);
+        contentBox.innerHTML = '<p class="honor-board-empty">تعذر تحميل لوحة المتفوقين حالياً.</p>';
+      }
     }
 
     function updateHeaderTitle() {
@@ -914,7 +1055,6 @@
       loadFilesToSlider();
     }
 
-    // ================= تحميل المحتوى من Firestore =================
     let loadRequestId = 0;
 
     async function loadFilesToSlider() {
@@ -944,7 +1084,6 @@
         const items = [];
         snapshot.forEach(doc => items.push(doc.data()));
 
-        // الأحدث أولاً
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
           const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
@@ -1062,6 +1201,22 @@
         img.src = item.url;
         img.alt = item.title || '';
         modalBodyContent.appendChild(img);
+      } else {
+        const iframe = document.createElement('iframe');
+        iframe.src = item.url;
+        iframe.allow = 'fullscreen';
+        modalBodyContent.appendChild(iframe);
+        const openLink = document.createElement('p');
+        openLink.style.marginTop = '10px';
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.style.color = '#0A4174';
+        a.style.fontWeight = '700';
+        a.textContent = 'فتح المصدر في نافذة جديدة ⤴';
+        openLink.appendChild(a);
+        modalBodyContent.appendChild(openLink);
       }
 
       modal.classList.add('show');
@@ -1094,15 +1249,30 @@
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
 
-    // ================= الألعاب التفاعلية (Wordwall) =================
     const subjectIcons = {
       'اللغة العربية': '📖',
       'الرياضيات': '🔢',
       'اللغة الإنجليزية': 'abc',
-      'العلوم الحياتية والوطنية': '🔬',
+      'العلوم والحياة': '🔬',
       'التربية الإسلامية': '🕋',
       'التنشئة الوطنية والاجتماعية': '🌏'
     };
+
+    const subjectBadgeColors = {
+      'اللغة العربية': { bg: '#7C3AED', color: '#ffffff' },
+      'العلوم والحياة': { bg: '#FFA07A', color: '#7C2D12' },
+      'الرياضيات': { bg: '#FACC15', color: '#78350F' },
+      'اللغة الإنجليزية': { bg: '#0EA5E9', color: '#ffffff' },
+      'التربية الإسلامية': { bg: '#22C55E', color: '#ffffff' },
+      'التنشئة الوطنية والاجتماعية': { bg: '#14B8A6', color: '#ffffff' }
+    };
+    function applySubjectBadgeColor(badgeEl, subject) {
+      const c = subjectBadgeColors[subject];
+      if (c) {
+        badgeEl.style.background = c.bg;
+        badgeEl.style.color = c.color;
+      }
+    }
 
     async function loadGames() {
       const track = document.getElementById('gamesTrack');
@@ -1149,6 +1319,7 @@
       const badge = document.createElement('span');
       badge.className = 'game-subject-badge';
       badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
       card.appendChild(badge);
 
       const icon = document.createElement('div');
@@ -1217,7 +1388,184 @@
       container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
     }
 
+    async function loadSatellite() {
+      const track = document.getElementById('satelliteTrack');
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', String(GRADE_NUMBER))
+          .where('category', '==', 'satellite')
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="game-card" style="min-width: 100%; cursor: default;">
+              <h4>لا توجد شروحات فضائية حالياً</h4>
+              <p>سيتم إضافة الشروحات قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+        items.forEach(item => track.appendChild(buildSatelliteCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل شروحات الفضائية:', err);
+        track.innerHTML = `
+          <div class="game-card" style="min-width: 100%; cursor: default;">
+            <h4>تعذر تحميل الشروحات</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات.</p>
+          </div>
+        `;
+      }
+    }
+
+    function buildSatelliteCard(item) {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'game-subject-badge';
+      badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
+      card.appendChild(badge);
+
+      const icon = document.createElement('div');
+      icon.className = 'game-icon';
+      icon.textContent = '📡';
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'شرح فضائية تعليمية';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      card.addEventListener('click', () => openMediaModal(item));
+      return card;
+    }
+
+    function scrollSatellite(direction) {
+      const container = document.getElementById('satelliteContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
+    async function loadOpenResources() {
+      const track = document.getElementById('openResourcesTrack');
+      try {
+        const snapshot = await db.collection('educational_contents')
+          .where('grade', '==', String(GRADE_NUMBER))
+          .where('category', '==', 'open_resources')
+          .get();
+
+        const items = [];
+        snapshot.forEach(doc => items.push(doc.data()));
+        items.sort((a, b) => {
+          const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
+          const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
+          return bt - at;
+        });
+
+        track.innerHTML = '';
+        if (items.length === 0) {
+          track.innerHTML = `
+            <div class="file-card" style="min-width: 100%;">
+              <h4>لا توجد مصادر تعلم مفتوح حالياً</h4>
+              <p>سيتم إضافة المصادر قريباً من قبل المعلمة.</p>
+            </div>
+          `;
+          return;
+        }
+        items.forEach(item => track.appendChild(buildOpenResourceCard(item)));
+      } catch (err) {
+        console.error('تعذر تحميل مصادر التعلم المفتوح:', err);
+        track.innerHTML = `
+          <div class="file-card" style="min-width: 100%;">
+            <h4>تعذر تحميل المصادر</h4>
+            <p>حدث خطأ أثناء الاتصال بقاعدة البيانات.</p>
+          </div>
+        `;
+      }
+    }
+
+    function buildOpenResourceCard(item) {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'game-subject-badge';
+      badge.style.alignSelf = 'center';
+      badge.textContent = item.subject || '';
+      applySubjectBadgeColor(badge, item.subject);
+      card.appendChild(badge);
+
+      const icon = document.createElement('div');
+      icon.className = 'file-icon';
+      icon.textContent = item.type === 'image' ? '🖼️' : (item.type === 'video' ? '🎥' : '📁');
+      card.appendChild(icon);
+
+      const title = document.createElement('h4');
+      title.textContent = item.title || 'مصدر تعلم مفتوح';
+      card.appendChild(title);
+
+      if (item.desc) {
+        const desc = document.createElement('p');
+        desc.textContent = item.desc;
+        card.appendChild(desc);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'open-resource-actions';
+
+      const viewBtn = document.createElement('button');
+      viewBtn.className = 'action-btn';
+      viewBtn.textContent = '👁️ عرض';
+      viewBtn.addEventListener('click', () => openMediaModal(item));
+      actions.appendChild(viewBtn);
+
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'action-btn action-btn-secondary';
+      downloadBtn.textContent = '⬇️ تحميل';
+      downloadBtn.addEventListener('click', () => {
+        if (!item.url) {
+          alert('المصدر غير متوفر حالياً.');
+          return;
+        }
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        if (item.source === 'file' && item.fileName) {
+          a.download = item.fileName;
+        }
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+      actions.appendChild(downloadBtn);
+
+      card.appendChild(actions);
+      return card;
+    }
+
+    function scrollOpenResources(direction) {
+      const container = document.getElementById('openResourcesContainer');
+      container.scrollBy({ left: direction === 'right' ? 300 : -300, behavior: 'smooth' });
+    }
+
     loadGames();
+    loadSatellite();
+    loadOpenResources();
   </script>
 
 </body>
