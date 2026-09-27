@@ -756,7 +756,7 @@
         <div class="subjects-track-container" id="subjectsContainer">
           <div class="subjects-track">
 
-            <div class="subject-card" style="--subject-color:#7C3AED; --subject-text:#ffffff;" onclick="selectSubject('اللغة العربية', this)">
+            <div class="subject-card" style="--subject-color:#d454ee; --subject-text:#ffffff;" onclick="selectSubject('اللغة العربية', this)">
               <div class="subject-icon">📖</div>
               <h4>اللغة العربية</h4>
             </div>
@@ -1571,23 +1571,23 @@ window.SCHOOL_GUIDE_DATA = {
   "welcome": [
     "أهلاً بك في صفحة الصف الثالث الأساسي! 🎈 تابع التمرير وسأدلّك على كل قسم فيها.",
     "اضغط عليّ في أي وقت لتحصل على تلميح جديد 😄",
-    "معك رفيقك في هذه الصفحة، هيا نكتشف كل شيء معاً 🎒"
+    " رفيقك عبود معك في هذه الصفحة، هيا نكتشف كل شيء معاً 🎒"
   ],
   "sections": {
     "classesSection": [
-      "اختر الشعبة (أ) أو (ب) أو (ج) التي تدرس فيها ⭐",
-      "بالضغط على شعبتك، تظهر أمامك جميع موادها وجدولها الدراسي"
+      "اختر الشعبة التي تدرس فيها ⭐",
+      "بالضغط على شعبتك، تظهر أمامك جميع المواد "
     ],
     "scheduleSection": [
-      "هنا الجدول الدراسي الأسبوعي للشعبة التي اخترتها 🗓️",
-      "لم يُرفع الجدول بعد؟ لا بأس، سيضيفه المعلم أو المعلمة قريباً"
+      "هنا الجدول الدراسي الأسبوعي 🗓️",
+      "لم يُرفع الجدول بعد؟ لا بأس، سيضيفه المعلمة قريباً"
     ],
     "subjectsSection": [
       "اضغط على أي مادة لتشاهد دروسها وملفاتها كاملة 📖",
       "مرّر يميناً ويساراً لتستعرض جميع المواد المتاحة"
     ],
     "teacherContentSection": [
-      "من هنا تصل إلى الشروحات، وأوراق العمل، والأنشطة، والواجبات، والاختبارات 🎥",
+      "من هنا تصل إلى الشروحات، وأوراق العمل، والأنشطة، والواجبات، والاختبارات ",
       "استخدم التبويبات في الأعلى لتصفية المحتوى حسب نوعه"
     ],
     "honorBoardSection": [
@@ -1599,11 +1599,11 @@ window.SCHOOL_GUIDE_DATA = {
       "العب وتعلّم في نفس الوقت، جرّب لعبة جديدة الآن! 🕹️"
     ],
     "satelliteSection": [
-      "شروحات فضائية فلسطين التعليمية هنا 📡 مفيدة جداً للمراجعة",
-      "شاهدها بتركيز وستجد المادة أسهل بكثير 🎬"
+      "شروحات فضائية فلسطين التعليمية هنا مفيدة جداً للمراجعة",
+      " ابذل جهدك وركز مع الشرح يا تلميذي النجيب 🌸 "
     ],
     "openResourcesSection": [
-      "مصادر تعليمية مفتوحة ومجانية 📔 استفد منها في أي وقت",
+      "مصادر تعليمية مفتوحة ومجانية استفد منها في أي وقت",
       "كنز من المعرفة بين يديك، لا تتردد في تصفحه 🔎"
     ]
   }
@@ -1681,19 +1681,18 @@ window.SCHOOL_GUIDE_DATA = {
 
   #schoolGuideChar {
     pointer-events: auto;
-    width: 92px;
-    height: 92px;
+    width: 76px;
+    height: 106px;
     cursor: pointer;
     animation: guideIdle 2.6s ease-in-out infinite;
-    filter: drop-shadow(0 6px 12px rgba(0, 29, 57, 0.28));
+    filter: drop-shadow(0 6px 10px rgba(0, 29, 57, 0.28));
   }
 
   #schoolGuideChar:hover { animation-play-state: paused; }
   #schoolGuideChar.guide-jump { animation: guideJump 0.5s ease; }
 
-  #schoolGuideChar .guide-wave-arm {
-    transform-origin: 70px 66px;
-    animation: guideWave 1.6s ease-in-out infinite;
+  #schoolGuideChar.guide-talking {
+    animation: guideIdle 2.6s ease-in-out infinite, guideTalkGlow 1.3s ease-in-out infinite;
   }
 
   #schoolGuideChar .guide-sparkle {
@@ -1715,11 +1714,9 @@ window.SCHOOL_GUIDE_DATA = {
     100% { transform: translateY(0) scale(1); }
   }
 
-  @keyframes guideWave {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(14deg); }
-    50% { transform: rotate(-4deg); }
-    75% { transform: rotate(14deg); }
+  @keyframes guideTalkGlow {
+    0%, 100% { filter: drop-shadow(0 6px 12px rgba(0, 29, 57, 0.28)) drop-shadow(0 0 0px rgba(47, 143, 234, 0)); }
+    50% { filter: drop-shadow(0 6px 12px rgba(0, 29, 57, 0.28)) drop-shadow(0 0 9px rgba(47, 143, 234, 0.7)); }
   }
 
   @keyframes guideTwinkle {
@@ -1728,7 +1725,7 @@ window.SCHOOL_GUIDE_DATA = {
   }
 
   @media (max-width: 480px) {
-    #schoolGuideChar { width: 66px; height: 66px; }
+    #schoolGuideChar { width: 54px; height: 76px; }
     #schoolGuideBubble { max-width: 190px; font-size: 0.85rem; padding: 10px 12px; }
     #schoolGuideWrap { bottom: 10px; left: 0px; }
   }
@@ -1740,52 +1737,65 @@ window.SCHOOL_GUIDE_DATA = {
     <span class="guide-text" id="schoolGuideText"></span>
   </div>
 
-  <svg id="schoolGuideChar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" onclick="window.__schoolGuideTap()" aria-label="الدليل التفاعلي">
-    <defs>
-      <clipPath id="guideCircleClip">
-        <circle cx="50" cy="50" r="44"/>
-      </clipPath>
-    </defs>
+  <svg id="schoolGuideChar" viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" onclick="window.__schoolGuideTap()" aria-label="الدليل التفاعلي">
+    <ellipse cx="27.5" cy="33" rx="4.3" ry="5.6" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
+    <ellipse cx="72.5" cy="33" rx="4.3" ry="5.6" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
 
-    <circle cx="50" cy="50" r="47" fill="#ffffff"/>
+    <path d="M 34 104 L 32.5 122 L 43 122 L 42 104 Z" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
+    <path d="M 66 104 L 67.5 122 L 57 122 L 58 104 Z" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
 
-    <g clip-path="url(#guideCircleClip)">
-      <rect x="0" y="0" width="100" height="100" fill="#FDEEDB"/>
+    <path d="M 30 121 C 30 118 34 117 38 117 C 42 117 44.5 118.5 44.5 121 C 44.5 123.5 42 124.5 37 124.5 C 32 124.5 30 123.5 30 121 Z" fill="#6B4A34" stroke="#2B1F1A" stroke-width="1.2"/>
+    <path d="M 70 121 C 70 118 66 117 62 117 C 58 117 55.5 118.5 55.5 121 C 55.5 123.5 58 124.5 63 124.5 C 68 124.5 70 123.5 70 121 Z" fill="#6B4A34" stroke="#2B1F1A" stroke-width="1.2"/>
+    <rect x="35" y="121" width="4" height="2.2" fill="#f4f4f4"/>
+    <rect x="61" y="121" width="4" height="2.2" fill="#f4f4f4"/>
 
-      <path d="M 14 100 C 16 78 30 68 50 68 C 70 68 84 78 86 100 Z" fill="#E8A33D"/>
-      <path d="M 36 70 C 40 76 60 76 64 70 L 62 82 C 54 86 46 86 38 82 Z" fill="#F2B94F"/>
+    <path d="M 30 88 C 30 84.5 36 82.5 50 82.5 C 64 82.5 70 84.5 70 88 L 70 104 C 67 107 60 107 58.5 103 L 56 92 L 44 92 L 41.5 103 C 40 107 33 107 30 104 Z" fill="#2F5FA0" stroke="#193A63" stroke-width="1.3"/>
 
-      <rect x="42" y="58" width="16" height="16" rx="6" fill="#F5C596"/>
+    <path d="M 32 58 C 25 62 21 70 22.5 80 C 23 84 27 86 29.5 84 C 28 76 28.5 68 33 60 Z" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
+    <path d="M 68 58 C 75 62 79 70 77.5 80 C 77 84 73 86 70.5 84 C 72 76 71.5 68 67 60 Z" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.1"/>
+    <circle cx="25.5" cy="83" r="3.6" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1"/>
+    <circle cx="74.5" cy="83" r="3.6" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1"/>
 
-      <ellipse cx="21" cy="52" rx="6" ry="7.5" fill="#F5C596"/>
-      <ellipse cx="79" cy="52" rx="6" ry="7.5" fill="#F5C596"/>
+    <path d="M 33 52 C 36 49 43 47 50 47 C 57 47 64 49 67 52 C 71 55 73 62 72 70 L 71 89 C 64 92 36 92 29 89 L 28 70 C 27 62 29 55 33 52 Z" fill="#F4C542" stroke="#B8931F" stroke-width="1.3"/>
+    <path d="M 32 53 C 29 56 27 60 27.5 65 L 32 63 C 31.5 59 32 56 34 53 Z" fill="#F7D268" stroke="#B8931F" stroke-width="0.8"/>
+    <path d="M 68 53 C 71 56 73 60 72.5 65 L 68 63 C 68.5 59 68 56 66 53 Z" fill="#F7D268" stroke="#B8931F" stroke-width="0.8"/>
 
-      <circle cx="50" cy="48" r="30" fill="#F5C596"/>
+    <path d="M 44 43 L 44 51 C 47 54 53 54 56 51 L 56 43 Z" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1"/>
 
-      <path d="M 20 46 C 14 20 30 2 50 2 C 72 2 86 20 80 46 L 74 34 L 70 44 L 64 32 L 58 42 L 52 30 L 46 42 L 40 30 L 34 42 L 28 32 L 22 44 Z" fill="#2A1C10"/>
+    <circle cx="50" cy="28" r="21" fill="#F6C89D" stroke="#3A2A1B" stroke-width="1.3"/>
 
-      <ellipse cx="27" cy="56" rx="6.5" ry="4.2" fill="#F5847A" opacity="0.55"/>
-      <ellipse cx="73" cy="56" rx="6.5" ry="4.2" fill="#F5847A" opacity="0.55"/>
+    <path d="M 26 33
+             C 23.5 26 23.5 19 26 13
+             C 30 5 40 1 50 1
+             C 60 1 70 5 74 13
+             C 76.5 19 76.5 26 74 33
+             C 73.5 27 72 22 69 18
+             C 69 22 67.5 25 65 23.5
+             C 65.5 19.5 64 16 60.5 14
+             C 60.5 18 59 20.5 56.5 19.5
+             C 57 15.5 54.5 13 50 13
+             C 45.5 13 43 15.5 43.5 19.5
+             C 41 20.5 39.5 18 39.5 14
+             C 36 16 34.5 19.5 35 23.5
+             C 32.5 25 31 22 31 18
+             C 28 22 26.5 27 26 33 Z"
+          fill="#2B1F1A" stroke="#1a120e" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M 47 2 C 47.5 -2 52.5 -2 53 2 C 51.5 0.5 48.5 0.5 47 2 Z" fill="#2B1F1A" stroke="#1a120e" stroke-width="0.8"/>
 
-      <path d="M 30 37 Q 37 32 45 36" stroke="#2B1B10" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-      <path d="M 55 36 Q 63 32 70 37" stroke="#2B1B10" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="34.5" cy="34" rx="4" ry="2.5" fill="#F5977A" opacity="0.4"/>
+    <ellipse cx="65.5" cy="34" rx="4" ry="2.5" fill="#F5977A" opacity="0.4"/>
 
-      <circle cx="38" cy="46" r="5.6" fill="#1A1310"/>
-      <circle cx="36.2" cy="43.8" r="1.7" fill="#ffffff"/>
-      <circle cx="62" cy="46" r="5.6" fill="#1A1310"/>
-      <circle cx="60.2" cy="43.8" r="1.7" fill="#ffffff"/>
+    <circle cx="41.5" cy="29" r="3.4" fill="#211712"/>
+    <circle cx="40.3" cy="27.7" r="1.05" fill="#ffffff"/>
+    <circle cx="58.5" cy="29" r="3.4" fill="#211712"/>
+    <circle cx="57.3" cy="27.7" r="1.05" fill="#ffffff"/>
 
-      <ellipse cx="50" cy="54" rx="1.8" ry="2.2" fill="#E3A374"/>
-
-      <path d="M 36 60 C 40 71 60 71 64 60 C 60 67 40 67 36 60 Z" fill="#8B3A2C"/>
-      <path d="M 39 61.5 C 43 65.5 57 65.5 61 61.5 L 60 64 C 55 67 45 67 40 64 Z" fill="#ffffff"/>
-    </g>
-
-    <circle cx="50" cy="50" r="47" fill="none" stroke="#7BBDE8" stroke-width="4"/>
+    <path d="M 44 36.5 C 47 40 53 40 56 36.5 C 55 39.5 51 41.5 50 41.5 C 49 41.5 45 39.5 44 36.5 Z" fill="#7A3428" stroke="#4a1f16" stroke-width="0.7"/>
+    <path d="M 45.5 37 C 48 38.8 52 38.8 54.5 37 Z" fill="#ffffff"/>
 
     <g fill="#FFD766">
-      <path class="guide-sparkle" d="M 93 18 l 1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4 z"/>
-      <path class="guide-sparkle" d="M 5 16 l 1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 z"/>
+      <path class="guide-sparkle" d="M 91 12 l 1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4 z"/>
+      <path class="guide-sparkle" d="M 7 9 l 1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 z"/>
     </g>
   </svg>
 </div>
@@ -1817,14 +1827,17 @@ window.SCHOOL_GUIDE_DATA = {
     if (!text) return;
     textEl.textContent = text;
     bubble.classList.add('show');
+    charEl.classList.add('guide-talking');
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function () {
       bubble.classList.remove('show');
+      charEl.classList.remove('guide-talking');
     }, 7000);
   }
 
   window.__schoolGuideHide = function () {
     bubble.classList.remove('show');
+    charEl.classList.remove('guide-talking');
     clearTimeout(hideTimer);
   };
 
