@@ -567,6 +567,16 @@
         <button type="submit" class="action-btn">دخول لوحة الإدارة</button>
         <button type="button" class="action-btn" style="background:#64748b; margin-top:8px;" onclick="backToEmailStep()">رجوع</button>
       </form>
+
+      <form id="systemAdminLoginForm" class="hidden" onsubmit="event.preventDefault(); verifySystemAdminLogin();" autocomplete="on">
+        <div class="form-group">
+          <label for="systemAdminPasswordInput">كلمة المرور :</label>
+          <input type="password" id="systemAdminPasswordInput" name="systemadmin_password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="action-btn">دخول لوحة إدمن النظام</button>
+        <button type="button" class="action-btn" style="background:#64748b; margin-top:8px;" onclick="backToEmailStep()">رجوع</button>
+      </form>
     </div>
 
     <div id="dashboardWrapper" class="hidden">
@@ -604,8 +614,8 @@
             <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #001D39;">المادة الدراسية: <span style="color: red;">*</span></label>
             <select id="subjectSelect" name="subject_select" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Tajawal', sans-serif;">
               <option value="">اختر المادة...</option>
-              <option value="اللغة العربية" style="background-color:#7C3AED; color:#ffffff;">اللغة العربية</option>
-              <option value="الرياضيات" style="background-color:#FACC15; color:#78350F;">الرياضيات</option>
+              <option value="اللغة العربية" style="background-color:#d757e7; color:#ffffff;">اللغة العربية</option>
+              <option value="الرياضيات" style="background-color:#eec521; color:#78350F;">الرياضيات</option>
               <option value="اللغة الإنجليزية" style="background-color:#0EA5E9; color:#ffffff;">اللغة الإنجليزية</option>
               <option value="العلوم الحياتية والوطنية" id="scienceSubjectOption" style="background-color:#F97316; color:#ffffff;">العلوم الحياتية والوطنية</option>
               <option value="التربية الإسلامية" style="background-color:#22C55E; color:#ffffff;">التربية الإسلامية</option>
@@ -704,26 +714,29 @@
 
       <div class="dashboard-card" id="myContentCard">
         <h2>المحتوى الذي رفعتِه 📂</h2>
-        <div class="form-group">
-          <label for="myContentClassFilter">تصفية حسب الصف والشعبة:</label>
-          <select id="myContentClassFilter" onchange="loadMyContent()">
-            <option value="">جميع الصفوف</option>
-            <option value="1-a">الصف الأول - الشعبة (أ)</option>
-            <option value="1-b">الصف الأول - الشعبة (ب)</option>
-            <option value="1-c">الصف الأول - الشعبة (ج)</option>
-            <option value="2-a">الصف الثاني - الشعبة (أ)</option>
-            <option value="2-b">الصف الثاني - الشعبة (ب)</option>
-            <option value="2-c">الصف الثاني - الشعبة (ج)</option>
-            <option value="3-a">الصف الثالث - الشعبة (أ)</option>
-            <option value="3-b">الصف الثالث - الشعبة (ب)</option>
-            <option value="3-c">الصف الثالث - الشعبة (ج)</option>
-            <option value="4-a">الصف الرابع - الشعبة (أ)</option>
-            <option value="4-b">الصف الرابع - الشعبة (ب)</option>
-            <option value="4-c">الصف الرابع - الشعبة (ج)</option>
-          </select>
-        </div>
-        <div id="myContentList" style="text-align: right; margin-top: 10px;">
-          <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+        <button type="button" id="toggleMyContentBtn" class="action-btn" onclick="toggleMyContentView()">استعراض المحتوى الذي تم نشره</button>
+        <div id="myContentBody" class="hidden" style="margin-top: 14px;">
+          <div class="form-group">
+            <label for="myContentClassFilter">تصفية حسب الصف والشعبة:</label>
+            <select id="myContentClassFilter" onchange="loadMyContent()">
+              <option value="">جميع الصفوف</option>
+              <option value="1-a">الصف الأول - الشعبة (أ)</option>
+              <option value="1-b">الصف الأول - الشعبة (ب)</option>
+              <option value="1-c">الصف الأول - الشعبة (ج)</option>
+              <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+              <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+              <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+              <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+              <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+              <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+              <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+              <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+              <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+            </select>
+          </div>
+          <div id="myContentList" style="text-align: right; margin-top: 10px;">
+            <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+          </div>
         </div>
       </div>
 
@@ -810,7 +823,7 @@
 
     <div id="managerWrapper" class="hidden">
       <div style="max-width: 600px; margin: 0 auto 20px auto; background: #eef2ff; padding: 12px 20px; border-radius: 8px; border-right: 4px solid var(--accent-color); font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
-        <span>مرحباً بك، الإدارة 👋</span>
+        <span id="managerWelcomeText">مرحباً بك، الإدارة 👋</span>
         <button type="button" onclick="managerLogout()" style="width: auto; background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">تسجيل خروج</button>
       </div>
 
@@ -899,6 +912,29 @@
         </div>
         <div id="contentReviewList" style="text-align: right; margin-top: 10px;">
           <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+        </div>
+      </div>
+
+      <div id="systemAdminExtraSection" class="hidden">
+        <div class="dashboard-card" id="supportTicketsCard">
+          <h2>طلبات الدعم الفني من المعلمات 🛠️</h2>
+          <div id="supportTicketsList" style="text-align: right;">
+            <p style="text-align: center; color: #94a3b8;">جاري تحميل الطلبات...</p>
+          </div>
+        </div>
+
+        <div class="dashboard-card" id="securityAlertsCard">
+          <h2>تنبيهات أمان الحسابات 🚨</h2>
+          <div id="securityAlertsList" style="text-align: right;">
+            <p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>
+          </div>
+        </div>
+
+        <div class="dashboard-card" id="errorLogsCard">
+          <h2>سجل أخطاء النظام 🐞</h2>
+          <div id="errorLogsList" style="text-align: right;">
+            <p style="text-align: center; color: #94a3b8;">جاري تحميل السجل...</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1033,6 +1069,7 @@
   
     const FIXED_EMAIL = "teachers@azzounboys.com";
     const MANAGER_EMAIL = "manager@azzounboys.com";
+    const SYSTEM_ADMIN_EMAIL = "systemadmin@azzounboys.com";
 
     
     const gradeLabelsMap = {
@@ -1110,7 +1147,9 @@
     }
 
     function sessionKeyFor(role, username) {
-      return role === 'manager' ? 'manager' : ('teacher_' + username);
+      if (role === 'manager') return 'manager';
+      if (role === 'systemadmin') return 'systemadmin';
+      return 'teacher_' + username;
     }
 
     const IDLE_LIMIT_MS = 15 * 60 * 1000;
@@ -1125,7 +1164,7 @@
       const role = sessionStorage.getItem(SESSION_ROLE_KEY);
       if (!role) return;
       alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط لمدة 15 دقيقة، لحماية الحساب.');
-      if (role === 'manager') { managerLogout(); } else { teacherLogout(); }
+      if (role === 'manager' || role === 'systemadmin') { managerLogout(); } else { teacherLogout(); }
     }
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (evt) {
       document.addEventListener(evt, resetIdleTimer, { passive: true });
@@ -1153,7 +1192,7 @@
           const data = doc.data();
           if (data && data.sessionId && activeSessionId && data.sessionId !== activeSessionId) {
             alert('تم تسجيل الدخول لهذا الحساب من جهاز آخر الآن، لذلك تم إنهاء الجلسة هنا تلقائياً.');
-            if (role === 'manager') { managerLogout(); } else { teacherLogout(); }
+            if (role === 'manager' || role === 'systemadmin') { managerLogout(); } else { teacherLogout(); }
           }
         }, function (err) {
           console.error('خطأ بمراقبة الجلسة:', err);
@@ -1188,7 +1227,7 @@
           await db.collection('security_alerts').add({
             type: 'multiple_failed_logins',
             accountKey: key,
-            username: role === 'manager' ? null : username,
+            username: (role === 'manager' || role === 'systemadmin') ? null : username,
             approxFailCount: localCount,
             ip: ip,
             deviceId: deviceId,
@@ -1280,6 +1319,10 @@
         document.getElementById('emailStepForm').classList.add('hidden');
         document.getElementById('managerLoginForm').classList.remove('hidden');
         document.getElementById('managerPasswordInput').focus();
+      } else if (email === SYSTEM_ADMIN_EMAIL) {
+        document.getElementById('emailStepForm').classList.add('hidden');
+        document.getElementById('systemAdminLoginForm').classList.remove('hidden');
+        document.getElementById('systemAdminPasswordInput').focus();
       } else {
         alert('عذراً، هذا البريد الإلكتروني غير معروف بالنظام.');
       }
@@ -1291,6 +1334,8 @@
       document.getElementById('teacherLoginForm').reset();
       document.getElementById('managerLoginForm').classList.add('hidden');
       document.getElementById('managerLoginForm').reset();
+      document.getElementById('systemAdminLoginForm').classList.add('hidden');
+      document.getElementById('systemAdminLoginForm').reset();
       document.getElementById('emailStepForm').classList.remove('hidden');
       document.getElementById('loginEmailInput').value = '';
       document.getElementById('loginEmailInput').focus();
@@ -1344,7 +1389,163 @@
       sessionStorage.removeItem(SESSION_ROLE_KEY);
       document.getElementById('managerWrapper').classList.add('hidden');
       document.getElementById('authBox').classList.remove('hidden');
+      exitSystemAdminView();
       backToEmailStep();
+    }
+
+    async function verifySystemAdminLogin() {
+      const password = document.getElementById('systemAdminPasswordInput').value.trim();
+      const btn = document.querySelector('#systemAdminLoginForm button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'جاري تسجيل الدخول... ⏳'; }
+
+      try {
+        await auth.signInWithEmailAndPassword(SYSTEM_ADMIN_EMAIL, password);
+
+        sessionStorage.setItem(SESSION_ROLE_KEY, 'systemadmin');
+        sessionStorage.removeItem(SESSION_USERNAME_KEY);
+        saveLoginEmailSuggestion(SYSTEM_ADMIN_EMAIL);
+        resetFailedLogin('systemadmin', null);
+        startSessionLock('systemadmin', null);
+        resetIdleTimer();
+
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('managerWrapper').classList.remove('hidden');
+        enterSystemAdminView();
+        loadContactMessages();
+        loadContentForReview();
+      } catch (error) {
+        console.error('خطأ بتسجيل دخول إدمن النظام:', error);
+        logErrorToFirestore('verifySystemAdminLogin', error);
+        recordFailedLogin('systemadmin', null);
+
+        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          alert('عذراً، كلمة المرور غير صحيحة.');
+        } else if (error.code === 'auth/user-not-found') {
+          alert('عذراً، حساب إدمن النظام غير مفعّل بعد على Firebase. لازم يُنشأ أولاً من Firebase Console.');
+        } else if (error.code === 'auth/too-many-requests') {
+          alert('تم إيقاف تسجيل الدخول مؤقتاً بسبب محاولات كثيرة. حاول بعد قليل.');
+        } else {
+          alert('حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+        }
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'دخول لوحة إدمن النظام'; }
+      }
+    }
+
+    function enterSystemAdminView() {
+      const welcomeEl = document.getElementById('managerWelcomeText');
+      if (welcomeEl) welcomeEl.textContent = 'مرحباً بك، إدمن النظام 👑';
+      const extra = document.getElementById('systemAdminExtraSection');
+      if (extra) extra.classList.remove('hidden');
+      loadSupportTickets();
+      loadSecurityAlerts();
+      loadErrorLogs();
+    }
+
+    function exitSystemAdminView() {
+      const welcomeEl = document.getElementById('managerWelcomeText');
+      if (welcomeEl) welcomeEl.textContent = 'مرحباً بك، الإدارة 👋';
+      const extra = document.getElementById('systemAdminExtraSection');
+      if (extra) extra.classList.add('hidden');
+    }
+
+    function loadSupportTickets() {
+      const listEl = document.getElementById('supportTicketsList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل الطلبات...</p>';
+
+      db.collection('teacher_support').orderBy('createdAt', 'desc').limit(50).get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد طلبات دعم فني حتى الآن.</p>';
+            return;
+          }
+          listEl.innerHTML = snapshot.docs.map(function (doc) {
+            const data = doc.data();
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            const statusColor = data.status === 'pending' ? '#dc2626' : '#16a34a';
+            const statusLabel = data.status === 'pending' ? 'قيد الانتظار' : 'تمت المعالجة';
+            return `
+              <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: var(--primary);">${escapeHtml(data.teacher_name || 'غير معروفة')} (${escapeHtml(data.teacher_username || '')})</strong>
+                  <span style="font-size: 0.75rem; font-weight: bold; color: ${statusColor};">${statusLabel}</span>
+                </div>
+                <p style="white-space: pre-wrap; color: #334155; margin: 4px 0;">${escapeHtml(data.issue || '')}</p>
+                ${data.image ? `<a href="${data.image}" target="_blank" style="font-size: 0.8rem; color: var(--accent-color);">📎 عرض الصورة المرفقة</a>` : ''}
+                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">${dateStr}</div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('خطأ بجلب طلبات الدعم الفني:', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل الطلبات.</p>';
+        });
+    }
+
+    function loadSecurityAlerts() {
+      const listEl = document.getElementById('securityAlertsList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>';
+
+      db.collection('security_alerts').orderBy('createdAt', 'desc').limit(50).get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد تنبيهات أمان حتى الآن.</p>';
+            return;
+          }
+          listEl.innerHTML = snapshot.docs.map(function (doc) {
+            const data = doc.data();
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            return `
+              <div style="border: 1px solid #fecaca; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #fef2f2;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: #b91c1c;">محاولات دخول فاشلة متكررة — ${escapeHtml(data.accountKey || '')}</strong>
+                  <span style="font-size: 0.75rem; color: #94a3b8;">${dateStr}</span>
+                </div>
+                <p style="margin: 2px 0; font-size: 0.85rem; color: #334155;">عدد المحاولات التقريبي: ${data.approxFailCount != null ? data.approxFailCount : '—'}</p>
+                <p style="margin: 2px 0; font-size: 0.8rem; color: #64748b;">IP: ${escapeHtml(data.ip || 'غير معروف')} — الجهاز: ${escapeHtml((data.deviceId || '').slice(0, 20))}</p>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('خطأ بجلب تنبيهات الأمان:', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل التنبيهات (تأكد من تحديث صلاحيات Firestore).</p>';
+        });
+    }
+
+    function loadErrorLogs() {
+      const listEl = document.getElementById('errorLogsList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل السجل...</p>';
+
+      db.collection('error_logs').orderBy('createdAt', 'desc').limit(50).get()
+        .then(function (snapshot) {
+          if (snapshot.empty) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد أخطاء مسجّلة حتى الآن. 🎉</p>';
+            return;
+          }
+          listEl.innerHTML = snapshot.docs.map(function (doc) {
+            const data = doc.data();
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            return `
+              <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="color: var(--primary);">${escapeHtml(data.source || 'غير معروف')}</strong>
+                  <span style="font-size: 0.75rem; color: #94a3b8;">${dateStr}</span>
+                </div>
+                <p style="margin: 2px 0; color: #b91c1c; font-size: 0.85rem;">${escapeHtml(data.message || '')} ${data.code ? '(' + escapeHtml(data.code) + ')' : ''}</p>
+                ${data.teacher_name ? `<p style="margin: 2px 0; font-size: 0.8rem; color: #64748b;">المعلمة: ${escapeHtml(data.teacher_name)}</p>` : ''}
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('خطأ بجلب سجل الأخطاء:', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل السجل (تأكد من تحديث صلاحيات Firestore).</p>';
+        });
     }
 
    
@@ -1516,6 +1717,24 @@
 
     
     let currentMyContentDocs = {};
+
+    let myContentLoadedOnce = false;
+    function toggleMyContentView() {
+      const body = document.getElementById('myContentBody');
+      const btn = document.getElementById('toggleMyContentBtn');
+      const isHidden = body.classList.contains('hidden');
+      if (isHidden) {
+        body.classList.remove('hidden');
+        btn.textContent = 'إخفاء المحتوى المنشور';
+        if (!myContentLoadedOnce) {
+          myContentLoadedOnce = true;
+          loadMyContent();
+        }
+      } else {
+        body.classList.add('hidden');
+        btn.textContent = 'استعراض المحتوى الذي تم نشره';
+      }
+    }
 
     function loadMyContent() {
       const listEl = document.getElementById('myContentList');
@@ -1893,6 +2112,14 @@
         loadContentForReview();
         startSessionLock('manager', null);
         resetIdleTimer();
+      } else if (user && savedRole === 'systemadmin') {
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('managerWrapper').classList.remove('hidden');
+        enterSystemAdminView();
+        loadContactMessages();
+        loadContentForReview();
+        startSessionLock('systemadmin', null);
+        resetIdleTimer();
       } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
         activeTeacherUsername = savedUsername;
         activeTeacherArabicName = teachersRegistry[savedUsername];
@@ -1901,6 +2128,7 @@
         document.getElementById('dashboardWrapper').classList.remove('hidden');
         refreshSuggestions();
         loadAdminNotesForTeacher();
+        myContentLoadedOnce = true;
         loadMyContent();
         startSessionLock('teacher', savedUsername);
         resetIdleTimer();
@@ -2584,7 +2812,6 @@
 window.SCHOOL_GUIDE_DATA = {
   "welcome": [
     "مرحباً بك في لوحة التحكم! 👋 سأدلّك على كل قسم كلما وصلت إليه.",
-    "أهلاً بك! تصفّح اللوحة بحرّية، وسأقدّم لك تلميحاً عند كل قسم جديد 📚",
     "أنا مساعدك هنا، لا تتردد بالضغط عليّ كلما احتجت توضيحاً 🙌"
   ],
   "sections": {
@@ -2610,19 +2837,26 @@ window.SCHOOL_GUIDE_DATA = {
     ],
     "manageAnnouncementsCard": [
       "من هنا تنشر إعلانات المدرسة الظاهرة لجميع الزوار 📢",
-      "اكتبها بوضوح ليصل الخبر للجميع دون التباس ✍️"
     ],
     "manageScheduleCard": [
-      "ارفع صورة الجدول الدراسي لكل شعبة من هنا 🗓️",
-      "تأكد أن الصورة واضحة ليسهل على الطلاب قراءتها 🖼️"
+      " صورة الجدول الدراسي لكل شعبة من هنا 🗓️",
     ],
     "contactMessagesCard": [
       "رسائل التواصل الواردة من زوار الموقع تصلك هنا ✉️",
       "الرد السريع يترك انطباعاً رائعاً لدى أولياء الأمور 💌"
     ],
     "contentReviewCard": [
-      "راجع من هنا المحتوى المرفوع من جميع المعلمين والمعلمات 🗂️",
+      "راجع من هنا المحتوى المرفوع من جميع المعلمات 🗂️",
       "مراجعتك الدقيقة تحافظ على جودة المحتوى للجميع ✅"
+    ],
+    "supportTicketsCard": [
+      "طلبات الدعم الفني المرسلة من المعلمات تظهر هنا أولاً بأول 🛠️"
+    ],
+    "securityAlertsCard": [
+      "تنبيهات محاولات الدخول الفاشلة المتكررة على أي حساب 🚨"
+    ],
+    "errorLogsCard": [
+      "سجل تقني لكل الأخطاء التي تحدث في الموقع، لمتابعة صحة النظام 🐞"
     ]
   }
 };
