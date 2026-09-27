@@ -916,25 +916,10 @@
       </div>
 
       <div id="systemAdminExtraSection" class="hidden">
-        <div class="dashboard-card" id="supportTicketsCard">
-          <h2>طلبات الدعم الفني من المعلمات 🛠️</h2>
-          <div id="supportTicketsList" style="text-align: right;">
-            <p style="text-align: center; color: #94a3b8;">جاري تحميل الطلبات...</p>
-          </div>
-        </div>
-
-        <div class="dashboard-card" id="securityAlertsCard">
-          <h2>تنبيهات أمان الحسابات 🚨</h2>
-          <div id="securityAlertsList" style="text-align: right;">
-            <p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>
-          </div>
-        </div>
-
-        <div class="dashboard-card" id="errorLogsCard">
-          <h2>سجل أخطاء النظام 🐞</h2>
-          <div id="errorLogsList" style="text-align: right;">
-            <p style="text-align: center; color: #94a3b8;">جاري تحميل السجل...</p>
-          </div>
+        <div class="dashboard-card" id="systemAdminDbCard" style="max-width: 100%;">
+          <h2>لوحة إدمن النظام — قاعدة البيانات كاملة 🗄️</h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: -8px;">كل قسم مطوي افتراضياً — اضغطي على أي بطاقة لفتحها وعرض كل بياناتها مباشرة من قاعدة البيانات.</p>
+          <div id="systemAdminGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;"></div>
         </div>
       </div>
     </div>
@@ -1411,8 +1396,6 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         enterSystemAdminView();
-        loadContactMessages();
-        loadContentForReview();
       } catch (error) {
         console.error('خطأ بتسجيل دخول إدمن النظام:', error);
         logErrorToFirestore('verifySystemAdminLogin', error);
@@ -1432,14 +1415,33 @@
       }
     }
 
+    const SYSTEM_ADMIN_COLLECTIONS = [
+      { id: 'educational_contents', label: 'المحتوى التعليمي المنشور', icon: '📚' },
+      { id: 'announcements', label: 'إعلانات المدرسة', icon: '📢' },
+      { id: 'teacher_support', label: 'طلبات الدعم الفني', icon: '🛠️' },
+      { id: 'admin_notes', label: 'ملاحظات الإدارة للمعلمات', icon: '📝' },
+      { id: 'error_logs', label: 'سجل أخطاء النظام', icon: '🐞' },
+      { id: 'contact_messages', label: 'رسائل التواصل من الزوار', icon: '✉️' },
+      { id: 'schedules', label: 'الجداول الدراسية', icon: '🗓️' },
+      { id: 'top_students', label: 'الطلاب المتفوقون', icon: '🌟' },
+      { id: 'active_sessions', label: 'الجلسات النشطة', icon: '🔐' },
+      { id: 'login_attempts', label: 'محاولات تسجيل الدخول', icon: '🔑' },
+      { id: 'security_alerts', label: 'تنبيهات الأمان', icon: '🚨' }
+    ];
+    const systemAdminLoadedCollections = {};
+
     function enterSystemAdminView() {
       const welcomeEl = document.getElementById('managerWelcomeText');
       if (welcomeEl) welcomeEl.textContent = 'مرحباً بك، إدمن النظام 👑';
       const extra = document.getElementById('systemAdminExtraSection');
       if (extra) extra.classList.remove('hidden');
-      loadSupportTickets();
-      loadSecurityAlerts();
-      loadErrorLogs();
+      const guideWrap = document.getElementById('schoolGuideWrap');
+      if (guideWrap) guideWrap.style.display = 'none';
+      ['manageAnnouncementsCard', 'manageScheduleCard', 'contactMessagesCard', 'contentReviewCard'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      buildSystemAdminGrid();
     }
 
     function exitSystemAdminView() {
@@ -1447,104 +1449,96 @@
       if (welcomeEl) welcomeEl.textContent = 'مرحباً بك، الإدارة 👋';
       const extra = document.getElementById('systemAdminExtraSection');
       if (extra) extra.classList.add('hidden');
+      const guideWrap = document.getElementById('schoolGuideWrap');
+      if (guideWrap) guideWrap.style.display = '';
+      ['manageAnnouncementsCard', 'manageScheduleCard', 'contactMessagesCard', 'contentReviewCard'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+      });
     }
 
-    function loadSupportTickets() {
-      const listEl = document.getElementById('supportTicketsList');
-      if (!listEl) return;
-      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل الطلبات...</p>';
-
-      db.collection('teacher_support').orderBy('createdAt', 'desc').limit(50).get()
-        .then(function (snapshot) {
-          if (snapshot.empty) {
-            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد طلبات دعم فني حتى الآن.</p>';
-            return;
-          }
-          listEl.innerHTML = snapshot.docs.map(function (doc) {
-            const data = doc.data();
-            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
-            const statusColor = data.status === 'pending' ? '#dc2626' : '#16a34a';
-            const statusLabel = data.status === 'pending' ? 'قيد الانتظار' : 'تمت المعالجة';
-            return `
-              <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: var(--primary);">${escapeHtml(data.teacher_name || 'غير معروفة')} (${escapeHtml(data.teacher_username || '')})</strong>
-                  <span style="font-size: 0.75rem; font-weight: bold; color: ${statusColor};">${statusLabel}</span>
-                </div>
-                <p style="white-space: pre-wrap; color: #334155; margin: 4px 0;">${escapeHtml(data.issue || '')}</p>
-                ${data.image ? `<a href="${data.image}" target="_blank" style="font-size: 0.8rem; color: var(--accent-color);">📎 عرض الصورة المرفقة</a>` : ''}
-                <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;">${dateStr}</div>
-              </div>
-            `;
-          }).join('');
-        })
-        .catch(function (error) {
-          console.error('خطأ بجلب طلبات الدعم الفني:', error);
-          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل الطلبات.</p>';
-        });
+    function buildSystemAdminGrid() {
+      const grid = document.getElementById('systemAdminGrid');
+      if (!grid || grid.dataset.built) return;
+      grid.dataset.built = '1';
+      grid.innerHTML = SYSTEM_ADMIN_COLLECTIONS.map(function (col) {
+        return `
+          <div style="border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; overflow: hidden;">
+            <button type="button" onclick="toggleSystemAdminTile('${col.id}')" style="width: 100%; text-align: right; background: #f1f5f9; border: none; padding: 12px 14px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <span>${col.icon} ${col.label} <span id="sysadmin_count_${col.id}" style="font-size: 0.75rem; color: #64748b; font-weight: normal;"></span></span>
+              <span id="sysadmin_chevron_${col.id}">▼</span>
+            </button>
+            <div id="sysadmin_body_${col.id}" class="hidden" style="padding: 12px; max-height: 420px; overflow-y: auto;"></div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function loadSecurityAlerts() {
-      const listEl = document.getElementById('securityAlertsList');
-      if (!listEl) return;
-      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل التنبيهات...</p>';
-
-      db.collection('security_alerts').orderBy('createdAt', 'desc').limit(50).get()
-        .then(function (snapshot) {
-          if (snapshot.empty) {
-            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد تنبيهات أمان حتى الآن.</p>';
-            return;
-          }
-          listEl.innerHTML = snapshot.docs.map(function (doc) {
-            const data = doc.data();
-            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
-            return `
-              <div style="border: 1px solid #fecaca; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #fef2f2;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: #b91c1c;">محاولات دخول فاشلة متكررة — ${escapeHtml(data.accountKey || '')}</strong>
-                  <span style="font-size: 0.75rem; color: #94a3b8;">${dateStr}</span>
-                </div>
-                <p style="margin: 2px 0; font-size: 0.85rem; color: #334155;">عدد المحاولات التقريبي: ${data.approxFailCount != null ? data.approxFailCount : '—'}</p>
-                <p style="margin: 2px 0; font-size: 0.8rem; color: #64748b;">IP: ${escapeHtml(data.ip || 'غير معروف')} — الجهاز: ${escapeHtml((data.deviceId || '').slice(0, 20))}</p>
-              </div>
-            `;
-          }).join('');
-        })
-        .catch(function (error) {
-          console.error('خطأ بجلب تنبيهات الأمان:', error);
-          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل التنبيهات (تأكد من تحديث صلاحيات Firestore).</p>';
-        });
+    function toggleSystemAdminTile(collectionId) {
+      const body = document.getElementById('sysadmin_body_' + collectionId);
+      const chevron = document.getElementById('sysadmin_chevron_' + collectionId);
+      if (!body) return;
+      const isHidden = body.classList.contains('hidden');
+      if (isHidden) {
+        body.classList.remove('hidden');
+        if (chevron) chevron.textContent = '▲';
+        if (!systemAdminLoadedCollections[collectionId]) {
+          systemAdminLoadedCollections[collectionId] = true;
+          loadSystemAdminCollection(collectionId);
+        }
+      } else {
+        body.classList.add('hidden');
+        if (chevron) chevron.textContent = '▼';
+      }
     }
 
-    function loadErrorLogs() {
-      const listEl = document.getElementById('errorLogsList');
-      if (!listEl) return;
-      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل السجل...</p>';
+    function renderGenericDocs(snapshot) {
+      if (snapshot.empty) return '<p style="text-align: center; color: #94a3b8;">لا توجد بيانات في هذا القسم.</p>';
 
-      db.collection('error_logs').orderBy('createdAt', 'desc').limit(50).get()
-        .then(function (snapshot) {
-          if (snapshot.empty) {
-            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد أخطاء مسجّلة حتى الآن. 🎉</p>';
-            return;
+      const docs = snapshot.docs.map(function (d) { return { id: d.id, data: d.data() }; });
+      docs.sort(function (a, b) {
+        const ta = (a.data.createdAt && a.data.createdAt.toDate) ? a.data.createdAt.toDate().getTime() : 0;
+        const tb = (b.data.createdAt && b.data.createdAt.toDate) ? b.data.createdAt.toDate().getTime() : 0;
+        return tb - ta;
+      });
+
+      return docs.map(function (docItem) {
+        const fieldsHtml = Object.keys(docItem.data).map(function (key) {
+          let val = docItem.data[key];
+          if (val && typeof val === 'object' && typeof val.toDate === 'function') {
+            val = val.toDate().toLocaleString('ar-EG');
+          } else if (typeof val === 'string' && val.length > 300) {
+            val = val.slice(0, 300) + '… (مقتطع)';
+          } else if (val && typeof val === 'object') {
+            val = JSON.stringify(val).slice(0, 300);
           }
-          listEl.innerHTML = snapshot.docs.map(function (doc) {
-            const data = doc.data();
-            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
-            return `
-              <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: var(--primary);">${escapeHtml(data.source || 'غير معروف')}</strong>
-                  <span style="font-size: 0.75rem; color: #94a3b8;">${dateStr}</span>
-                </div>
-                <p style="margin: 2px 0; color: #b91c1c; font-size: 0.85rem;">${escapeHtml(data.message || '')} ${data.code ? '(' + escapeHtml(data.code) + ')' : ''}</p>
-                ${data.teacher_name ? `<p style="margin: 2px 0; font-size: 0.8rem; color: #64748b;">المعلمة: ${escapeHtml(data.teacher_name)}</p>` : ''}
-              </div>
-            `;
-          }).join('');
+          return `<div style="font-size: 0.8rem; color: #334155; margin: 2px 0; word-break: break-word;"><strong style="color: #64748b;">${escapeHtml(key)}:</strong> ${escapeHtml(String(val == null ? '—' : val))}</div>`;
+        }).join('');
+
+        return `
+          <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f8fafc;">
+            <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">ID: ${escapeHtml(docItem.id)}</div>
+            ${fieldsHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadSystemAdminCollection(collectionId) {
+      const body = document.getElementById('sysadmin_body_' + collectionId);
+      const countEl = document.getElementById('sysadmin_count_' + collectionId);
+      if (!body) return;
+      body.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري التحميل...</p>';
+
+      db.collection(collectionId).limit(200).get()
+        .then(function (snapshot) {
+          if (countEl) countEl.textContent = '(' + snapshot.size + ')';
+          body.innerHTML = renderGenericDocs(snapshot);
         })
         .catch(function (error) {
-          console.error('خطأ بجلب سجل الأخطاء:', error);
-          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل السجل (تأكد من تحديث صلاحيات Firestore).</p>';
+          console.error('خطأ بجلب ' + collectionId + ':', error);
+          logErrorToFirestore('loadSystemAdminCollection_' + collectionId, error);
+          body.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل هذا القسم (تأكد من صلاحيات Firestore لحساب إدمن النظام).</p>';
         });
     }
 
@@ -2116,8 +2110,6 @@
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('managerWrapper').classList.remove('hidden');
         enterSystemAdminView();
-        loadContactMessages();
-        loadContentForReview();
         startSessionLock('systemadmin', null);
         resetIdleTimer();
       } else if (user && savedRole === 'teacher' && savedUsername && teachersRegistry.hasOwnProperty(savedUsername)) {
@@ -2848,15 +2840,6 @@ window.SCHOOL_GUIDE_DATA = {
     "contentReviewCard": [
       "راجع من هنا المحتوى المرفوع من جميع المعلمات 🗂️",
       "مراجعتك الدقيقة تحافظ على جودة المحتوى للجميع ✅"
-    ],
-    "supportTicketsCard": [
-      "طلبات الدعم الفني المرسلة من المعلمات تظهر هنا أولاً بأول 🛠️"
-    ],
-    "securityAlertsCard": [
-      "تنبيهات محاولات الدخول الفاشلة المتكررة على أي حساب 🚨"
-    ],
-    "errorLogsCard": [
-      "سجل تقني لكل الأخطاء التي تحدث في الموقع، لمتابعة صحة النظام 🐞"
     ]
   }
 };
