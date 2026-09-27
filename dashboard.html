@@ -576,7 +576,7 @@
         <button type="button" onclick="teacherLogout()" style="width: auto; background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">تسجيل خروج</button>
       </div>
 
-      <div class="dashboard-card">
+      <div class="dashboard-card" id="addContentCard">
         <h2>إضافة محتوى تعليمي جديد 📚</h2>
         <form id="addContentForm">
 
@@ -814,7 +814,7 @@
         <button type="button" onclick="managerLogout()" style="width: auto; background: #dc2626; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">تسجيل خروج</button>
       </div>
 
-      <div class="dashboard-card">
+      <div class="dashboard-card" id="manageAnnouncementsCard">
         <h2>إدارة ونشر إعلانات المدرسة 📢</h2>
         <form id="addAnnouncementForm" onsubmit="event.preventDefault(); submitAnnouncement();">
 
@@ -837,7 +837,7 @@
         </form>
       </div>
 
-      <div class="dashboard-card">
+      <div class="dashboard-card" id="manageScheduleCard">
         <h2>إدارة الجدول الدراسي للشعب 🗓️</h2>
         <form id="addScheduleForm" onsubmit="event.preventDefault(); submitSchedule();">
 
@@ -870,14 +870,14 @@
         </form>
       </div>
 
-      <div class="dashboard-card">
+      <div class="dashboard-card" id="contactMessagesCard">
         <h2>الرسائل الواردة من زوار الموقع ✉️</h2>
         <div id="contactMessagesList" style="text-align: right;">
           <p style="text-align: center; color: #94a3b8;">جاري تحميل الرسائل...</p>
         </div>
       </div>
 
-      <div class="dashboard-card">
+      <div class="dashboard-card" id="contentReviewCard">
         <h2>مراجعة المحتوى التعليمي المرفوع 🗂️</h2>
         <div class="form-group">
           <label for="reviewClassFilter">تصفية حسب الصف والشعبة:</label>
@@ -2579,6 +2579,309 @@
     <p style="font-size: 1.1rem; margin-bottom: 5px;">منصة مدرسة ذكور عزون الأساسية</p>
     <p style="font-size: 0.9rem; color: #BDD8E9;">جميع الحقوق محفوظة &copy; 2026</p>
   </footer>
+
+<script>
+window.SCHOOL_GUIDE_DATA = {
+  "welcome": [
+    "مرحباً بك في لوحة التحكم! 👋 سأدلّك على كل قسم كلما وصلت إليه.",
+    "أهلاً بك! تصفّح اللوحة بحرّية، وسأقدّم لك تلميحاً عند كل قسم جديد 📚",
+    "أنا مساعدك هنا، لا تتردد بالضغط عليّ كلما احتجت توضيحاً 🙌"
+  ],
+  "sections": {
+    "addContentCard": [
+      "أضف محتوى جديداً من هنا: اختر الصف والمادة ونوع المحتوى، ثم انشره 📤",
+      "فيديو، ورقة عمل، لعبة، أو اختبار — كل هذا يمكن إضافته من هذا النموذج"
+    ],
+    "myContentCard": [
+      "هنا يظهر كل ما رفعته من محتوى سابقاً، ويمكنك تعديله أو حذفه بسهولة",
+      "راجعه بين الحين والآخر لتبقيه محدّثاً ومرتباً 🗃️"
+    ],
+    "topStudentsCard": [
+      "أضف أسماء الطلاب المتميزين هنا ليظهروا في لوحة المتفوقين 🌟",
+      "تشجيع بسيط منك يصنع فرقاً كبيراً في حماس الطلاب 🎉"
+    ],
+    "adminNotesCard": [
+      "تصلك هنا ملاحظات الإدارة أولاً بأول 🔔",
+      "تابعها باستمرار حتى لا يفوتك شيء مهم 👀"
+    ],
+    "teacherSupport": [
+      "واجهت مشكلة تقنية؟ اكتبها هنا وسيتواصل معك فريق الدعم 🛠️",
+      "لا تقلق، أي مشكلة قابلة للحل بخطوة واحدة بسيطة 😊"
+    ],
+    "manageAnnouncementsCard": [
+      "من هنا تنشر إعلانات المدرسة الظاهرة لجميع الزوار 📢",
+      "اكتبها بوضوح ليصل الخبر للجميع دون التباس ✍️"
+    ],
+    "manageScheduleCard": [
+      "ارفع صورة الجدول الدراسي لكل شعبة من هنا 🗓️",
+      "تأكد أن الصورة واضحة ليسهل على الطلاب قراءتها 🖼️"
+    ],
+    "contactMessagesCard": [
+      "رسائل التواصل الواردة من زوار الموقع تصلك هنا ✉️",
+      "الرد السريع يترك انطباعاً رائعاً لدى أولياء الأمور 💌"
+    ],
+    "contentReviewCard": [
+      "راجع من هنا المحتوى المرفوع من جميع المعلمين والمعلمات 🗂️",
+      "مراجعتك الدقيقة تحافظ على جودة المحتوى للجميع ✅"
+    ]
+  }
+};
+</script>
+<style>
+  #schoolGuideWrap {
+    position: fixed;
+    bottom: 14px;
+    left: 0px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+    pointer-events: none;
+  }
+
+  #schoolGuideBubble {
+    pointer-events: auto;
+    position: relative;
+    max-width: 250px;
+    background: #ffffff;
+    color: var(--bg-dark, #001D39);
+    border: 2px solid var(--light-blue, #7BBDE8);
+    border-radius: 18px 18px 18px 4px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    margin-right: 6px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    box-shadow: 0 8px 22px rgba(0, 29, 57, 0.18);
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  #schoolGuideBubble.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  #schoolGuideBubble::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    right: 26px;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border-left: 2px solid var(--light-blue, #7BBDE8);
+    border-bottom: 2px solid var(--light-blue, #7BBDE8);
+    transform: rotate(-45deg);
+  }
+
+  #schoolGuideBubble .guide-close {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px;
+  }
+  #schoolGuideBubble .guide-close:hover { color: #64748b; }
+
+  #schoolGuideBubble .guide-text {
+    display: block;
+    padding-left: 14px;
+  }
+
+  #schoolGuideChar {
+    pointer-events: auto;
+    width: 92px;
+    height: 92px;
+    cursor: pointer;
+    animation: guideIdle 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(0, 29, 57, 0.28));
+  }
+
+  #schoolGuideChar:hover { animation-play-state: paused; }
+  #schoolGuideChar.guide-jump { animation: guideJump 0.5s ease; }
+
+  #schoolGuideChar .guide-wave-arm {
+    transform-origin: 70px 66px;
+    animation: guideWave 1.6s ease-in-out infinite;
+  }
+
+  #schoolGuideChar .guide-sparkle {
+    animation: guideTwinkle 1.8s ease-in-out infinite;
+  }
+  #schoolGuideChar .guide-sparkle:nth-child(2) {
+    animation-delay: 0.6s;
+  }
+
+  @keyframes guideIdle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes guideJump {
+    0% { transform: translateY(0) scale(1); }
+    35% { transform: translateY(-20px) scale(1.05); }
+    60% { transform: translateY(0) scale(0.97); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
+  @keyframes guideWave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(14deg); }
+    50% { transform: rotate(-4deg); }
+    75% { transform: rotate(14deg); }
+  }
+
+  @keyframes guideTwinkle {
+    0%, 100% { opacity: 0.35; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
+  @media (max-width: 480px) {
+    #schoolGuideChar { width: 66px; height: 66px; }
+    #schoolGuideBubble { max-width: 190px; font-size: 0.85rem; padding: 10px 12px; }
+    #schoolGuideWrap { bottom: 10px; left: 0px; }
+  }
+</style>
+
+<div id="schoolGuideWrap" aria-hidden="false">
+  <div id="schoolGuideBubble" role="status">
+    <button type="button" class="guide-close" aria-label="إخفاء" onclick="window.__schoolGuideHide()">×</button>
+    <span class="guide-text" id="schoolGuideText"></span>
+  </div>
+
+  <svg id="schoolGuideChar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" onclick="window.__schoolGuideTap()" aria-label="الدليل التفاعلي">
+    <defs>
+      <clipPath id="guideCircleClip">
+        <circle cx="50" cy="50" r="44"/>
+      </clipPath>
+    </defs>
+
+    <circle cx="50" cy="50" r="47" fill="#ffffff"/>
+
+    <g clip-path="url(#guideCircleClip)">
+      <rect x="0" y="0" width="100" height="100" fill="#FDEEDB"/>
+
+      <path d="M 14 100 C 16 78 30 68 50 68 C 70 68 84 78 86 100 Z" fill="#E8A33D"/>
+      <path d="M 36 70 C 40 76 60 76 64 70 L 62 82 C 54 86 46 86 38 82 Z" fill="#F2B94F"/>
+
+      <rect x="42" y="58" width="16" height="16" rx="6" fill="#F5C596"/>
+
+      <ellipse cx="21" cy="52" rx="6" ry="7.5" fill="#F5C596"/>
+      <ellipse cx="79" cy="52" rx="6" ry="7.5" fill="#F5C596"/>
+
+      <circle cx="50" cy="48" r="30" fill="#F5C596"/>
+
+      <path d="M 20 46 C 14 20 30 2 50 2 C 72 2 86 20 80 46 L 74 34 L 70 44 L 64 32 L 58 42 L 52 30 L 46 42 L 40 30 L 34 42 L 28 32 L 22 44 Z" fill="#2A1C10"/>
+
+      <ellipse cx="27" cy="56" rx="6.5" ry="4.2" fill="#F5847A" opacity="0.55"/>
+      <ellipse cx="73" cy="56" rx="6.5" ry="4.2" fill="#F5847A" opacity="0.55"/>
+
+      <path d="M 30 37 Q 37 32 45 36" stroke="#2B1B10" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <path d="M 55 36 Q 63 32 70 37" stroke="#2B1B10" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+
+      <circle cx="38" cy="46" r="5.6" fill="#1A1310"/>
+      <circle cx="36.2" cy="43.8" r="1.7" fill="#ffffff"/>
+      <circle cx="62" cy="46" r="5.6" fill="#1A1310"/>
+      <circle cx="60.2" cy="43.8" r="1.7" fill="#ffffff"/>
+
+      <ellipse cx="50" cy="54" rx="1.8" ry="2.2" fill="#E3A374"/>
+
+      <path d="M 36 60 C 40 71 60 71 64 60 C 60 67 40 67 36 60 Z" fill="#8B3A2C"/>
+      <path d="M 39 61.5 C 43 65.5 57 65.5 61 61.5 L 60 64 C 55 67 45 67 40 64 Z" fill="#ffffff"/>
+    </g>
+
+    <circle cx="50" cy="50" r="47" fill="none" stroke="#7BBDE8" stroke-width="4"/>
+
+    <g fill="#FFD766">
+      <path class="guide-sparkle" d="M 93 18 l 1.4 3 3 1.4 -3 1.4 -1.4 3 -1.4 -3 -3 -1.4 3 -1.4 z"/>
+      <path class="guide-sparkle" d="M 5 16 l 1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 z"/>
+    </g>
+  </svg>
+</div>
+
+<script>
+(function () {
+  var config = window.SCHOOL_GUIDE_DATA || { welcome: ["أهلاً وسهلاً بك! 👋"], sections: {} };
+  var phrases = Object.assign({}, config.sections, { welcome: config.welcome });
+
+  var bubble = document.getElementById('schoolGuideBubble');
+  var textEl = document.getElementById('schoolGuideText');
+  var charEl = document.getElementById('schoolGuideChar');
+  var lastIndex = {};
+  var hideTimer = null;
+  var currentSection = null;
+
+  function pickPhrase(key) {
+    var list = phrases[key];
+    if (!list || !list.length) return null;
+    var idx = Math.floor(Math.random() * list.length);
+    if (list.length > 1 && idx === lastIndex[key]) {
+      idx = (idx + 1) % list.length;
+    }
+    lastIndex[key] = idx;
+    return list[idx];
+  }
+
+  function showBubble(text) {
+    if (!text) return;
+    textEl.textContent = text;
+    bubble.classList.add('show');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      bubble.classList.remove('show');
+    }, 7000);
+  }
+
+  window.__schoolGuideHide = function () {
+    bubble.classList.remove('show');
+    clearTimeout(hideTimer);
+  };
+
+  window.__schoolGuideTap = function () {
+    charEl.classList.remove('guide-jump');
+    void charEl.offsetWidth;
+    charEl.classList.add('guide-jump');
+    var key = currentSection || 'welcome';
+    showBubble(pickPhrase(key));
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      showBubble(pickPhrase('welcome'));
+    }, 1000);
+
+    var sectionIds = Object.keys(config.sections || {});
+    var targets = sectionIds
+      .map(function (id) { return document.getElementById(id); })
+      .filter(Boolean);
+
+    if ('IntersectionObserver' in window && targets.length) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            if (id !== currentSection) {
+              currentSection = id;
+              showBubble(pickPhrase(id));
+            }
+          }
+        });
+      }, { threshold: 0.35 });
+
+      targets.forEach(function (t) { observer.observe(t); });
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
