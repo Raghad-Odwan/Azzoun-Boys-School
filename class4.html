@@ -911,6 +911,24 @@
     }
     const db = firebase.firestore();
 
+    // ------- تتبع الزيارات (لإحصائيات لوحة الإدارة) -------
+    (function trackPageVisit() {
+      try {
+        var PAGE_ID = 'class4';
+        var now = new Date();
+        var dayKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        var flagKey = 'visited_' + PAGE_ID + '_' + dayKey;
+        if (sessionStorage.getItem(flagKey)) return;
+        sessionStorage.setItem(flagKey, '1');
+        db.collection('page_views').doc(dayKey + '_' + PAGE_ID).set({
+          page: PAGE_ID,
+          date: dayKey,
+          count: firebase.firestore.FieldValue.increment(1),
+          lastVisit: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(function (e) { console.error('تعذر تسجيل الزيارة:', e); });
+      } catch (e) { console.error(e); }
+    })();
+
     const GRADE_NUMBER = 4;
     const SECTION_CODE = { 'أ': 'a', 'ب': 'b', 'ج': 'c' };
 

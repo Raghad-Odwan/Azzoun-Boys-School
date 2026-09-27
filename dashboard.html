@@ -199,6 +199,73 @@
       background: #b91c1c;
     }
 
+    .sysadmin-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .sysadmin-tab-btn {
+      width: auto;
+      background: none;
+      border: none;
+      padding: 10px 16px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .sysadmin-tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .sysadmin-tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--light-blue);
+    }
+
+    .sysadmin-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .sysadmin-kpi-tile {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .sysadmin-kpi-tile .n {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .sysadmin-kpi-tile .l {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    .sysadmin-subcard {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      background: #f8fafc;
+    }
+
     label {
       display: block;
       margin-bottom: 5px;
@@ -918,49 +985,73 @@
       <div id="systemAdminExtraSection" class="hidden">
 
         <div class="dashboard-card" id="systemAnalyticsCard" style="max-width: 100%;">
-          <h2>إحصائيات النظام 📊</h2>
-          <p style="font-size: 0.85rem; color: #64748b; margin-top: -8px;">نظرة شاملة على نشاط المنصة: المحتوى المنشور، أنشط المعلمات، وأبرز الأرقام — محسوبة مباشرة من قاعدة البيانات.</p>
+          <h2>لوحة إدمن النظام 👑</h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: -8px;">نظرة شاملة على نشاط المنصة — محسوبة مباشرة من قاعدة البيانات.</p>
 
           <div id="analyticsLoading" style="text-align: center; color: #94a3b8; padding: 20px;">جاري حساب الإحصائيات...</div>
 
           <div id="analyticsContent" class="hidden">
 
-            <div id="analyticsStatsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 10px;"></div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
-
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; background: #f8fafc;">
-                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🏆 أنشط المعلمات في نشر المحتوى</h3>
-                <div id="analyticsTopTeachers"></div>
-              </div>
-
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; background: #f8fafc;">
-                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📘 المحتوى حسب المادة</h3>
-                <div id="analyticsSubjects"></div>
-              </div>
-
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; background: #f8fafc;">
-                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🏫 المحتوى حسب الصف</h3>
-                <div id="analyticsGrades"></div>
-              </div>
-
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; background: #f8fafc;">
-                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📅 النشاط خلال آخر 7 أيام</h3>
-                <div id="analyticsTimeline"></div>
-              </div>
-
+            <div class="sysadmin-tabs" role="tablist">
+              <button type="button" class="sysadmin-tab-btn active" data-tab="overview" onclick="switchSysAdminTab('overview')">📊 نظرة عامة</button>
+              <button type="button" class="sysadmin-tab-btn" data-tab="visits" onclick="switchSysAdminTab('visits')">👁️ الزيارات والتصفح</button>
+              <button type="button" class="sysadmin-tab-btn" data-tab="publishing" onclick="switchSysAdminTab('publishing')">📚 النشر والمحتوى</button>
+              <button type="button" class="sysadmin-tab-btn" data-tab="database" onclick="switchSysAdminTab('database')">🗄️ قاعدة البيانات</button>
             </div>
 
-            <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 18px; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
-              ℹ️ لا تتوفر حالياً إحصائية "الأقسام الأكثر مشاهدة" لأن النظام لا يسجّل زيارات الصفحات بعد. يمكن إضافة عدّاد زيارات بسيط لكل صف/قسم إن رغبتِ بذلك لاحقاً.
-            </p>
-          </div>
-        </div>
+            <!-- تبويب: نظرة عامة -->
+            <div class="sysadmin-tab-panel" id="sysadminTab-overview">
+              <div id="analyticsStatsGrid" class="sysadmin-kpi-grid"></div>
+              <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 16px;">👆 هاي أهم الأرقام بلمحة واحدة. للتفاصيل الكاملة افتحي التبويبات فوق.</p>
+            </div>
 
-        <div class="dashboard-card" id="systemAdminDbCard" style="max-width: 100%;">
-          <h2>لوحة إدمن النظام — قاعدة البيانات كاملة 🗄️</h2>
-          <p style="font-size: 0.85rem; color: #64748b; margin-top: -8px;">كل قسم مطوي افتراضياً — اضغطي على أي بطاقة لفتحها وعرض كل بياناتها مباشرة من قاعدة البيانات.</p>
-          <div id="systemAdminGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;"></div>
+            <!-- تبويب: الزيارات والتصفح -->
+            <div class="sysadmin-tab-panel hidden" id="sysadminTab-visits">
+              <div id="visitsKpiGrid" class="sysadmin-kpi-grid" style="margin-bottom: 18px;"></div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🔝 الصفحات الأكثر زيارة (آخر 30 يوم)</h3>
+                  <div id="analyticsPagesRanked"></div>
+                </div>
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📅 الزيارات خلال آخر 14 يوم</h3>
+                  <div id="analyticsVisitsTimeline"></div>
+                </div>
+              </div>
+              <p id="visitsEmptyNote" class="hidden" style="font-size: 0.78rem; color: #94a3b8; margin-top: 18px; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                ℹ️ لسه ما تجمّعت بيانات زيارات كافية. الإحصائيات هون بتمتلئ تلقائياً كل ما حدا يزور الموقع من الآن فصاعداً.
+              </p>
+            </div>
+
+            <!-- تبويب: النشر والمحتوى -->
+            <div class="sysadmin-tab-panel hidden" id="sysadminTab-publishing">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🏆 أنشط المعلمات في نشر المحتوى</h3>
+                  <div id="analyticsTopTeachers"></div>
+                </div>
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📘 المحتوى حسب المادة</h3>
+                  <div id="analyticsSubjects"></div>
+                </div>
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🏫 المحتوى حسب الصف</h3>
+                  <div id="analyticsGrades"></div>
+                </div>
+                <div class="sysadmin-subcard">
+                  <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📅 النشر خلال آخر 7 أيام</h3>
+                  <div id="analyticsTimeline"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- تبويب: قاعدة البيانات كاملة -->
+            <div class="sysadmin-tab-panel hidden" id="sysadminTab-database">
+              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0;">كل قسم مطوي افتراضياً — اضغطي على أي بطاقة لفتحها وعرض كل بياناتها مباشرة من قاعدة البيانات.</p>
+              <div id="systemAdminGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;"></div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
@@ -1482,8 +1573,17 @@
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
-      buildSystemAdminGrid();
       loadSystemAnalytics();
+    }
+
+    function switchSysAdminTab(tab) {
+      document.querySelectorAll('.sysadmin-tab-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      document.querySelectorAll('.sysadmin-tab-panel').forEach(function (panel) {
+        panel.classList.toggle('hidden', panel.id !== 'sysadminTab-' + tab);
+      });
+      if (tab === 'database') buildSystemAdminGrid();
     }
 
     function exitSystemAdminView() {
@@ -1589,6 +1689,28 @@
       return date.toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric', month: 'numeric' });
     }
 
+    function dateKey(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function renderBarTimeline(days) {
+      const maxDay = Math.max(1, ...days.map(function (d) { return d.count; }));
+      return `
+        <div style="display: flex; align-items: flex-end; gap: 6px; height: 110px; padding-top: 6px; overflow-x: auto;">
+          ${days.map(function (d) {
+            const h = Math.max(4, Math.round((d.count / maxDay) * 90));
+            return `
+              <div style="flex: 1; min-width: 22px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+                <div style="font-size: 0.7rem; color: #334155; margin-bottom: 2px;">${d.count || ''}</div>
+                <div style="width: 100%; max-width: 22px; height: ${h}px; background: var(--light-blue, #7BBDE8); border-radius: 5px 5px 0 0;"></div>
+                <div style="font-size: 0.62rem; color: #94a3b8; margin-top: 4px; text-align: center; white-space: nowrap;">${d.label}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
     function renderRankedList(entries, unit) {
       if (!entries.length) return '<p style="text-align: center; color: #94a3b8; font-size: 0.85rem;">لا توجد بيانات كافية بعد.</p>';
       const max = entries[0][1];
@@ -1618,20 +1740,48 @@
       try {
         const collectionsToCount = ['announcements', 'teacher_support', 'admin_notes', 'contact_messages', 'security_alerts', 'error_logs', 'top_students', 'active_sessions'];
 
-        const [contentSnap, ...countSnaps] = await Promise.all([
+        const now = new Date();
+        const cutoff30 = new Date(now); cutoff30.setDate(cutoff30.getDate() - 29);
+        const cutoffKey30 = dateKey(cutoff30);
+        const todayKey = dateKey(now);
+
+        const [contentSnap, visitsSnap, ...countSnaps] = await Promise.all([
           db.collection('educational_contents').limit(1000).get(),
+          db.collection('page_views').where('date', '>=', cutoffKey30).limit(1000).get(),
           ...collectionsToCount.map(function (id) { return db.collection(id).limit(1000).get(); })
         ]);
 
         const counts = {};
         collectionsToCount.forEach(function (id, i) { counts[id] = countSnaps[i].size; });
 
+        // --- تجميع بيانات الزيارات والتصفح ---
+        const PAGE_LABELS = { index: 'الصفحة الرئيسية', class1: 'الصف الأول', class2: 'الصف الثاني', class3: 'الصف الثالث', class4: 'الصف الرابع' };
+        let totalVisits30 = 0;
+        let visitsToday = 0;
+        const pageVisitCounts = {};
+        const visitDayCounts = {};
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(now); d.setDate(d.getDate() - i);
+          visitDayCounts[dateKey(d)] = { label: arabicDayLabel(d), count: 0 };
+        }
+
+        visitsSnap.forEach(function (doc) {
+          const data = doc.data();
+          const c = data.count || 0;
+          totalVisits30 += c;
+          if (data.date === todayKey) visitsToday += c;
+          const label = PAGE_LABELS[data.page] || data.page || 'غير معروف';
+          pageVisitCounts[label] = (pageVisitCounts[label] || 0) + c;
+          if (visitDayCounts[data.date]) visitDayCounts[data.date].count += c;
+        });
+
+        const topPages = Object.entries(pageVisitCounts).sort(function (a, b) { return b[1] - a[1]; });
+
         // --- تجميع بيانات المحتوى التعليمي ---
         const teacherCounts = {};
         const subjectCounts = {};
         const gradeCounts = {};
         const dayCounts = {};
-        const now = new Date();
         const gradeNames = { '1': 'الأول', '2': 'الثاني', '3': 'الثالث', '4': 'الرابع' };
 
         for (let i = 6; i >= 0; i--) {
@@ -1660,50 +1810,54 @@
         const topSubjects = Object.entries(subjectCounts).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 6);
         const topGrades = Object.entries(gradeCounts).sort(function (a, b) { return b[1] - a[1]; });
 
-        // --- بطاقات الأرقام السريعة ---
-        const statsGrid = document.getElementById('analyticsStatsGrid');
+        const needsAttention = counts.teacher_support + counts.contact_messages + counts.security_alerts;
+
+        // --- تبويب: نظرة عامة ---
         const statTiles = [
+          { icon: '👁️', label: 'زيارات اليوم', value: visitsToday },
+          { icon: '📈', label: 'زيارات آخر 30 يوم', value: totalVisits30 },
           { icon: '📚', label: 'محتوى منشور', value: contentSnap.size },
           { icon: '👩‍🏫', label: 'معلمات ناشرات', value: Object.keys(teacherCounts).length },
-          { icon: '📢', label: 'إعلانات', value: counts.announcements },
-          { icon: '🌟', label: 'طلاب متفوقون', value: counts.top_students },
-          { icon: '🛠️', label: 'طلبات دعم فني', value: counts.teacher_support },
-          { icon: '✉️', label: 'رسائل زوار', value: counts.contact_messages },
+          { icon: '🔔', label: 'تحتاج مراجعة', value: needsAttention },
+          { icon: '🔐', label: 'جلسات نشطة الآن', value: counts.active_sessions },
           { icon: '🚨', label: 'تنبيهات أمان', value: counts.security_alerts },
-          { icon: '🐞', label: 'أخطاء نظام', value: counts.error_logs },
-          { icon: '🔐', label: 'جلسات نشطة الآن', value: counts.active_sessions }
+          { icon: '🐞', label: 'أخطاء نظام', value: counts.error_logs }
         ];
-        statsGrid.innerHTML = statTiles.map(function (t) {
+        document.getElementById('analyticsStatsGrid').innerHTML = statTiles.map(function (t) {
           return `
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center;">
+            <div class="sysadmin-kpi-tile">
               <div style="font-size: 1.4rem;">${t.icon}</div>
-              <div style="font-size: 1.3rem; font-weight: bold; color: var(--primary); margin-top: 2px;">${t.value}</div>
-              <div style="font-size: 0.75rem; color: #64748b;">${t.label}</div>
+              <div class="n">${t.value}</div>
+              <div class="l">${t.label}</div>
             </div>
           `;
         }).join('');
 
-        document.getElementById('analyticsTopTeachers').innerHTML = renderRankedList(topTeachers, 'مادة');
+        // --- تبويب: الزيارات والتصفح ---
+        const visitTiles = [
+          { icon: '👁️', label: 'زيارات اليوم', value: visitsToday },
+          { icon: '📈', label: 'إجمالي آخر 30 يوم', value: totalVisits30 },
+          { icon: '🏅', label: 'الأكثر زيارة', value: topPages.length ? topPages[0][0] : '—', text: true }
+        ];
+        document.getElementById('visitsKpiGrid').innerHTML = visitTiles.map(function (t) {
+          return `
+            <div class="sysadmin-kpi-tile">
+              <div style="font-size: 1.4rem;">${t.icon}</div>
+              <div class="${t.text ? 'l' : 'n'}" style="${t.text ? 'font-size:0.95rem; font-weight:bold; color:var(--primary); margin-top:4px;' : ''}">${t.value}</div>
+              <div class="l">${t.label}</div>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('analyticsPagesRanked').innerHTML = renderRankedList(topPages, 'زيارة');
+        document.getElementById('analyticsVisitsTimeline').innerHTML = renderBarTimeline(Object.values(visitDayCounts));
+        document.getElementById('visitsEmptyNote').classList.toggle('hidden', totalVisits30 > 0);
+
+        // --- تبويب: النشر والمحتوى ---
+        document.getElementById('analyticsTopTeachers').innerHTML = renderRankedList(topTeachers, 'محتوى');
         document.getElementById('analyticsSubjects').innerHTML = renderRankedList(topSubjects, 'محتوى');
         document.getElementById('analyticsGrades').innerHTML = renderRankedList(topGrades, 'محتوى');
-
-        // --- الجدول الزمني لآخر 7 أيام ---
-        const days = Object.values(dayCounts);
-        const maxDay = Math.max(1, ...days.map(function (d) { return d.count; }));
-        document.getElementById('analyticsTimeline').innerHTML = `
-          <div style="display: flex; align-items: flex-end; gap: 8px; height: 110px; padding-top: 6px;">
-            ${days.map(function (d) {
-              const h = Math.max(4, Math.round((d.count / maxDay) * 90));
-              return `
-                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
-                  <div style="font-size: 0.72rem; color: #334155; margin-bottom: 2px;">${d.count || ''}</div>
-                  <div style="width: 100%; max-width: 26px; height: ${h}px; background: var(--light-blue, #7BBDE8); border-radius: 5px 5px 0 0;"></div>
-                  <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 4px; text-align: center;">${d.label}</div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
+        document.getElementById('analyticsTimeline').innerHTML = renderBarTimeline(Object.values(dayCounts));
 
         loadingEl.classList.add('hidden');
         contentEl.classList.remove('hidden');
