@@ -3286,10 +3286,17 @@ window.SCHOOL_GUIDE_DATA = {
     50% { opacity: 1; transform: scale(1.15); }
   }
 
+  @media (max-width: 900px) {
+    #schoolGuideWrap { display: none; }
+    #schoolGuideWrap.guide-visible { display: flex; }
+    #schoolGuideChar { width: 46px; height: 64px; }
+    #schoolGuideBubble { max-width: 165px; font-size: 0.8rem; padding: 8px 10px; }
+  }
+
   @media (max-width: 480px) {
-    #schoolGuideChar { width: 54px; height: 76px; }
-    #schoolGuideBubble { max-width: 190px; font-size: 0.85rem; padding: 10px 12px; }
-    #schoolGuideWrap { bottom: 10px; left: 0px; }
+    #schoolGuideChar { width: 36px; height: 50px; }
+    #schoolGuideBubble { max-width: 140px; font-size: 0.75rem; padding: 7px 9px; }
+    #schoolGuideWrap { bottom: 6px; left: 0px; }
   }
 </style>
 
@@ -3367,6 +3374,7 @@ window.SCHOOL_GUIDE_DATA = {
   var config = window.SCHOOL_GUIDE_DATA || { welcome: ["أهلاً وسهلاً بك! 👋"], sections: {} };
   var phrases = Object.assign({}, config.sections, { welcome: config.welcome });
 
+  var wrap = document.getElementById('schoolGuideWrap');
   var bubble = document.getElementById('schoolGuideBubble');
   var textEl = document.getElementById('schoolGuideText');
   var charEl = document.getElementById('schoolGuideChar');
@@ -3385,8 +3393,13 @@ window.SCHOOL_GUIDE_DATA = {
     return list[idx];
   }
 
+  function isCompactGuide() {
+    return window.matchMedia('(max-width: 900px)').matches;
+  }
+
   function showBubble(text) {
     if (!text) return;
+    wrap.classList.add('guide-visible');
     textEl.textContent = text;
     bubble.classList.add('show');
     charEl.classList.add('guide-talking');
@@ -3394,6 +3407,9 @@ window.SCHOOL_GUIDE_DATA = {
     hideTimer = setTimeout(function () {
       bubble.classList.remove('show');
       charEl.classList.remove('guide-talking');
+      if (isCompactGuide()) {
+        wrap.classList.remove('guide-visible');
+      }
     }, 7000);
   }
 
@@ -3401,6 +3417,9 @@ window.SCHOOL_GUIDE_DATA = {
     bubble.classList.remove('show');
     charEl.classList.remove('guide-talking');
     clearTimeout(hideTimer);
+    if (isCompactGuide()) {
+      wrap.classList.remove('guide-visible');
+    }
   };
 
   window.__schoolGuideTap = function () {
