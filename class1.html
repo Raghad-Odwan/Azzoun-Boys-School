@@ -1070,7 +1070,7 @@
         if (requestId !== loadRequestId) return; // المستخدم بدّل التبويب أثناء التحميل
 
         const items = [];
-        snapshot.forEach(doc => items.push(doc.data()));
+        snapshot.forEach(doc => { const d = doc.data(); if (!d.hidden) items.push(d); });
 
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
@@ -1271,7 +1271,7 @@
           .get();
 
         const items = [];
-        snapshot.forEach(doc => items.push(doc.data()));
+        snapshot.forEach(doc => { const d = doc.data(); if (!d.hidden) items.push(d); });
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
           const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
@@ -1385,7 +1385,7 @@
           .get();
 
         const items = [];
-        snapshot.forEach(doc => items.push(doc.data()));
+        snapshot.forEach(doc => { const d = doc.data(); if (!d.hidden) items.push(d); });
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
           const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;
@@ -1457,7 +1457,7 @@
           .get();
 
         const items = [];
-        snapshot.forEach(doc => items.push(doc.data()));
+        snapshot.forEach(doc => { const d = doc.data(); if (!d.hidden) items.push(d); });
         items.sort((a, b) => {
           const at = (a.createdAt && a.createdAt.toMillis) ? a.createdAt.toMillis() : 0;
           const bt = (b.createdAt && b.createdAt.toMillis) ? b.createdAt.toMillis() : 0;

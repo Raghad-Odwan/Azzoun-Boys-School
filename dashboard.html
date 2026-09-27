@@ -400,6 +400,20 @@
     .btn-delete-content:hover { background-color: #991b1b; }
     .btn-note-content { background-color: var(--accent-color); }
     .btn-note-content:hover { background-color: #052441; }
+    .btn-edit-content { background-color: #0891b2; }
+    .btn-edit-content:hover { background-color: #0e7490; }
+    .btn-hide-content { background-color: #f59e0b; color: #1e293b; }
+    .btn-hide-content:hover { background-color: #d97706; }
+    .content-hidden-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #92400e;
+      background: #fef3c7;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-right: 6px;
+    }
 
     /* ===== نافذة إرسال ملاحظة الإدارة ===== */
     .modal-overlay {
@@ -608,9 +622,9 @@
               <option value="activities"> نشاط تعليمي</option>
               <option value="assignments"> مهمة / واجب</option>
               <option value="exams"> اختبار</option>
-              <option value="games"> لعبة تفاعلية (Wordwall)</option>
-              <option value="satellite"> شرح فضائية فلسطين التعليمية 📡</option>
-              <option value="open_resources"> مصدر تعلم مفتوح 📚</option>
+              <option value="games"> لعبة تفاعلية </option>
+              <option value="satellite"> شرح فضائية فلسطين التعليمية </option>
+              <option value="open_resources"> مصدر تعلم مفتوح </option>
             </select>
             <p id="gamesHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: اللعبة التفاعلية بتظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه.</p>
             <p id="satelliteHint" class="hidden" style="margin-top: 8px; font-size: 0.85rem; color: #64748b;">ملاحظة: شرح الفضائية بيظهر لكل شعب هذا الصف بنفس المادة، بغض النظر عن الشعبة المختارة أعلاه. الرابط بيفتح للطالب داخل الصفحة (تعتيم الشاشة) تماماً متل الفيديو.</p>
@@ -686,6 +700,31 @@
           <button type="submit" id="submitBtn">نشر المحتوى للملف</button>
         </form>
 
+      </div>
+
+      <div class="dashboard-card" id="myContentCard">
+        <h2>المحتوى الذي رفعتِه 📂</h2>
+        <div class="form-group">
+          <label for="myContentClassFilter">تصفية حسب الصف والشعبة:</label>
+          <select id="myContentClassFilter" onchange="loadMyContent()">
+            <option value="">جميع الصفوف</option>
+            <option value="1-a">الصف الأول - الشعبة (أ)</option>
+            <option value="1-b">الصف الأول - الشعبة (ب)</option>
+            <option value="1-c">الصف الأول - الشعبة (ج)</option>
+            <option value="2-a">الصف الثاني - الشعبة (أ)</option>
+            <option value="2-b">الصف الثاني - الشعبة (ب)</option>
+            <option value="2-c">الصف الثاني - الشعبة (ج)</option>
+            <option value="3-a">الصف الثالث - الشعبة (أ)</option>
+            <option value="3-b">الصف الثالث - الشعبة (ب)</option>
+            <option value="3-c">الصف الثالث - الشعبة (ج)</option>
+            <option value="4-a">الصف الرابع - الشعبة (أ)</option>
+            <option value="4-b">الصف الرابع - الشعبة (ب)</option>
+            <option value="4-c">الصف الرابع - الشعبة (ج)</option>
+          </select>
+        </div>
+        <div id="myContentList" style="text-align: right; margin-top: 10px;">
+          <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+        </div>
       </div>
 
       <div class="dashboard-card" id="topStudentsCard">
@@ -878,6 +917,29 @@
       <div class="modal-actions">
         <button type="button" class="modal-cancel-btn" onclick="closeNoteModal()">إلغاء</button>
         <button type="button" class="modal-send-btn" id="noteModalSendBtn" onclick="sendAdminNote()">إرسال الملاحظة</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editContentModalOverlay">
+    <div class="modal-box">
+      <h3>تعديل المحتوى</h3>
+      <div class="form-group">
+        <label for="editContentTitle">العنوان:</label>
+        <input type="text" id="editContentTitle">
+      </div>
+      <div class="form-group">
+        <label for="editContentDesc">الوصف / التعليمات:</label>
+        <textarea id="editContentDesc"></textarea>
+      </div>
+      <div class="form-group" id="editContentLinkGroup">
+        <label for="editContentLink">الرابط:</label>
+        <input type="url" id="editContentLink" placeholder="https://...">
+      </div>
+      <p style="font-size:0.8rem; color:#64748b; margin-top:-6px;">ملاحظة: لتغيير ملف مرفوع من جهازك (وليس رابط)، يفضّل حذف هذا المحتوى ورفعه من جديد بالملف الجديد بدلاً من التعديل هنا.</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-cancel-btn" onclick="closeEditContentModal()">إلغاء</button>
+        <button type="button" class="modal-send-btn" id="editContentSaveBtn" onclick="saveContentEdit()">حفظ التعديل</button>
       </div>
     </div>
   </div>
@@ -1452,6 +1514,172 @@
       }
     }
 
+    
+    let currentMyContentDocs = {};
+
+    function loadMyContent() {
+      const listEl = document.getElementById('myContentList');
+      if (!listEl || !activeTeacherUsername) return;
+      const filterValue = document.getElementById('myContentClassFilter').value;
+      listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>';
+
+      db.collection('educational_contents')
+        .where('uploader_username', '==', activeTeacherUsername)
+        .get()
+        .then(function (snapshot) {
+          let docs = snapshot.docs.map(function (d) { return { id: d.id, data: d.data() }; });
+
+          docs.sort(function (a, b) {
+            const at = (a.data.createdAt && a.data.createdAt.toMillis) ? a.data.createdAt.toMillis() : 0;
+            const bt = (b.data.createdAt && b.data.createdAt.toMillis) ? b.data.createdAt.toMillis() : 0;
+            return bt - at;
+          });
+
+          if (filterValue) {
+            docs = docs.filter(function (item) {
+              const g = item.data.grade;
+              if (g === filterValue) return true;
+              if (wholeGradeCategories.indexOf(item.data.category) !== -1 && g === filterValue.split('-')[0]) return true;
+              return false;
+            });
+          }
+
+          currentMyContentDocs = {};
+          docs.forEach(function (item) { currentMyContentDocs[item.id] = item.data; });
+
+          if (docs.length === 0) {
+            listEl.innerHTML = '<p style="text-align: center; color: #94a3b8;">لم تقومي برفع أي محتوى بعد.</p>';
+            return;
+          }
+
+          listEl.innerHTML = docs.map(function (item) {
+            const data = item.data;
+            const dateStr = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleString('ar-EG') : '';
+            const hiddenBadge = data.hidden ? '<span class="content-hidden-badge">مخفي عن الطلاب</span>' : '';
+            return `
+              <div class="content-review-item">
+                <div class="content-review-header">
+                  <span class="content-review-title">${escapeHtml(data.title || 'بدون عنوان')}${hiddenBadge}</span>
+                  <span style="font-size:0.8rem; color:#94a3b8;">${dateStr}</span>
+                </div>
+                <div class="content-review-meta">
+                  🏫 ${escapeHtml(getGradeLabel(data.grade))}${data.subject ? ' — 📘 ' + escapeHtml(data.subject) : ''}<br>
+                  📂 النوع: ${escapeHtml(categoryLabelsMap[data.category] || data.category || '')}
+                  ${data.desc ? '<br>📝 ' + escapeHtml(data.desc) : ''}
+                </div>
+                <div class="content-review-actions">
+                  <button type="button" class="btn-edit-content" onclick="openEditContentModal('${item.id}')">✏️ تعديل</button>
+                  <button type="button" class="btn-hide-content" onclick="toggleHideContent('${item.id}')">${data.hidden ? '👁️ إظهار للطلاب' : '🙈 إخفاء عن الطلاب'}</button>
+                  <button type="button" class="btn-delete-content" onclick="deleteMyContent('${item.id}')">🗑️ حذف نهائي</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        })
+        .catch(function (error) {
+          console.error('تعذر تحميل المحتوى الخاص بكِ:', error);
+          logErrorToFirestore('loadMyContent', error);
+          listEl.innerHTML = '<p style="text-align: center; color: #dc2626;">تعذر تحميل المحتوى، يرجى المحاولة لاحقاً.</p>';
+        });
+    }
+
+    let editContentTargetId = null;
+
+    function openEditContentModal(docId) {
+      const item = currentMyContentDocs[docId];
+      if (!item) return;
+      editContentTargetId = docId;
+      document.getElementById('editContentTitle').value = item.title || '';
+      document.getElementById('editContentDesc').value = item.desc || '';
+
+      const linkGroup = document.getElementById('editContentLinkGroup');
+      const linkInput = document.getElementById('editContentLink');
+      if (item.source === 'link') {
+        linkGroup.style.display = 'block';
+        linkInput.value = item.url || '';
+      } else {
+        linkGroup.style.display = 'none';
+        linkInput.value = '';
+      }
+
+      document.getElementById('editContentModalOverlay').classList.add('show');
+    }
+
+    function closeEditContentModal() {
+      editContentTargetId = null;
+      document.getElementById('editContentModalOverlay').classList.remove('show');
+    }
+
+    async function saveContentEdit() {
+      if (!editContentTargetId) return;
+      const item = currentMyContentDocs[editContentTargetId];
+      const title = document.getElementById('editContentTitle').value.trim();
+      const desc = document.getElementById('editContentDesc').value.trim();
+
+      if (!title) {
+        alert('يرجى كتابة عنوان للمحتوى.');
+        return;
+      }
+
+      const updateData = { title: title, desc: desc };
+
+      if (item && item.source === 'link') {
+        const link = document.getElementById('editContentLink').value.trim();
+        if (!link) {
+          alert('يرجى إدخال رابط صحيح.');
+          return;
+        }
+        updateData.url = link;
+      }
+
+      const saveBtn = document.getElementById('editContentSaveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'جاري الحفظ... ⏳';
+
+      try {
+        await db.collection('educational_contents').doc(editContentTargetId).update(updateData);
+        closeEditContentModal();
+        loadMyContent();
+      } catch (error) {
+        console.error('تعذر تعديل المحتوى:', error);
+        logErrorToFirestore('saveContentEdit', error, { docId: editContentTargetId });
+        alert('حدث خطأ أثناء حفظ التعديل، يرجى المحاولة مرة أخرى.');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'حفظ التعديل';
+      }
+    }
+
+    async function toggleHideContent(docId) {
+      const item = currentMyContentDocs[docId];
+      if (!item) return;
+      const newHidden = !item.hidden;
+      try {
+        await db.collection('educational_contents').doc(docId).update({ hidden: newHidden });
+        loadMyContent();
+      } catch (error) {
+        console.error('تعذر تحديث حالة الظهور:', error);
+        logErrorToFirestore('toggleHideContent', error, { docId: docId });
+        alert('حدث خطأ أثناء تحديث حالة الظهور، يرجى المحاولة مرة أخرى.');
+      }
+    }
+
+    async function deleteMyContent(docId) {
+      const item = currentMyContentDocs[docId];
+      const title = item ? item.title : '';
+      const confirmed = confirm('هل أنتِ متأكدة من حذف هذا المحتوى نهائياً؟\n"' + (title || '') + '"\nلا يمكن التراجع عن هذا الإجراء، وإن لم تكوني متأكدة يُفضّل استخدام زر "إخفاء عن الطلاب" بدلاً من الحذف.');
+      if (!confirmed) return;
+
+      try {
+        await db.collection('educational_contents').doc(docId).delete();
+        loadMyContent();
+      } catch (error) {
+        console.error('تعذر حذف المحتوى:', error);
+        logErrorToFirestore('deleteMyContent', error, { docId: docId });
+        alert('حدث خطأ أثناء الحذف، يرجى المحاولة مرة أخرى.');
+      }
+    }
+
     let noteModalTargetDocId = null;
 
     function openNoteModal(docId) {
@@ -1613,6 +1841,7 @@
 
         refreshSuggestions();
         loadAdminNotesForTeacher();
+        loadMyContent();
 
         alert('مرحباً بكِ الأستاذة ' + activeTeacherArabicName + '، تم تسجيل الدخول بنجاح! 🎉');
       } catch (error) {
@@ -1672,6 +1901,7 @@
         document.getElementById('dashboardWrapper').classList.remove('hidden');
         refreshSuggestions();
         loadAdminNotesForTeacher();
+        loadMyContent();
         startSessionLock('teacher', savedUsername);
         resetIdleTimer();
       } else if (!user) {
