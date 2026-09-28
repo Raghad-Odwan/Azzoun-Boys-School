@@ -157,6 +157,7 @@
     .sa-check { font-size: 0.82rem; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 5px; }
     .sa-check input { width: auto; margin: 0; }
     .sa-seen-all { width: auto; background: #16a34a; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-size: 0.82rem; font-weight: bold; }
+    .sa-search { flex: 1 1 200px; width: auto; min-width: 160px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: 'Tajawal', sans-serif; font-size: 0.85rem; margin: 0; }
     .sa-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
     .sa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; opacity: .78; transition: opacity .15s, box-shadow .15s; }
     .sa-card:hover { opacity: 1; box-shadow: 0 3px 10px rgba(0,0,0,.07); }
@@ -1046,6 +1047,7 @@
               <button type="button" class="sysadmin-tab-btn active" data-tab="overview" onclick="switchSysAdminTab('overview')">📊 نظرة عامة</button>
               <button type="button" class="sysadmin-tab-btn" data-tab="visits" onclick="switchSysAdminTab('visits')">👁️ الزيارات والتصفح</button>
               <button type="button" class="sysadmin-tab-btn" data-tab="publishing" onclick="switchSysAdminTab('publishing')">📚 النشر والمحتوى</button>
+              <button type="button" class="sysadmin-tab-btn" data-tab="security" onclick="switchSysAdminTab('security')">🚨 الأمان</button>
               <button type="button" class="sysadmin-tab-btn" data-tab="database" onclick="switchSysAdminTab('database')">🗄️ قاعدة البيانات</button>
             </div>
 
@@ -1098,6 +1100,19 @@
                   <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">📅 النشر خلال آخر 7 أيام</h3>
                   <div id="analyticsTimeline"></div>
                 </div>
+              </div>
+            </div>
+
+            <!-- تبويب: الأمان -->
+            <div class="sysadmin-tab-panel hidden" id="sysadminTab-security">
+              <div style="text-align: left; margin-bottom: 10px;"><button type="button" class="sa-seen-all" style="background:#2563eb;" onclick="loadSecurityTab()">🔄 تحديث</button></div>
+              <div class="sysadmin-subcard" style="margin-bottom: 16px;">
+                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🚨 تنبيهات الأمان <span id="sysadmin_count_security_alerts" class="sa-count"></span> <span id="sysadmin_unseen_security_alerts" class="sa-badge hidden"></span></h3>
+                <div id="sysadmin_body_security_alerts" class="sa-tile-body" style="max-height: 460px; border-radius: 10px;"></div>
+              </div>
+              <div class="sysadmin-subcard">
+                <h3 style="margin: 0 0 10px; color: var(--primary); font-size: 1rem;">🔑 محاولات تسجيل الدخول الفاشلة <span id="sysadmin_count_login_attempts" class="sa-count"></span> <span id="sysadmin_unseen_login_attempts" class="sa-badge hidden"></span></h3>
+                <div id="sysadmin_body_login_attempts" class="sa-tile-body" style="max-height: 460px; border-radius: 10px;"></div>
               </div>
             </div>
 
@@ -1327,15 +1342,50 @@
 
     const IDLE_LIMIT_MS = 20 * 60 * 1000;
     let idleTimer = null;
+    let idleWarnTimer = null;
+    let idleCountdown = null;
+    const IDLE_WARN_MS = 60 * 1000;
+
+    function hideIdleWarning() {
+      clearInterval(idleCountdown); idleCountdown = null;
+      const el = document.getElementById('idleWarnBanner');
+      if (el) el.style.display = 'none';
+    }
+    function showIdleWarning() {
+      if (!sessionStorage.getItem(SESSION_ROLE_KEY)) return;
+      let el = document.getElementById('idleWarnBanner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'idleWarnBanner';
+        el.setAttribute('role', 'alert');
+        el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10000;background:#f59e0b;color:#1f2937;padding:12px 16px;display:none;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;font-family:Tajawal,sans-serif;font-weight:bold;direction:rtl;box-shadow:0 2px 10px rgba(0,0,0,.25);';
+        el.innerHTML = '<span>⏳ سيتم تسجيل خروجك تلقائياً بعد <span id="idleWarnSecs">60</span> ثانية بسبب عدم النشاط.</span><button type="button" onclick="resetIdleTimer()" style="width:auto;background:#1f2937;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-family:Tajawal,sans-serif;font-weight:bold;">ما زلت هنا ✋</button>';
+        document.body.appendChild(el);
+      }
+      el.style.display = 'flex';
+      let left = Math.round(IDLE_WARN_MS / 1000);
+      const num = document.getElementById('idleWarnSecs');
+      num.textContent = left;
+      clearInterval(idleCountdown);
+      idleCountdown = setInterval(function () {
+        if (!sessionStorage.getItem(SESSION_ROLE_KEY)) { hideIdleWarning(); return; }
+        left--; num.textContent = Math.max(left, 0);
+        if (left <= 0) clearInterval(idleCountdown);
+      }, 1000);
+    }
     function resetIdleTimer() {
       clearTimeout(idleTimer);
+      clearTimeout(idleWarnTimer);
+      hideIdleWarning();
       const role = sessionStorage.getItem(SESSION_ROLE_KEY);
       if (!role) return; // ما في حدا مسجل دخول حالياً
+      idleWarnTimer = setTimeout(showIdleWarning, IDLE_LIMIT_MS - IDLE_WARN_MS);
       idleTimer = setTimeout(handleIdleTimeout, IDLE_LIMIT_MS);
     }
     function handleIdleTimeout() {
       const role = sessionStorage.getItem(SESSION_ROLE_KEY);
       if (!role) return;
+      hideIdleWarning();
       alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط لمدة 20 دقيقة، لحماية الحساب.');
       if (role === 'manager' || role === 'systemadmin') { managerLogout(); } else { teacherLogout(); }
     }
@@ -1682,9 +1732,7 @@
       { id: 'contact_messages', label: 'رسائل التواصل من الزوار', icon: '✉️' },
       { id: 'schedules', label: 'الجداول الدراسية', icon: '🗓️' },
       { id: 'top_students', label: 'الطلاب المتفوقون', icon: '🌟' },
-      { id: 'active_sessions', label: 'الجلسات النشطة', icon: '🔐' },
-      { id: 'login_attempts', label: 'محاولات تسجيل الدخول', icon: '🔑' },
-      { id: 'security_alerts', label: 'تنبيهات الأمان', icon: '🚨' }
+      { id: 'active_sessions', label: 'الجلسات النشطة', icon: '🔐' }
     ];
     const systemAdminLoadedCollections = {};
 
@@ -1702,6 +1750,13 @@
       loadSystemAnalytics();
     }
 
+    let securityTabLoaded = false;
+    function loadSecurityTab() {
+      securityTabLoaded = true;
+      loadSystemAdminCollection('security_alerts');
+      loadSystemAdminCollection('login_attempts');
+    }
+
     function switchSysAdminTab(tab) {
       document.querySelectorAll('.sysadmin-tab-btn').forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.tab === tab);
@@ -1710,6 +1765,7 @@
         panel.classList.toggle('hidden', panel.id !== 'sysadminTab-' + tab);
       });
       if (tab === 'database') buildSystemAdminGrid();
+      if (tab === 'security' && !securityTabLoaded) loadSecurityTab();
     }
 
     function exitSystemAdminView() {
@@ -1777,10 +1833,12 @@
       name: 'الاسم', phone: 'الهاتف', email: 'البريد', failCount: 'عدد المحاولات الفاشلة', lastIp: 'آخر IP', ip: 'IP',
       userAgent: 'المتصفح', deviceId: 'معرّف الجهاز', sessionId: 'معرّف الجلسة', lastDeviceId: 'آخر جهاز', lastUserAgent: 'آخر متصفح',
       content_id: 'معرّف المحتوى', uploader_username: 'اسم المستخدم (الرافعة)', teacher_username: 'اسم المستخدم', teacher_email: 'بريد المعلمة',
-      uploader_email: 'بريد الرافعة', accountKey: 'الحساب'
+      uploader_email: 'بريد الرافعة', accountKey: 'الحساب', approxFailCount: 'عدد المحاولات', previousDeviceId: 'الجهاز السابق', username: 'اسم المستخدم'
     };
     const SA_TECH_KEYS = ['userAgent', 'deviceId', 'sessionId', 'lastDeviceId', 'lastUserAgent', 'content_id', 'uploader_username', 'teacher_username', 'teacher_email', 'uploader_email', 'accountKey'];
-    const SA_TITLE_KEYS = ['title', 'issue', 'content_title', 'name', 'subject', 'text', 'message', 'note'];
+    const SA_TITLE_KEYS = ['title', 'issue', 'content_title', 'name', 'subject', 'text', 'message', 'note', 'type'];
+    const SA_TYPES = { multiple_failed_logins: '⚠️ محاولات دخول فاشلة متكررة', new_device_login: '📱 دخول من جهاز جديد' };
+    const SA_HIDE_KEYS = ['seen'];
     const SA_DATE_KEYS = ['createdAt', 'lastAttemptAt', 'loginAt', 'firstSeenAt', 'updatedAt'];
     const SA_STATUS = {
       pending: ['قيد الانتظار', 'sa-st-warn'], unread: ['غير مقروءة', 'sa-st-warn'], new: ['جديد', 'sa-st-warn'],
@@ -1841,6 +1899,7 @@
       // العنوان
       let titleKey = SA_TITLE_KEYS.find(function (k) { return typeof data[k] === 'string' && data[k].trim() && !/^data:/i.test(data[k]); });
       let titleText = titleKey ? data[titleKey].trim() : ('#' + docItem.id);
+      if (titleKey === 'type' && SA_TYPES[titleText]) titleText = SA_TYPES[titleText];
       if (titleText.length > 90) titleText = titleText.slice(0, 87) + '…';
       // التاريخ الرئيسي
       const dateKeyUsed = SA_DATE_KEYS.find(function (k) { return saIsTs(data[k]); }) || Object.keys(data).find(function (k) { return saIsTs(data[k]); });
@@ -1849,7 +1908,7 @@
       const rowHtml = function (k) {
         return '<div class="sa-row"><span class="sa-k">' + escapeHtml(SA_LABELS[k] || k) + '</span><span class="sa-v">' + saRenderValue(k, data[k]) + '</span></div>';
       };
-      const keys = Object.keys(data).filter(function (k) { return k !== titleKey && k !== dateKeyUsed; });
+      const keys = Object.keys(data).filter(function (k) { return k !== titleKey && k !== dateKeyUsed && SA_HIDE_KEYS.indexOf(k) === -1; });
       // الحالة أولاً، ثم باقي الحقول، والتقني في قسم مطوي
       const mainKeys = keys.filter(function (k) { return SA_TECH_KEYS.indexOf(k) === -1; })
         .sort(function (x, y) { return (x === 'status' ? -1 : 0) - (y === 'status' ? -1 : 0); });
@@ -1871,23 +1930,88 @@
         </div>`;
     }
 
+    const saSearch = {}; // collectionId -> نص البحث
+    let saSearchTimer = null;
+
+    function saDocText(d) {
+      if (d._t === undefined) {
+        d._t = Object.keys(d.data).map(function (k) {
+          const v = d.data[k];
+          if (saIsTs(v)) return v.toDate().toLocaleString('ar-EG');
+          if (typeof v === 'string') return /^data:/i.test(v) ? '' : v;
+          return v == null ? '' : JSON.stringify(v);
+        }).join(' ').toLowerCase() + ' ' + d.id.toLowerCase();
+      }
+      return d._t;
+    }
+
+    const saLastList = {};
+    function saExportCsv(collectionId) {
+      const list = saLastList[collectionId] || [];
+      if (!list.length) { alert('لا توجد بيانات لتصديرها.'); return; }
+      const keys = [];
+      list.forEach(function (d) { Object.keys(d.data).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); }); });
+      const cell = function (v) {
+        let t;
+        if (v == null) t = '';
+        else if (saIsTs(v)) t = v.toDate().toLocaleString('ar-EG');
+        else if (typeof v === 'string') t = /^data:/i.test(v) ? '[ملف/صورة مرفقة]' : v;
+        else if (typeof v === 'object') t = JSON.stringify(v);
+        else t = String(v);
+        if (/^[=+\-@]/.test(t)) t = "'" + t; // حماية من حقن الصيغ في Excel
+        return '"' + t.replace(/"/g, '""') + '"';
+      };
+      const rows = [['ID'].concat(keys.map(function (k) { return SA_LABELS[k] || k; })).map(cell).join(',')];
+      list.forEach(function (d) { rows.push([d.id].concat(keys.map(function (k) { return d.data[k]; })).map(cell).join(',')); });
+      const blob = new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = collectionId + '_' + dateKey(new Date()) + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    }
+
+    function saRenderList(collectionId) {
+      const el = document.getElementById('sa_list_' + collectionId);
+      if (!el) return;
+      const seen = saGetSeen()[collectionId] || {};
+      const q = (saSearch[collectionId] || '').trim().toLowerCase();
+      const onlyUnseen = !!saUnseenOnly[collectionId];
+      const list = (saCache[collectionId] || []).filter(function (d) {
+        return (!onlyUnseen || seen[d.id] !== d.version) && (!q || saDocText(d).indexOf(q) !== -1);
+      });
+      saLastList[collectionId] = list;
+      el.innerHTML = list.length
+        ? list.map(function (d) { return saRenderCard(collectionId, d, seen[d.id] !== d.version); }).join('')
+        : '<p style="grid-column: 1 / -1; text-align: center; color: #94a3b8; padding: 14px;">' + (onlyUnseen && !q ? '🎉 اطّلعتِ على كل شيء في هذا القسم.' : 'لا توجد نتائج مطابقة.') + '</p>';
+      const c = document.getElementById('sa_shown_' + collectionId);
+      if (c) c.textContent = list.length;
+    }
+
+    function saSetSearch(collectionId, v) {
+      saSearch[collectionId] = v;
+      clearTimeout(saSearchTimer);
+      saSearchTimer = setTimeout(function () { saRenderList(collectionId); }, 200);
+    }
+
     function saRenderCollection(collectionId) {
       const body = document.getElementById('sysadmin_body_' + collectionId);
       const docs = saCache[collectionId];
       if (!body || !docs) return;
       if (!docs.length) { body.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد بيانات في هذا القسم.</p>'; return; }
-      const seen = (saGetSeen()[collectionId]) || {};
+      const seen = saGetSeen()[collectionId] || {};
       const unseenCount = docs.filter(function (d) { return seen[d.id] !== d.version; }).length;
-      const onlyUnseen = !!saUnseenOnly[collectionId];
-      const shown = onlyUnseen ? docs.filter(function (d) { return seen[d.id] !== d.version; }) : docs;
 
       body.innerHTML = `
         <div class="sa-toolbar">
-          <span class="sa-summary">الإجمالي: <strong>${docs.length}</strong> · غير مقروء: <strong id="sa_unseen_num_${collectionId}">${unseenCount}</strong></span>
-          <label class="sa-check"><input type="checkbox" ${onlyUnseen ? 'checked' : ''} onchange="saSetUnseenOnly('${collectionId}', this.checked)"> إظهار غير المقروء فقط</label>
+          <input type="search" class="sa-search" placeholder="🔍 بحث في هذا القسم..." value="${escapeHtml(saSearch[collectionId] || '')}" oninput="saSetSearch('${collectionId}', this.value)">
+          <span class="sa-summary">الإجمالي: <strong>${docs.length}</strong> · غير مقروء: <strong>${unseenCount}</strong> · المعروض: <strong id="sa_shown_${collectionId}">${docs.length}</strong></span>
+          <label class="sa-check"><input type="checkbox" ${saUnseenOnly[collectionId] ? 'checked' : ''} onchange="saSetUnseenOnly('${collectionId}', this.checked)"> غير المقروء فقط</label>
           <button type="button" class="sa-seen-all" onclick="saMarkAllSeen('${collectionId}')">✓ تحديد الكل كمقروء</button>
+          <button type="button" class="sa-seen-all" style="background:#0f766e;" onclick="saExportCsv('${collectionId}')">⬇ تصدير Excel</button>
         </div>
-        <div class="sa-list">${shown.length ? shown.map(function (d) { return saRenderCard(collectionId, d, seen[d.id] !== d.version); }).join('') : '<p style="grid-column: 1 / -1; text-align: center; color: #16a34a; padding: 14px;">🎉 اطّلعتِ على كل شيء في هذا القسم.</p>'}</div>`;
+        <div class="sa-list" id="sa_list_${collectionId}"></div>`;
+      saRenderList(collectionId);
       saUpdateBadge(collectionId, unseenCount);
     }
 
