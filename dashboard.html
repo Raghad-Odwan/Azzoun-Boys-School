@@ -145,6 +145,50 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
+    /* ===== عرض قاعدة البيانات لإدمن النظام ===== */
+    .sa-tile { border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; overflow: hidden; }
+    .sa-tile-head { width: 100%; text-align: right; background: #f1f5f9; border: none; padding: 12px 14px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sa-tile-head:hover { background: #e8eef5; }
+    .sa-count { font-size: 0.75rem; color: #64748b; font-weight: normal; }
+    .sa-badge { background: #2563eb; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 999px; margin-inline-start: 4px; }
+    .sa-tile-body { padding: 12px; max-height: 560px; overflow-y: auto; background: #fafbfd; }
+    .sa-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 10px; margin-bottom: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; position: sticky; top: 0; z-index: 2; }
+    .sa-summary { font-size: 0.85rem; color: #475569; margin-inline-end: auto; }
+    .sa-check { font-size: 0.82rem; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    .sa-check input { width: auto; margin: 0; }
+    .sa-seen-all { width: auto; background: #16a34a; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-size: 0.82rem; font-weight: bold; }
+    .sa-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .sa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; opacity: .78; transition: opacity .15s, box-shadow .15s; }
+    .sa-card:hover { opacity: 1; box-shadow: 0 3px 10px rgba(0,0,0,.07); }
+    .sa-card.sa-unseen { opacity: 1; border-color: #93c5fd; border-inline-start: 4px solid #2563eb; background: #f8fbff; }
+    .sa-card-head { display: flex; align-items: flex-start; gap: 8px; }
+    .sa-dot { width: 9px; height: 9px; border-radius: 50%; background: #cbd5e1; margin-top: 6px; flex-shrink: 0; }
+    .sa-unseen .sa-dot { background: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.18); }
+    .sa-title { flex: 1; font-weight: bold; color: var(--primary); font-size: 0.95rem; line-height: 1.5; word-break: break-word; }
+    .sa-date { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; margin-top: 3px; }
+    .sa-fields { display: flex; flex-direction: column; gap: 5px; }
+    .sa-row { display: flex; gap: 8px; font-size: 0.82rem; line-height: 1.5; align-items: baseline; }
+    .sa-k { flex: 0 0 92px; color: #64748b; }
+    .sa-v { flex: 1; color: #1e293b; word-break: break-word; min-width: 0; }
+    .sa-empty { color: #cbd5e1; }
+    .sa-thumb { max-width: 100%; max-height: 110px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: zoom-in; display: block; object-fit: cover; }
+    .sa-thumb.sa-thumb-big { max-height: none; cursor: zoom-out; object-fit: contain; }
+    .sa-link { color: #2563eb; text-decoration: none; word-break: break-all; }
+    .sa-link:hover { text-decoration: underline; }
+    .sa-status { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: bold; background: #e2e8f0; color: #475569; }
+    .sa-st-warn { background: #fef3c7; color: #b45309; }
+    .sa-st-ok { background: #dcfce7; color: #15803d; }
+    .sa-more summary { cursor: pointer; list-style: none; }
+    .sa-more summary em { color: #2563eb; font-style: normal; font-size: 0.76rem; }
+    .sa-full { margin-top: 6px; padding: 8px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; max-height: 180px; overflow-y: auto; }
+    .sa-tech { font-size: 0.78rem; color: #64748b; border-top: 1px dashed #e2e8f0; padding-top: 6px; }
+    .sa-tech summary { cursor: pointer; color: #94a3b8; margin-bottom: 4px; }
+    .sa-code { font-size: 0.75rem; background: #f1f5f9; padding: 1px 5px; border-radius: 4px; direction: ltr; display: inline-block; }
+    .sa-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; padding-top: 6px; border-top: 1px solid #f1f5f9; }
+    .sa-id { font-size: 0.68rem; color: #cbd5e1; direction: ltr; }
+    .sa-seen-btn { width: auto; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-size: 0.78rem; font-weight: bold; }
+    .sa-unseen .sa-seen-btn { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .sa-card:not(.sa-unseen) .sa-seen-btn { background: #f8fafc; color: #64748b; border-color: #e2e8f0; font-weight: normal; }
     .dashboard-card.collapsed h2 { margin-bottom: 0; }
     .dashboard-card h2 {
       color: var(--primary);
@@ -1059,7 +1103,7 @@
 
             <!-- تبويب: قاعدة البيانات كاملة -->
             <div class="sysadmin-tab-panel hidden" id="sysadminTab-database">
-              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0;">كل قسم مطوي افتراضياً — اضغطي على أي بطاقة لفتحها وعرض كل بياناتها مباشرة من قاعدة البيانات.</p>
+              <p style="font-size: 0.85rem; color: #64748b; margin-top: 0;">كل قسم مطوي افتراضياً — اضغطي على أي قسم لفتحه. العناصر التي لم تطّلعي عليها تظهر بنقطة زرقاء، وزر «تم الاطلاع» يحوّلها إلى مقروءة (محفوظ على هذا المتصفح).</p>
               <div id="systemAdminGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;"></div>
             </div>
 
@@ -1687,12 +1731,15 @@
       grid.dataset.built = '1';
       grid.innerHTML = SYSTEM_ADMIN_COLLECTIONS.map(function (col) {
         return `
-          <div style="border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; overflow: hidden;">
-            <button type="button" onclick="toggleSystemAdminTile('${col.id}')" style="width: 100%; text-align: right; background: #f1f5f9; border: none; padding: 12px 14px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-              <span>${col.icon} ${col.label} <span id="sysadmin_count_${col.id}" style="font-size: 0.75rem; color: #64748b; font-weight: normal;"></span></span>
+          <div id="sysadmin_tile_${col.id}" class="sa-tile">
+            <button type="button" onclick="toggleSystemAdminTile('${col.id}')" class="sa-tile-head">
+              <span>${col.icon} ${col.label}
+                <span id="sysadmin_count_${col.id}" class="sa-count"></span>
+                <span id="sysadmin_unseen_${col.id}" class="sa-badge hidden"></span>
+              </span>
               <span id="sysadmin_chevron_${col.id}">▼</span>
             </button>
-            <div id="sysadmin_body_${col.id}" class="hidden" style="padding: 12px; max-height: 420px; overflow-y: auto;"></div>
+            <div id="sysadmin_body_${col.id}" class="hidden sa-tile-body"></div>
           </div>
         `;
       }).join('');
@@ -1701,10 +1748,12 @@
     function toggleSystemAdminTile(collectionId) {
       const body = document.getElementById('sysadmin_body_' + collectionId);
       const chevron = document.getElementById('sysadmin_chevron_' + collectionId);
+      const tile = document.getElementById('sysadmin_tile_' + collectionId);
       if (!body) return;
       const isHidden = body.classList.contains('hidden');
       if (isHidden) {
         body.classList.remove('hidden');
+        if (tile) tile.style.gridColumn = '1 / -1'; // البطاقة المفتوحة تاخد عرض الصف كامل
         if (chevron) chevron.textContent = '▲';
         if (!systemAdminLoadedCollections[collectionId]) {
           systemAdminLoadedCollections[collectionId] = true;
@@ -1712,40 +1761,163 @@
         }
       } else {
         body.classList.add('hidden');
+        if (tile) tile.style.gridColumn = '';
         if (chevron) chevron.textContent = '▼';
       }
     }
 
-    function renderGenericDocs(snapshot) {
-      if (snapshot.empty) return '<p style="text-align: center; color: #94a3b8;">لا توجد بيانات في هذا القسم.</p>';
+    /* ===== عرض البيانات بشكل مرتب + علامة "تم الاطلاع" ===== */
+    const SA_SEEN_KEY = 'azzoun_sysadmin_seen_v1';
+    const SA_LABELS = {
+      title: 'العنوان', text: 'النص', message: 'الرسالة', note: 'الملاحظة', issue: 'المشكلة', desc: 'الوصف',
+      image: 'الصورة', url: 'الرابط', linkText: 'نص الرابط', type: 'النوع', source: 'المصدر', category: 'التصنيف',
+      subject: 'المادة', grade: 'الصف', status: 'الحالة', date: 'التاريخ',
+      createdAt: 'تاريخ الإنشاء', loginAt: 'وقت الدخول', lastAttemptAt: 'آخر محاولة', firstSeenAt: 'أول ظهور',
+      teacher_name: 'المعلمة', uploader_arabic_name: 'الرافعة', content_title: 'المحتوى',
+      name: 'الاسم', phone: 'الهاتف', email: 'البريد', failCount: 'عدد المحاولات الفاشلة', lastIp: 'آخر IP', ip: 'IP',
+      userAgent: 'المتصفح', deviceId: 'معرّف الجهاز', sessionId: 'معرّف الجلسة', lastDeviceId: 'آخر جهاز', lastUserAgent: 'آخر متصفح',
+      content_id: 'معرّف المحتوى', uploader_username: 'اسم المستخدم (الرافعة)', teacher_username: 'اسم المستخدم', teacher_email: 'بريد المعلمة',
+      uploader_email: 'بريد الرافعة', accountKey: 'الحساب'
+    };
+    const SA_TECH_KEYS = ['userAgent', 'deviceId', 'sessionId', 'lastDeviceId', 'lastUserAgent', 'content_id', 'uploader_username', 'teacher_username', 'teacher_email', 'uploader_email', 'accountKey'];
+    const SA_TITLE_KEYS = ['title', 'issue', 'content_title', 'name', 'subject', 'text', 'message', 'note'];
+    const SA_DATE_KEYS = ['createdAt', 'lastAttemptAt', 'loginAt', 'firstSeenAt', 'updatedAt'];
+    const SA_STATUS = {
+      pending: ['قيد الانتظار', 'sa-st-warn'], unread: ['غير مقروءة', 'sa-st-warn'], new: ['جديد', 'sa-st-warn'],
+      read: ['مقروءة', 'sa-st-ok'], resolved: ['تم الحل', 'sa-st-ok'], done: ['تم', 'sa-st-ok'], closed: ['مغلق', 'sa-st-ok']
+    };
+    const saCache = {};     // collectionId -> [{id, data, version}]
+    const saUnseenOnly = {}; // collectionId -> bool
 
-      const docs = snapshot.docs.map(function (d) { return { id: d.id, data: d.data() }; });
-      docs.sort(function (a, b) {
-        const ta = (a.data.createdAt && a.data.createdAt.toDate) ? a.data.createdAt.toDate().getTime() : 0;
-        const tb = (b.data.createdAt && b.data.createdAt.toDate) ? b.data.createdAt.toDate().getTime() : 0;
-        return tb - ta;
-      });
+    function saGetSeen() { try { return JSON.parse(localStorage.getItem(SA_SEEN_KEY) || '{}'); } catch (e) { return {}; } }
+    function saSetSeen(obj) { try { localStorage.setItem(SA_SEEN_KEY, JSON.stringify(obj)); } catch (e) {} }
+    function saIsTs(v) { return v && typeof v === 'object' && typeof v.toDate === 'function'; }
 
-      return docs.map(function (docItem) {
-        const fieldsHtml = Object.keys(docItem.data).map(function (key) {
-          let val = docItem.data[key];
-          if (val && typeof val === 'object' && typeof val.toDate === 'function') {
-            val = val.toDate().toLocaleString('ar-EG');
-          } else if (typeof val === 'string' && val.length > 300) {
-            val = val.slice(0, 300) + '… (مقتطع)';
-          } else if (val && typeof val === 'object') {
-            val = JSON.stringify(val).slice(0, 300);
-          }
-          return `<div style="font-size: 0.8rem; color: #334155; margin: 2px 0; word-break: break-word;"><strong style="color: #64748b;">${escapeHtml(key)}:</strong> ${escapeHtml(String(val == null ? '—' : val))}</div>`;
-        }).join('');
+    function saDocVersion(data) {
+      for (let i = 0; i < SA_DATE_KEYS.length; i++) { if (saIsTs(data[SA_DATE_KEYS[i]])) return data[SA_DATE_KEYS[i]].toDate().getTime(); }
+      const k = Object.keys(data).find(function (x) { return saIsTs(data[x]); });
+      return k ? data[k].toDate().getTime() : 0;
+    }
+    function saFormatGrade(v) {
+      const m = /^(\d)-([abc])$/i.exec(String(v));
+      if (!m) return null;
+      return 'الصف ' + m[1] + ' – شعبة ' + ({ a: 'أ', b: 'ب', c: 'ج' })[m[2].toLowerCase()];
+    }
 
-        return `
-          <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 8px; background: #f8fafc;">
-            <div style="font-size: 0.7rem; color: #94a3b8; margin-bottom: 4px;">ID: ${escapeHtml(docItem.id)}</div>
-            ${fieldsHtml}
+    function saRenderValue(key, val) {
+      if (val == null || val === '') return '<span class="sa-empty">—</span>';
+      if (saIsTs(val)) return escapeHtml(val.toDate().toLocaleString('ar-EG'));
+      if (typeof val === 'boolean') return val ? 'نعم' : 'لا';
+      if (typeof val === 'number') return escapeHtml(String(val));
+      if (typeof val === 'object') return '<code class="sa-code">' + escapeHtml(JSON.stringify(val).slice(0, 300)) + '</code>';
+      const str = String(val);
+
+      if (/^data:image\//i.test(str)) {
+        return '<img class="sa-thumb" alt="صورة مرفقة" title="اضغطي للتكبير / التصغير" onclick="this.classList.toggle(\'sa-thumb-big\')" src="' + escapeHtml(str) + '">';
+      }
+      if (/^data:/i.test(str)) {
+        const mime = (/^data:([^;,]+)/i.exec(str) || [])[1] || 'ملف';
+        const kb = Math.round(str.length * 0.75 / 1024);
+        return '<a class="sa-link" download href="' + escapeHtml(str) + '">📎 ملف مرفق (' + escapeHtml(mime) + ' – ' + kb + ' KB) — تحميل</a>';
+      }
+      if (/^https?:\/\//i.test(str)) {
+        const short = str.length > 60 ? str.slice(0, 57) + '…' : str;
+        return '<a class="sa-link" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(str) + '">🔗 ' + escapeHtml(short) + '</a>';
+      }
+      if (key === 'status') {
+        const st = SA_STATUS[str.toLowerCase()];
+        return st ? '<span class="sa-status ' + st[1] + '">' + st[0] + '</span>' : '<span class="sa-status">' + escapeHtml(str) + '</span>';
+      }
+      if (key === 'grade') { const g = saFormatGrade(str); if (g) return escapeHtml(g); }
+      if (key === 'category' && categoryLabelsMap[str]) return escapeHtml(categoryLabelsMap[str]);
+      if (str.length > 160) {
+        return '<details class="sa-more"><summary>' + escapeHtml(str.slice(0, 120)) + '… <em>عرض الكل</em></summary><div class="sa-full">' + escapeHtml(str) + '</div></details>';
+      }
+      return escapeHtml(str);
+    }
+
+    function saRenderCard(collectionId, docItem, isUnseen) {
+      const data = docItem.data;
+      // العنوان
+      let titleKey = SA_TITLE_KEYS.find(function (k) { return typeof data[k] === 'string' && data[k].trim() && !/^data:/i.test(data[k]); });
+      let titleText = titleKey ? data[titleKey].trim() : ('#' + docItem.id);
+      if (titleText.length > 90) titleText = titleText.slice(0, 87) + '…';
+      // التاريخ الرئيسي
+      const dateKeyUsed = SA_DATE_KEYS.find(function (k) { return saIsTs(data[k]); }) || Object.keys(data).find(function (k) { return saIsTs(data[k]); });
+      const dateText = dateKeyUsed ? data[dateKeyUsed].toDate().toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+
+      const rowHtml = function (k) {
+        return '<div class="sa-row"><span class="sa-k">' + escapeHtml(SA_LABELS[k] || k) + '</span><span class="sa-v">' + saRenderValue(k, data[k]) + '</span></div>';
+      };
+      const keys = Object.keys(data).filter(function (k) { return k !== titleKey && k !== dateKeyUsed; });
+      // الحالة أولاً، ثم باقي الحقول، والتقني في قسم مطوي
+      const mainKeys = keys.filter(function (k) { return SA_TECH_KEYS.indexOf(k) === -1; })
+        .sort(function (x, y) { return (x === 'status' ? -1 : 0) - (y === 'status' ? -1 : 0); });
+      const techKeys = keys.filter(function (k) { return SA_TECH_KEYS.indexOf(k) !== -1; });
+
+      return `
+        <div class="sa-card ${isUnseen ? 'sa-unseen' : ''}" data-col="${escapeHtml(collectionId)}" data-id="${escapeHtml(docItem.id)}">
+          <div class="sa-card-head">
+            <span class="sa-dot" title="${isUnseen ? 'لم يتم الاطلاع' : 'تم الاطلاع'}"></span>
+            <div class="sa-title">${escapeHtml(titleText)}</div>
+            <div class="sa-date">${escapeHtml(dateText)}</div>
           </div>
-        `;
-      }).join('');
+          <div class="sa-fields">${mainKeys.map(rowHtml).join('') || '<span class="sa-empty">لا توجد حقول إضافية</span>'}</div>
+          ${techKeys.length ? '<details class="sa-tech"><summary>تفاصيل تقنية</summary>' + techKeys.map(rowHtml).join('') + '</details>' : ''}
+          <div class="sa-foot">
+            <span class="sa-id" title="${escapeHtml(docItem.id)}">ID: ${escapeHtml(docItem.id.length > 14 ? docItem.id.slice(0, 14) + '…' : docItem.id)}</span>
+            <button type="button" class="sa-seen-btn" onclick="saToggleSeen(this)">${isUnseen ? '✓ تم الاطلاع' : '↩ إعادة كغير مقروء'}</button>
+          </div>
+        </div>`;
+    }
+
+    function saRenderCollection(collectionId) {
+      const body = document.getElementById('sysadmin_body_' + collectionId);
+      const docs = saCache[collectionId];
+      if (!body || !docs) return;
+      if (!docs.length) { body.innerHTML = '<p style="text-align: center; color: #94a3b8;">لا توجد بيانات في هذا القسم.</p>'; return; }
+      const seen = (saGetSeen()[collectionId]) || {};
+      const unseenCount = docs.filter(function (d) { return seen[d.id] !== d.version; }).length;
+      const onlyUnseen = !!saUnseenOnly[collectionId];
+      const shown = onlyUnseen ? docs.filter(function (d) { return seen[d.id] !== d.version; }) : docs;
+
+      body.innerHTML = `
+        <div class="sa-toolbar">
+          <span class="sa-summary">الإجمالي: <strong>${docs.length}</strong> · غير مقروء: <strong id="sa_unseen_num_${collectionId}">${unseenCount}</strong></span>
+          <label class="sa-check"><input type="checkbox" ${onlyUnseen ? 'checked' : ''} onchange="saSetUnseenOnly('${collectionId}', this.checked)"> إظهار غير المقروء فقط</label>
+          <button type="button" class="sa-seen-all" onclick="saMarkAllSeen('${collectionId}')">✓ تحديد الكل كمقروء</button>
+        </div>
+        <div class="sa-list">${shown.length ? shown.map(function (d) { return saRenderCard(collectionId, d, seen[d.id] !== d.version); }).join('') : '<p style="grid-column: 1 / -1; text-align: center; color: #16a34a; padding: 14px;">🎉 اطّلعتِ على كل شيء في هذا القسم.</p>'}</div>`;
+      saUpdateBadge(collectionId, unseenCount);
+    }
+
+    function saUpdateBadge(collectionId, unseenCount) {
+      const badge = document.getElementById('sysadmin_unseen_' + collectionId);
+      if (!badge) return;
+      badge.textContent = unseenCount + ' جديد';
+      badge.classList.toggle('hidden', unseenCount === 0);
+    }
+
+    function saSetUnseenOnly(collectionId, v) { saUnseenOnly[collectionId] = v; saRenderCollection(collectionId); }
+
+    function saToggleSeen(btn) {
+      const card = btn.closest('.sa-card');
+      const col = card.dataset.col, id = card.dataset.id;
+      const item = (saCache[col] || []).find(function (d) { return d.id === id; });
+      if (!item) return;
+      const all = saGetSeen();
+      all[col] = all[col] || {};
+      if (all[col][id] === item.version) { delete all[col][id]; } else { all[col][id] = item.version; }
+      saSetSeen(all);
+      saRenderCollection(col); // إعادة رسم بسيطة لتحديث العدادات والفلتر
+    }
+
+    function saMarkAllSeen(collectionId) {
+      const all = saGetSeen();
+      all[collectionId] = all[collectionId] || {};
+      (saCache[collectionId] || []).forEach(function (d) { all[collectionId][d.id] = d.version; });
+      saSetSeen(all);
+      saRenderCollection(collectionId);
     }
 
     function loadSystemAdminCollection(collectionId) {
@@ -1757,7 +1929,10 @@
       db.collection(collectionId).limit(200).get()
         .then(function (snapshot) {
           if (countEl) countEl.textContent = '(' + snapshot.size + ')';
-          body.innerHTML = renderGenericDocs(snapshot);
+          const docs = snapshot.docs.map(function (d) { const data = d.data(); return { id: d.id, data: data, version: saDocVersion(data) }; });
+          docs.sort(function (x, y) { return y.version - x.version; }); // الأحدث أولاً
+          saCache[collectionId] = docs;
+          saRenderCollection(collectionId);
         })
         .catch(function (error) {
           console.error('خطأ بجلب ' + collectionId + ':', error);
