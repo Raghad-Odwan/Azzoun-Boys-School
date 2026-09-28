@@ -145,6 +145,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
+    .dashboard-card.collapsed h2 { margin-bottom: 0; }
     .dashboard-card h2 {
       color: var(--primary);
       margin-bottom: 20px;
@@ -958,7 +959,11 @@
       </div>
 
       <div class="dashboard-card" id="contentReviewCard">
-        <h2>مراجعة المحتوى التعليمي المرفوع 🗂️</h2>
+        <h2 id="contentReviewHeader" role="button" tabindex="0" aria-expanded="true" onclick="toggleContentReviewCard()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleContentReviewCard();}" style="cursor: pointer; user-select: none; display: flex; justify-content: center; align-items: center; gap: 10px;">
+          <span>مراجعة المحتوى التعليمي المرفوع 🗂️</span>
+          <span id="contentReviewChevron" style="font-size: 0.9rem;">▲</span>
+        </h2>
+        <div id="contentReviewBody">
         <div class="form-group">
           <label for="reviewClassFilter">تصفية حسب الصف والشعبة:</label>
           <select id="reviewClassFilter" onchange="loadContentForReview()">
@@ -979,6 +984,7 @@
         </div>
         <div id="contentReviewList" style="text-align: right; margin-top: 10px;">
           <p style="text-align: center; color: #94a3b8;">جاري تحميل المحتوى...</p>
+        </div>
         </div>
       </div>
 
@@ -1002,6 +1008,12 @@
             <!-- تبويب: نظرة عامة -->
             <div class="sysadmin-tab-panel" id="sysadminTab-overview">
               <div id="analyticsStatsGrid" class="sysadmin-kpi-grid"></div>
+              <div class="sysadmin-subcard" style="margin-top: 16px;">
+                <h3 style="margin: 0 0 6px; color: var(--primary); font-size: 1rem;">🔐 إدارة الجلسات</h3>
+                <p style="font-size: 0.82rem; color: #64748b; margin: 0 0 10px;">يسجّل خروج كل المعلمات والإدارة فوراً (جلستك أنتِ تبقى مفتوحة).</p>
+                <button type="button" id="endAllSessionsBtn" onclick="endAllActiveSessions()" style="width: auto; background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold;">⛔ إنهاء كل الجلسات النشطة</button>
+                <div id="endAllSessionsMsg" style="font-size: 0.82rem; margin-top: 8px;"></div>
+              </div>
               <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 16px;">👆 هاي أهم الأرقام بلمحة واحدة. للتفاصيل الكاملة افتحي التبويبات فوق.</p>
             </div>
 
@@ -1269,7 +1281,7 @@
       return 'teacher_' + username;
     }
 
-    const IDLE_LIMIT_MS = 15 * 60 * 1000;
+    const IDLE_LIMIT_MS = 20 * 60 * 1000;
     let idleTimer = null;
     function resetIdleTimer() {
       clearTimeout(idleTimer);
@@ -1280,7 +1292,7 @@
     function handleIdleTimeout() {
       const role = sessionStorage.getItem(SESSION_ROLE_KEY);
       if (!role) return;
-      alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط لمدة 15 دقيقة، لحماية الحساب.');
+      alert('تم تسجيل الخروج تلقائياً بسبب عدم النشاط لمدة 20 دقيقة، لحماية الحساب.');
       if (role === 'manager' || role === 'systemadmin') { managerLogout(); } else { teacherLogout(); }
     }
     ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (evt) {
@@ -1291,11 +1303,15 @@
 
     let activeSessionId = null;
     let activeSessionUnsub = null;
+    let revokeBaseline = null;
+    const REVOKE_BASELINE_KEY = 'azzoun_revoke_baseline';
+
     function startSessionLock(role, username) {
       const key = sessionKeyFor(role, username);
-      activeSessionId = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      activeSessionId = sessionStorage.getItem('azzoun_session_id') || ('sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10));
       sessionStorage.setItem('azzoun_session_id', activeSessionId);
 
+      // تسجيل معلومات الجلسة فقط (مسموح تعدد الجلسات لنفس الحساب)
       db.collection('active_sessions').doc(key).set({
         sessionId: activeSessionId,
         deviceId: getDeviceId(),
@@ -1303,12 +1319,23 @@
         loginAt: firebase.firestore.FieldValue.serverTimestamp()
       }).catch(function (e) { logErrorToFirestore('startSessionLock', e, { key: key }); });
 
+      // مراقبة أمر "إنهاء كل الجلسات" الصادر من إدمن النظام
+      revokeBaseline = sessionStorage.getItem(REVOKE_BASELINE_KEY); // null = دخول جديد
       if (activeSessionUnsub) activeSessionUnsub();
-      activeSessionUnsub = db.collection('active_sessions').doc(key)
+      activeSessionUnsub = db.collection('session_control').doc('global')
         .onSnapshot(function (doc) {
-          const data = doc.data();
-          if (data && data.sessionId && activeSessionId && data.sessionId !== activeSessionId) {
-            alert('تم تسجيل الدخول لهذا الحساب من جهاز آخر الآن، لذلك تم إنهاء الجلسة هنا تلقائياً.');
+          const data = doc.exists ? doc.data() : null;
+          const token = (data && data.revokeToken) || '';
+          if (revokeBaseline === null) {
+            revokeBaseline = token;
+            sessionStorage.setItem(REVOKE_BASELINE_KEY, token);
+            return;
+          }
+          if (token !== revokeBaseline) {
+            revokeBaseline = token;
+            sessionStorage.setItem(REVOKE_BASELINE_KEY, token);
+            if (data && data.by === activeSessionId) return; // جلسة الإدمن نفسه تبقى
+            alert('قام إدمن النظام بإنهاء جميع الجلسات النشطة، يرجى تسجيل الدخول من جديد.');
             if (role === 'manager' || role === 'systemadmin') { managerLogout(); } else { teacherLogout(); }
           }
         }, function (err) {
@@ -1318,7 +1345,62 @@
     function stopSessionLock() {
       if (activeSessionUnsub) { activeSessionUnsub(); activeSessionUnsub = null; }
       activeSessionId = null;
+      revokeBaseline = null;
       sessionStorage.removeItem('azzoun_session_id');
+      sessionStorage.removeItem(REVOKE_BASELINE_KEY);
+    }
+
+    // إدمن النظام: إنهاء كل الجلسات النشطة
+    const CONTENT_REVIEW_COLLAPSED_KEY = 'azzoun_content_review_collapsed';
+    function applyContentReviewCollapsed(collapsed) {
+      const card = document.getElementById('contentReviewCard');
+      const body = document.getElementById('contentReviewBody');
+      const chevron = document.getElementById('contentReviewChevron');
+      const header = document.getElementById('contentReviewHeader');
+      if (!card || !body) return;
+      body.classList.toggle('hidden', collapsed);
+      card.classList.toggle('collapsed', collapsed);
+      if (chevron) chevron.textContent = collapsed ? '▼' : '▲';
+      if (header) header.setAttribute('aria-expanded', String(!collapsed));
+    }
+    function toggleContentReviewCard() {
+      const body = document.getElementById('contentReviewBody');
+      const collapsed = !body.classList.contains('hidden');
+      applyContentReviewCollapsed(collapsed);
+      try { localStorage.setItem(CONTENT_REVIEW_COLLAPSED_KEY, collapsed ? '1' : '0'); } catch (e) {}
+    }
+    try { applyContentReviewCollapsed(localStorage.getItem(CONTENT_REVIEW_COLLAPSED_KEY) === '1'); } catch (e) {}
+
+    async function endAllActiveSessions() {
+      if (sessionStorage.getItem(SESSION_ROLE_KEY) !== 'systemadmin') return;
+      if (!confirm('سيتم تسجيل خروج جميع المستخدمين (المعلمات والإدارة) فوراً، عدا جلستك الحالية. هل تريد المتابعة؟')) return;
+      const btn = document.getElementById('endAllSessionsBtn');
+      const msg = document.getElementById('endAllSessionsMsg');
+      if (btn) { btn.disabled = true; btn.textContent = 'جاري الإنهاء... ⏳'; }
+      try {
+        await db.collection('session_control').doc('global').set({
+          revokeToken: 'rv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+          revokedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          by: activeSessionId
+        });
+        const snap = await db.collection('active_sessions').get();
+        const myKey = sessionKeyFor('systemadmin', null);
+        const batch = db.batch();
+        snap.forEach(function (d) { if (d.id !== myKey) batch.delete(d.ref); });
+        await batch.commit();
+        if (msg) { msg.style.color = '#16a34a'; msg.textContent = '✅ تم إنهاء جميع الجلسات النشطة الأخرى.'; }
+        systemAnalyticsLoaded = false;
+        loadSystemAnalytics();
+        systemAdminLoadedCollections['active_sessions'] = false;
+        const body = document.getElementById('sysadmin_body_active_sessions');
+        if (body && !body.classList.contains('hidden')) { systemAdminLoadedCollections['active_sessions'] = true; loadSystemAdminCollection('active_sessions'); }
+      } catch (e) {
+        console.error('خطأ بإنهاء الجلسات:', e);
+        logErrorToFirestore('endAllActiveSessions', e);
+        if (msg) { msg.style.color = '#dc2626'; msg.textContent = 'تعذر إنهاء الجلسات، تأكد من تحديث قواعد Firestore.'; }
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '⛔ إنهاء كل الجلسات النشطة'; }
+      }
     }
 
    
