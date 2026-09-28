@@ -1060,6 +1060,13 @@
                 <button type="button" id="endAllSessionsBtn" onclick="endAllActiveSessions()" style="width: auto; background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold;">⛔ إنهاء كل الجلسات النشطة</button>
                 <div id="endAllSessionsMsg" style="font-size: 0.82rem; margin-top: 8px;"></div>
               </div>
+              <div class="sysadmin-subcard" style="margin-top: 16px;">
+                <h3 style="margin: 0 0 6px; color: var(--primary); font-size: 1rem;">💾 نسخة احتياطية</h3>
+                <p style="font-size: 0.82rem; color: #64748b; margin: 0 0 8px;">تحميل نسخة كاملة من بيانات الموقع (المحتوى، الإعلانات، الجداول، الرسائل...) كملف على جهازك. يُنصح بأخذها أسبوعياً وحفظها في مكان آمن.</p>
+                <label style="font-size: 0.82rem; color: #334155; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;"><input type="checkbox" id="backupIncludeLogs" style="width: auto; margin: 0;"> تضمين السجلات (أخطاء، زيارات، تنبيهات أمان)</label>
+                <button type="button" id="backupBtn" onclick="backupAllData()" style="width: auto; background: #0f766e; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: bold;">⬇ تحميل نسخة كاملة</button>
+                <div id="backupMsg" style="font-size: 0.82rem; margin-top: 8px; color: #64748b;"></div>
+              </div>
               <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 16px;">👆 هاي أهم الأرقام بلمحة واحدة. للتفاصيل الكاملة افتحي التبويبات فوق.</p>
             </div>
 
@@ -1747,7 +1754,61 @@
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
+      showLastBackup();
       loadSystemAnalytics();
+    }
+
+    const BACKUP_KEY = 'azzoun_last_backup';
+    function showLastBackup() {
+      const msg = document.getElementById('backupMsg');
+      if (!msg) return;
+      const t = parseInt(localStorage.getItem(BACKUP_KEY) || '0', 10);
+      if (!t) { msg.style.color = '#b45309'; msg.textContent = '⚠️ لم تُؤخذ نسخة احتياطية من هذا المتصفح بعد.'; return; }
+      const days = Math.floor((Date.now() - t) / 86400000);
+      msg.style.color = days > 7 ? '#b45309' : '#16a34a';
+      msg.textContent = (days > 7 ? '⚠️ مرّ أكثر من أسبوع. ' : '✅ ') + 'آخر نسخة: ' + new Date(t).toLocaleString('ar-EG');
+    }
+    function backupSerialize(v) {
+      if (v && typeof v === 'object') {
+        if (typeof v.toDate === 'function') return { __timestamp: v.toDate().getTime() };
+        if (Array.isArray(v)) return v.map(backupSerialize);
+        const o = {};
+        Object.keys(v).forEach(function (k) { o[k] = backupSerialize(v[k]); });
+        return o;
+      }
+      return v;
+    }
+    async function backupAllData() {
+      if (sessionStorage.getItem(SESSION_ROLE_KEY) !== 'systemadmin') return;
+      const btn = document.getElementById('backupBtn');
+      const msg = document.getElementById('backupMsg');
+      const cols = ['educational_contents', 'announcements', 'teacher_support', 'admin_notes', 'contact_messages', 'schedules', 'top_students'];
+      if (document.getElementById('backupIncludeLogs').checked) cols.push('error_logs', 'security_alerts', 'login_attempts', 'page_views');
+      if (btn) btn.disabled = true;
+      msg.style.color = '#64748b';
+      try {
+        const out = { app: 'azzoun-boys-school', createdAt: new Date().toISOString(), collections: {} };
+        for (let i = 0; i < cols.length; i++) {
+          msg.textContent = 'جاري التحميل ' + (i + 1) + '/' + cols.length + ' — ' + cols[i] + ' ⏳';
+          const snap = await db.collection(cols[i]).get();
+          out.collections[cols[i]] = snap.docs.map(function (d) { return { id: d.id, data: backupSerialize(d.data()) }; });
+        }
+        const blob = new Blob([JSON.stringify(out)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'azzoun_backup_' + dateKey(new Date()) + '.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+        localStorage.setItem(BACKUP_KEY, String(Date.now()));
+        showLastBackup();
+      } catch (e) {
+        console.error('خطأ بالنسخ الاحتياطي:', e);
+        logErrorToFirestore('backupAllData', e);
+        msg.style.color = '#dc2626';
+        msg.textContent = 'تعذر إكمال النسخة الاحتياطية. حاولي مرة أخرى.';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
     }
 
     let securityTabLoaded = false;
