@@ -1,11 +1,25 @@
 {
-  "hosting": {
-    "site": "azzoun-boys-school",
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
+  "hosting": [
+    {
+      "site": "azzoun-boys-school",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "redirect/**"
+      ]
+    },
+    {
+      "site": "azzoun-boys-school-websi-9ed43",
+      "public": "redirect",
+      "redirects": [
+        {
+          "source": "**",
+          "destination": "https://azzoun-boys-school.web.app",
+          "type": 301
+        }
+      ]
+    }
+  ]
 }
